@@ -6,7 +6,7 @@ namespace KeyStore.Services
 {
     public interface IProductosService
     {
-        // Métodos existentes
+
         Task<List<ProductoDto>> ObtenerProductosAsync();
         Task<List<ProductoDto>> ObtenerProductosFiltradosAsync(FiltroProductos filtro);
         Task<ProductoDto?> ObtenerProductoPorIdAsync(int id);
@@ -16,7 +16,6 @@ namespace KeyStore.Services
         Task<List<string>> ObtenerMarcasAsync();
         Task<(List<ProductoDto> productos, int totalPaginas)> ObtenerProductosPaginadosAsync(FiltroProductos filtro);
 
-        // Métodos de administración - NUEVOS
         Task<ProductoDto> CrearProductoAsync(Producto producto);
         Task<ProductoDto> ActualizarProductoAsync(int id, Producto producto);
         Task<bool> EliminarProductoAsync(int id);
@@ -159,7 +158,7 @@ namespace KeyStore.Services
             }
         }
 
-        // MÉTODOS DE ADMINISTRACIÓN - NUEVOS
+
         public async Task<ProductoDto> CrearProductoAsync(Producto producto)
         {
             try
@@ -285,7 +284,7 @@ namespace KeyStore.Services
         }
     }
 
-    // Modelo para respuesta paginada
+
     public class RespuestaPaginada
     {
         public List<ProductoDto> Productos { get; set; } = new();
@@ -296,7 +295,6 @@ namespace KeyStore.Services
         public bool TienePaginaSiguiente { get; set; }
     }
 
-    // Service Mock para desarrollo/testing
     public class ProductosServiceMock : IProductosService
     {
         private readonly List<ProductoDto> _productos;
@@ -423,10 +421,10 @@ namespace KeyStore.Services
             return Task.FromResult((productos, totalPaginas));
         }
 
-        // MÉTODOS DE ADMINISTRACIÓN - MOCK
+
         public async Task<ProductoDto> CrearProductoAsync(Producto producto)
         {
-            await Task.Delay(500); // Simular llamada async
+            await Task.Delay(500); 
 
             var productoDto = new ProductoDto
             {
@@ -463,13 +461,13 @@ namespace KeyStore.Services
 
         public async Task<ProductoDto> ActualizarProductoAsync(int id, Producto producto)
         {
-            await Task.Delay(500); // Simular llamada async
+            await Task.Delay(500);
 
             var productoExistente = _productos.FirstOrDefault(p => p.Id == id);
             if (productoExistente == null)
                 throw new Exception("Producto no encontrado");
 
-            // Actualizar propiedades
+  
             productoExistente.Nombre = producto.Nombre;
             productoExistente.Descripcion = producto.Descripcion;
             productoExistente.Precio = producto.Precio;
@@ -498,7 +496,7 @@ namespace KeyStore.Services
 
         public async Task<bool> EliminarProductoAsync(int id)
         {
-            await Task.Delay(200); // Simular llamada async
+            await Task.Delay(200); 
 
             var producto = _productos.FirstOrDefault(p => p.Id == id);
             if (producto != null)
