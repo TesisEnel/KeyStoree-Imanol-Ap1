@@ -15,6 +15,7 @@ namespace KeyStore.DAL
         public DbSet<ElementoHome> ElementosHome { get; set; }
         public DbSet<ImagenSitio> ImagenesSitio { get; set; }
 
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -111,7 +112,7 @@ namespace KeyStore.DAL
                 entity.HasIndex(e => e.Orden);
             });
 
-            // Configuración para ElementoHome
+
             modelBuilder.Entity<ElementoHome>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -130,7 +131,7 @@ namespace KeyStore.DAL
                 entity.HasIndex(e => e.Orden);
             });
 
-            // Configuración para ImagenSitio
+
             modelBuilder.Entity<ImagenSitio>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -140,6 +141,13 @@ namespace KeyStore.DAL
                 entity.Property(e => e.TipoImagen).HasMaxLength(100);
                 entity.Property(e => e.NombreArchivo).HasMaxLength(255);
                 entity.Property(e => e.FechaCreacion).IsRequired();
+
+
+                entity.Property(e => e.Ancho).HasColumnName("Ancho");
+                entity.Property(e => e.Alto).HasColumnName("Alto");
+                entity.Property(e => e.ObjectFit).HasMaxLength(50).HasDefaultValue("cover");
+                entity.Property(e => e.OcultarFondo).HasDefaultValue(false);
+
                 entity.HasIndex(e => e.Clave).IsUnique();
                 entity.HasIndex(e => e.Activa);
             });
@@ -275,7 +283,7 @@ namespace KeyStore.DAL
                 }
             );
 
-            // Datos semilla para ElementoHome
+
             modelBuilder.Entity<ElementoHome>().HasData(
                 new ElementoHome
                 {
@@ -307,7 +315,7 @@ namespace KeyStore.DAL
                 }
             );
 
-            // Datos semilla para ImagenSitio
+
             modelBuilder.Entity<ImagenSitio>().HasData(
                 new ImagenSitio
                 {
@@ -316,7 +324,9 @@ namespace KeyStore.DAL
                     Nombre = "Teclado Mecánico Principal - Hero",
                     Descripcion = "Imagen principal del hero que aparece en la página de inicio junto al título KEYSTORE",
                     Activa = true,
-                    FechaCreacion = DateTime.UtcNow
+                    FechaCreacion = DateTime.UtcNow,
+                    ObjectFit = "cover",
+                    OcultarFondo = true 
                 },
                 new ImagenSitio
                 {
@@ -325,7 +335,9 @@ namespace KeyStore.DAL
                     Nombre = "Setup Gaming - About Us",
                     Descripcion = "Imagen de setup gaming que aparece en la sección About Us",
                     Activa = true,
-                    FechaCreacion = DateTime.UtcNow
+                    FechaCreacion = DateTime.UtcNow,
+                    ObjectFit = "cover",
+                    OcultarFondo = false
                 },
                 new ImagenSitio
                 {
@@ -334,7 +346,9 @@ namespace KeyStore.DAL
                     Nombre = "Producto Destacado 1",
                     Descripcion = "Primera imagen de producto destacado en la sección featured",
                     Activa = true,
-                    FechaCreacion = DateTime.UtcNow
+                    FechaCreacion = DateTime.UtcNow,
+                    ObjectFit = "cover",
+                    OcultarFondo = false
                 },
                 new ImagenSitio
                 {
@@ -343,7 +357,9 @@ namespace KeyStore.DAL
                     Nombre = "Producto Destacado 2",
                     Descripcion = "Segunda imagen de producto destacado en la sección featured",
                     Activa = true,
-                    FechaCreacion = DateTime.UtcNow
+                    FechaCreacion = DateTime.UtcNow,
+                    ObjectFit = "cover",
+                    OcultarFondo = false
                 },
                 new ImagenSitio
                 {
@@ -352,7 +368,9 @@ namespace KeyStore.DAL
                     Nombre = "Producto Destacado 3",
                     Descripcion = "Tercera imagen de producto destacado en la sección featured",
                     Activa = true,
-                    FechaCreacion = DateTime.UtcNow
+                    FechaCreacion = DateTime.UtcNow,
+                    ObjectFit = "cover",
+                    OcultarFondo = false
                 }
             );
         }
