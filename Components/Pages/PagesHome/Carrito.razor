@@ -1,0 +1,312 @@
+﻿@page "/cart"
+@inject IDbContextFactory<Contexto> DbContextFactory
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@using Microsoft.EntityFrameworkCore
+@using KeyStore.DAL
+@using KeyStore.Models
+@using System.Text.Json
+@rendermode InteractiveServer
+
+<PageTitle>Carrito de Compras - KeyStore</PageTitle>
+
+<div class="cart-container">
+    <div class="cart-header">
+        <h1 class="cart-title">
+            <i class="bi bi-cart-fill"></i>
+            Carrito de Compras
+        </h1>
+        @if (itemsCarrito.Count > 0)
+        {
+            <div class="cart-summary-header">
+                <span class="items-count">@itemsCarrito.Count @(itemsCarrito.Count == 1 ? "artículo" : "artículos")</span>
+                <button class="btn btn-outline-danger btn-sm" @onclick="LimpiarCarrito">
+                    <i class="bi bi-trash"></i>
+                    Limpiar carrito
+                </button>
+            </div>
+        }
+    </div>
+
+    @if (itemsCarrito.Count == 0)
+    {
+        <div class="empty-cart">
+            <div class="empty-cart-icon">
+                <i class="bi bi-cart-x"></i>
+            </div>
+            <h3>Tu carrito está vacío</h3>
+            <p>¡Descubre nuestros increíbles productos y comienza a llenar tu carrito!</p>
+            <button class="btn btn-primary" @onclick='() => NavigationManager.NavigateTo("/")'>
+                <i class="bi bi-arrow-left"></i>
+                Continuar comprando
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="cart-content">
+            <div class="cart-items">
+                @foreach (var item in itemsCarrito)
+                {
+                    <div class="cart-item">
+                        <div class="item-image">
+                            @if (!string.IsNullOrEmpty(item.Producto.ImagenUrl))
+                            {
+                                <img src="@item.Producto.ImagenUrl" alt="@item.Producto.Nombre" />
+                            }
+                            else
+                            {
+                                <div class="no-image">
+                                    <i class="bi bi-keyboard"></i>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="item-details">
+                            <h4 class="item-name">@item.Producto.Nombre</h4>
+                            <div class="item-specs">
+                                @if (!string.IsNullOrEmpty(item.Producto.Marca))
+                                {
+                                    <span class="spec-item">
+                                        <i class="bi bi-tag"></i>
+                                        @item.Producto.Marca
+                                    </span>
+                                }
+                                @if (!string.IsNullOrEmpty(item.Producto.ColorPrincipal))
+                                {
+                                    <span class="spec-item">
+                                        <i class="bi bi-palette"></i>
+                                        @item.Producto.ColorPrincipal
+                                    </span>
+                                }
+                                @if (item.Producto.EsMecánico)
+                                {
+                                    <span class="spec-item mechanical">
+                                        <i class="bi bi-gear-fill"></i>
+                                        Mecánico
+                                    </span>
+                                }
+                                @if (item.Producto.EsIluminado)
+                                {
+                                    <span class="spec-item rgb">
+                                        <i class="bi bi-lightbulb-fill"></i>
+                                        RGB
+                                    </span>
+                                }
+                            </div>
+                            <div class="item-availability">
+                                @if (item.Producto.Stock > 0)
+                                {
+                                    <span class="in-stock">
+                                        <i class="bi bi-check-circle-fill"></i>
+                                        En stock (@item.Producto.Stock disponibles)
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="out-of-stock">
+                                        <i class="bi bi-x-circle-fill"></i>
+                                        Agotado
+                                    </span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="item-actions">
+                            <div class="quantity-controls">
+                                <button class="quantity-btn" @onclick="() => DisminuirCantidad(item.ProductoId)"
+                                        disabled="@(item.Cantidad <= 1)">
+                                    <i class="bi bi-dash"></i>
+                                </button>
+                                <span class="quantity">@item.Cantidad</span>
+                                <button class="quantity-btn" @onclick="() => AumentarCantidad(item.ProductoId)"
+                                        disabled="@(item.Cantidad >= item.Producto.Stock)">
+                                    <i class="bi bi-plus"></i>
+                                </button>
+                            </div>
+
+                            <div class="item-price">
+                                <div class="unit-price">$@item.Producto.Precio.ToString("F2") c/u</div>
+                                <div class="total-price">$@((item.Producto.Precio * item.Cantidad).ToString("F2"))</div>
+                            </div>
+
+                            <button class="remove-btn" @onclick="() => EliminarDelCarrito(item.ProductoId)"
+                                    title="Eliminar del carrito">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="cart-sidebar">
+                <div class="order-summary">
+                    <h3>Resumen del pedido</h3>
+
+                    <div class="summary-line">
+                        <span>Subtotal (@itemsCarrito.Sum(i => i.Cantidad) artículos):</span>
+                        <span>$@Subtotal.ToString("F2")</span>
+                    </div>
+
+                    <div class="summary-line">
+                        <span>Envío:</span>
+                        <span>@(Subtotal >= 50 ? "GRATIS" : "$5.99")</span>
+                    </div>
+
+                    @if (Subtotal < 50)
+                    {
+                        <div class="summary-note">
+                            <i class="bi bi-info-circle"></i>
+                            Agrega $@((50 - Subtotal).ToString("F2")) más para envío gratis
+                        </div>
+                    }
+
+                    <div class="summary-line total">
+                        <span>Total:</span>
+                        <span>$@Total.ToString("F2")</span>
+                    </div>
+
+                    <div class="checkout-actions">
+                        <button class="btn btn-primary btn-lg checkout-btn" @onclick="ProcederAlPago"
+                                disabled="@(!itemsCarrito.Any(i => i.Producto.Stock > 0))">
+                            <i class="bi bi-credit-card"></i>
+                            Proceder al pago
+                        </button>
+
+                        <button class="btn btn-outline-secondary continue-shopping"
+                                @onclick='() => NavigationManager.NavigateTo("/")'>
+                            <i class="bi bi-arrow-left"></i>
+                            Continuar comprando
+                        </button>
+                    </div>
+                </div>
+
+                <div class="shipping-info">
+                    <h4><i class="bi bi-truck"></i> Información de envío</h4>
+                    <ul>
+                        <li><i class="bi bi-check"></i> Envío gratis en pedidos de $50+</li>
+                        <li><i class="bi bi-check"></i> Entrega en 3-5 días hábiles</li>
+                        <li><i class="bi bi-check"></i> Garantía de satisfacción</li>
+                        <li><i class="bi bi-check"></i> Devoluciones fáciles</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+
+@code {
+    private List<ItemCarrito> itemsCarrito = new();
+    private List<Producto> productos = new();
+    private decimal Subtotal => itemsCarrito.Sum(i => i.Producto.Precio * i.Cantidad);
+    private decimal CostoEnvio => Subtotal >= 50 ? 0 : 5.99m;
+    private decimal Total => Subtotal + CostoEnvio;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarCarrito();
+    }
+
+    private async Task CargarCarrito()
+    {
+        try
+        {
+
+            var carritoJson = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "keystore_cart");
+
+            if (!string.IsNullOrEmpty(carritoJson))
+            {
+                var productosIds = JsonSerializer.Deserialize<Dictionary<int, int>>(carritoJson) ?? new();
+
+                if (productosIds.Any())
+                {
+                    await using var contexto = await DbContextFactory.CreateDbContextAsync();
+                    productos = await contexto.Productos
+                        .Where(p => productosIds.Keys.Contains(p.Id))
+                        .ToListAsync();
+
+                    itemsCarrito = productosIds.Select(kvp => new ItemCarrito
+                        {
+                            ProductoId = kvp.Key,
+                            Cantidad = kvp.Value,
+                            Producto = productos.First(p => p.Id == kvp.Key)
+                        }).ToList();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando carrito: {ex.Message}");
+        }
+    }
+
+    private async Task GuardarCarrito()
+    {
+        try
+        {
+            var carritoDict = itemsCarrito.ToDictionary(i => i.ProductoId, i => i.Cantidad);
+            var carritoJson = JsonSerializer.Serialize(carritoDict);
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "keystore_cart", carritoJson);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error guardando carrito: {ex.Message}");
+        }
+    }
+
+    private async Task AumentarCantidad(int productoId)
+    {
+        var item = itemsCarrito.FirstOrDefault(i => i.ProductoId == productoId);
+        if (item != null && item.Cantidad < item.Producto.Stock)
+        {
+            item.Cantidad++;
+            await GuardarCarrito();
+            StateHasChanged();
+        }
+    }
+
+    private async Task DisminuirCantidad(int productoId)
+    {
+        var item = itemsCarrito.FirstOrDefault(i => i.ProductoId == productoId);
+        if (item != null && item.Cantidad > 1)
+        {
+            item.Cantidad--;
+            await GuardarCarrito();
+            StateHasChanged();
+        }
+    }
+
+    private async Task EliminarDelCarrito(int productoId)
+    {
+        itemsCarrito.RemoveAll(i => i.ProductoId == productoId);
+        await GuardarCarrito();
+        StateHasChanged();
+    }
+
+    private async Task LimpiarCarrito()
+    {
+        var confirmado = await JSRuntime.InvokeAsync<bool>("confirm",
+            "¿Estás seguro de que deseas eliminar todos los productos del carrito?");
+
+        if (confirmado)
+        {
+            itemsCarrito.Clear();
+            await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "keystore_cart");
+            StateHasChanged();
+        }
+    }
+
+    private async Task ProcederAlPago()
+    {
+
+        await JSRuntime.InvokeVoidAsync("alert", "Función de pago en desarrollo. ¡Pronto disponible!");
+    }
+
+    public class ItemCarrito
+    {
+        public int ProductoId { get; set; }
+        public int Cantidad { get; set; }
+        public Producto Producto { get; set; } = new();
+    }
+}

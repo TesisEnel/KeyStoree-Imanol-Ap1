@@ -182,7 +182,6 @@ else
                         </div>
                     </div>
 
-                    <!-- Panel de ayuda -->
                     <div class="card shadow-sm mt-3">
                         <div class="card-header bg-warning text-dark">
                             <strong><i class="bi bi-lightbulb"></i> Ayuda</strong>
@@ -212,20 +211,20 @@ else
     private string mensaje = string.Empty;
     private bool esError = false;
 
-    // Tamaño máximo permitido para imágenes (5MB)
+
     private const long MaxFileSize = 5 * 1024 * 1024;
 
     protected override async Task OnInitializedAsync()
     {
         isLoading = true;
 
-        // Inicializar valores por defecto
+
         elementoHome.FechaCreacion = DateTime.UtcNow;
         elementoHome.Activo = true;
         elementoHome.Orden = 1;
-        elementoHome.Precio = 0.01m; // Valor mínimo por defecto
+        elementoHome.Precio = 0.01m; 
 
-        await Task.Delay(100); // Simular carga
+        await Task.Delay(100);
         isLoading = false;
     }
 
@@ -236,7 +235,7 @@ else
 
         if (archivo != null)
         {
-            // Validar tamaño del archivo
+  
             if (archivo.Size > MaxFileSize)
             {
                 mensajeImagen = "Error: El archivo es demasiado grande. Máximo permitido: 5MB.";
@@ -253,7 +252,6 @@ else
 
             try
             {
-                // Convertir imagen a byte array
                 using var stream = archivo.OpenReadStream(MaxFileSize);
                 using var memoryStream = new MemoryStream();
                 await stream.CopyToAsync(memoryStream);
@@ -289,7 +287,7 @@ else
             mensaje = string.Empty;
             StateHasChanged();
 
-            // Validación básica
+
             if (string.IsNullOrWhiteSpace(elementoHome.Titulo))
             {
                 mensaje = "Error: El título es requerido.";
@@ -297,7 +295,7 @@ else
                 return;
             }
 
-            // Validar precio
+
             if (elementoHome.Precio <= 0)
             {
                 mensaje = "Error: El precio debe ser mayor a 0.";
@@ -305,10 +303,8 @@ else
                 return;
             }
 
-            // Forzar siempre como "Categoria"
             elementoHome.TipoElemento = "Categoria";
 
-            // Fechas en UTC
             elementoHome.FechaCreacion = elementoHome.FechaCreacion.ToUniversalTime();
             elementoHome.FechaModificacion = DateTime.UtcNow;
 
@@ -331,7 +327,7 @@ else
                 "Elemento actualizado exitosamente.";
             esError = false;
 
-            // Limpiar luego de guardar
+
             await Task.Delay(1500);
             if (!esError)
                 Nuevo();
@@ -360,7 +356,7 @@ else
                 FechaCreacion = DateTime.UtcNow,
                 Activo = true,
                 Orden = 1,
-                Precio = 0.01m // Valor mínimo por defecto
+                Precio = 0.01m
             };
         mensajeImagen = string.Empty;
         mensaje = string.Empty;

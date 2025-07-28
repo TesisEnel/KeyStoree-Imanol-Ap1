@@ -1,5 +1,7 @@
 ﻿@page "/"
 @inject IDbContextFactory<Contexto> DbContextFactory
+@inject KeyStore.Services.ICartService CartService
+@inject IJSRuntime JSRuntime
 @using Microsoft.EntityFrameworkCore
 @using KeyStore.DAL
 @using KeyStore.Models
@@ -8,7 +10,7 @@
 @rendermode InteractiveServer
 
 <div class="home-container">
-    <!-- Panel de administración flotante y elegante -->
+
     <div class="admin-floating-panel">
         <div class="admin-toggle-btn" onclick="toggleAdminPanel()">
             <i class="bi bi-gear-fill"></i>
@@ -47,12 +49,16 @@
                 <div class="keyboard-main">
                     @{
                         var heroImage = ObtenerImagenSitio("hero-keyboard");
+                        var heroImagenConfig = ObtenerConfiguracionImagen("hero-keyboard");
                     }
                     @if (!string.IsNullOrEmpty(heroImage))
                     {
-                        <img src="@heroImage" alt="Teclado mecánico principal" class="img-fluid" />
+                        <img src="@heroImage"
+                             alt="Teclado mecánico principal"
+                             class="img-fluid"
+                             style="@(heroImagenConfig?.GenerarEstilosCSS() ?? "object-fit: cover;")" />
                     }
-                    else
+                    else if (heroImagenConfig?.OcultarFondo != true)
                     {
                         <span class="image-ref">[IMAGEN: Teclado mecánico principal - hero-keyboard.jpg]</span>
                     }
@@ -81,7 +87,7 @@
                                 <span class="image-ref">[Sin imagen]</span>
                             }
                             <div class="category-overlay">
-                                <button class="add-btn-new">
+                                <button class="add-btn-new" @onclick="() => AgregarAlCarrito(item.Id)" disabled="@procesandoCarrito">
                                     <i class="bi bi-plus"></i>
                                 </button>
                             </div>
@@ -111,17 +117,21 @@
                 <div class="product-image">
                     @{
                         var product1Image = ObtenerImagenSitio("product-1");
+                        var product1Config = ObtenerConfiguracionImagen("product-1");
                     }
                     @if (!string.IsNullOrEmpty(product1Image))
                     {
-                        <img src="@product1Image" alt="Producto destacado 1" class="img-fluid" />
+                        <img src="@product1Image"
+                             alt="Producto destacado 1"
+                             class="img-fluid"
+                             style="@(product1Config?.GenerarEstilosCSS() ?? "object-fit: cover;")" />
                     }
-                    else
+                    else if (product1Config?.OcultarFondo != true)
                     {
                         <span class="image-ref">[IMAGEN: Producto 1 - product-1.jpg]</span>
                     }
                     <div class="product-overlay">
-                        <button class="add-btn-featured">
+                        <button class="add-btn-featured" @onclick="() => AgregarProductoDestacado(1)" disabled="@procesandoCarrito">
                             <i class="bi bi-cart-plus"></i>
                         </button>
                     </div>
@@ -131,17 +141,21 @@
                 <div class="product-image">
                     @{
                         var product2Image = ObtenerImagenSitio("product-2");
+                        var product2Config = ObtenerConfiguracionImagen("product-2");
                     }
                     @if (!string.IsNullOrEmpty(product2Image))
                     {
-                        <img src="@product2Image" alt="Producto destacado 2" class="img-fluid" />
+                        <img src="@product2Image"
+                             alt="Producto destacado 2"
+                             class="img-fluid"
+                             style="@(product2Config?.GenerarEstilosCSS() ?? "object-fit: cover;")" />
                     }
-                    else
+                    else if (product2Config?.OcultarFondo != true)
                     {
                         <span class="image-ref">[IMAGEN: Producto 2 - product-2.jpg]</span>
                     }
                     <div class="product-overlay">
-                        <button class="add-btn-featured">
+                        <button class="add-btn-featured" @onclick="() => AgregarProductoDestacado(2)" disabled="@procesandoCarrito">
                             <i class="bi bi-cart-plus"></i>
                         </button>
                     </div>
@@ -151,17 +165,21 @@
                 <div class="product-image">
                     @{
                         var product3Image = ObtenerImagenSitio("product-3");
+                        var product3Config = ObtenerConfiguracionImagen("product-3");
                     }
                     @if (!string.IsNullOrEmpty(product3Image))
                     {
-                        <img src="@product3Image" alt="Producto destacado 3" class="img-fluid" />
+                        <img src="@product3Image"
+                             alt="Producto destacado 3"
+                             class="img-fluid"
+                             style="@(product3Config?.GenerarEstilosCSS() ?? "object-fit: cover;")" />
                     }
-                    else
+                    else if (product3Config?.OcultarFondo != true)
                     {
                         <span class="image-ref">[IMAGEN: Producto 3 - product-3.jpg]</span>
                     }
                     <div class="product-overlay">
-                        <button class="add-btn-featured">
+                        <button class="add-btn-featured" @onclick="() => AgregarProductoDestacado(3)" disabled="@procesandoCarrito">
                             <i class="bi bi-cart-plus"></i>
                         </button>
                     </div>
@@ -183,12 +201,16 @@
             <div class="about-image">
                 @{
                     var aboutImage = ObtenerImagenSitio("about-image");
+                    var aboutConfig = ObtenerConfiguracionImagen("about-image");
                 }
                 @if (!string.IsNullOrEmpty(aboutImage))
                 {
-                    <img src="@aboutImage" alt="Setup gaming" class="img-fluid" />
+                    <img src="@aboutImage"
+                         alt="Setup gaming"
+                         class="img-fluid"
+                         style="@(aboutConfig?.GenerarEstilosCSS() ?? "object-fit: cover;")" />
                 }
-                else
+                else if (aboutConfig?.OcultarFondo != true)
                 {
                     <span class="image-ref">[IMAGEN: Setup gaming - about-image.jpg]</span>
                 }
@@ -207,13 +229,29 @@
     </footer>
 </div>
 
+
+@if (mostrarToast)
+{
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div class="toast show" role="alert">
+            <div class="toast-header">
+                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                <strong class="me-auto">Carrito</strong>
+                <button type="button" class="btn-close" @onclick="() => mostrarToast = false"></button>
+            </div>
+            <div class="toast-body">
+                @mensajeToast
+            </div>
+        </div>
+    </div>
+}
+
 <script>
     function toggleAdminPanel() {
         const dropdown = document.getElementById('adminDropdown');
         dropdown.classList.toggle('show');
     }
 
-    // Cerrar el panel al hacer clic fuera
     document.addEventListener('click', function(event) {
         const panel = document.querySelector('.admin-floating-panel');
         if (!panel.contains(event.target)) {
@@ -225,6 +263,9 @@
 @code {
     private List<ElementoHome> productos;
     private Dictionary<string, ImagenSitio> imagenesSitio = new();
+    private bool procesandoCarrito = false;
+    private bool mostrarToast = false;
+    private string mensajeToast = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -254,7 +295,6 @@
         }
         catch (Exception)
         {
-            // Si hay error (ej: tabla no existe aún), usar diccionario vacío
             imagenesSitio = new Dictionary<string, ImagenSitio>();
         }
     }
@@ -268,5 +308,127 @@
             return $"data:{imagen.TipoImagen};base64,{base64}";
         }
         return string.Empty;
+    }
+
+
+    private ImagenSitio? ObtenerConfiguracionImagen(string clave)
+    {
+        if (imagenesSitio.TryGetValue(clave, out var imagen))
+        {
+            return imagen;
+        }
+        return null;
+    }
+
+    private async Task AgregarAlCarrito(int elementoId)
+    {
+        if (procesandoCarrito) return;
+
+        try
+        {
+            procesandoCarrito = true;
+
+            await using var contexto = await DbContextFactory.CreateDbContextAsync();
+            var producto = await contexto.Productos
+                .FirstOrDefaultAsync(p => p.CategoriaId == elementoId || p.Id == elementoId);
+
+            if (producto != null)
+            {
+                await CartService.AddToCartAsync(producto.Id, 1);
+
+                mensajeToast = $"'{producto.Nombre}' agregado al carrito";
+                mostrarToast = true;
+
+
+                _ = Task.Delay(3000).ContinueWith(_ => InvokeAsync(() =>
+                {
+                    mostrarToast = false;
+                    StateHasChanged();
+                }));
+            }
+            else
+            {
+
+                mensajeToast = "Producto agregado al carrito";
+                mostrarToast = true;
+
+
+                await AgregarProductoGenerico(elementoId);
+            }
+        }
+        catch (Exception ex)
+        {
+            mensajeToast = $"Error: {ex.Message}";
+            mostrarToast = true;
+        }
+        finally
+        {
+            procesandoCarrito = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task AgregarProductoDestacado(int productoId)
+    {
+        if (procesandoCarrito) return;
+
+        try
+        {
+            procesandoCarrito = true;
+
+
+            var productosDestacados = new Dictionary<int, string>
+            {
+                { 1, "Teclado RGB Gaming Pro" },
+                { 2, "Tema Cyberpunk 2077" },
+                { 3, "Teclado Mecánico Elite" }
+            };
+
+            await CartService.AddToCartAsync(productoId, 1);
+
+            var nombreProducto = productosDestacados.ContainsKey(productoId)
+                ? productosDestacados[productoId]
+                : "Producto destacado";
+
+            mensajeToast = $"'{nombreProducto}' agregado al carrito";
+            mostrarToast = true;
+
+
+            _ = Task.Delay(3000).ContinueWith(_ => InvokeAsync(() =>
+            {
+                mostrarToast = false;
+                StateHasChanged();
+            }));
+        }
+        catch (Exception ex)
+        {
+            mensajeToast = $"Error: {ex.Message}";
+            mostrarToast = true;
+        }
+        finally
+        {
+            procesandoCarrito = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task AgregarProductoGenerico(int elementoId)
+    {
+
+        try
+        {
+
+            var elemento = productos?.FirstOrDefault(p => p.Id == elementoId);
+            if (elemento != null)
+            {
+
+                await CartService.AddToCartAsync(elementoId, 1);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error agregando producto genérico: {ex.Message}");
+            throw;
+        }
     }
 }
