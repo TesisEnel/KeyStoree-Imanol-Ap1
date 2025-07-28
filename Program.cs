@@ -1,6 +1,8 @@
 ﻿using KeyStore.Components;
 using KeyStore.Components.Account;
 using KeyStore.Data;
+using KeyStore.DAL;
+using KeyStore.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +12,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-
 
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
@@ -27,14 +28,18 @@ builder.Services.AddAuthentication(options =>
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(connectionString));
+
+builder.Services.AddDbContextFactory<Contexto>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options =>
 {
-    options.SignIn.RequireConfirmedAccount = false; // Cambiado para desarrollo
+    options.SignIn.RequireConfirmedAccount = false;
     options.Password.RequireDigit = true;
     options.Password.RequiredLength = 6;
     options.Password.RequireNonAlphanumeric = false;
@@ -46,6 +51,14 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
 .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+
+
+builder.Services.AddScoped<IProductosService, ProductosServiceMock>();
+builder.Services.AddHttpClient<ProductosService>();
+
+builder.Services.AddCartService();
+
+builder.Services.AddControllers();
 
 builder.Services.AddCors(options =>
 {
@@ -86,14 +99,21 @@ app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-// Identity endpoints
 app.MapAdditionalIdentityEndpoints();
+app.MapControllers();
 
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
-    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    context.Database.EnsureCreated(); // O usa Migrate() si prefieres migraciones
+
+
+    var identityContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    identityContext.Database.EnsureCreated();
+
+
+    var contextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<Contexto>>();
+    using var appContext = contextFactory.CreateDbContext();
+    appContext.Database.EnsureCreated();
 }
 
 app.Run();
