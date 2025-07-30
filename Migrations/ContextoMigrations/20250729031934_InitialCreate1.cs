@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace KeyStore.Migrations.ContextoMigrations
 {
     /// <inheritdoc />
-    public partial class AgregarTablaImagenSitio : Migration
+    public partial class InitialCreate1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,49 +16,49 @@ namespace KeyStore.Migrations.ContextoMigrations
                 keyColumn: "Id",
                 keyValue: 1,
                 column: "FechaCreacion",
-                value: new DateTime(2025, 7, 27, 20, 55, 58, 368, DateTimeKind.Utc).AddTicks(3748));
+                value: new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
             migrationBuilder.UpdateData(
                 table: "ElementosHome",
                 keyColumn: "Id",
                 keyValue: 2,
                 column: "FechaCreacion",
-                value: new DateTime(2025, 7, 27, 20, 55, 58, 368, DateTimeKind.Utc).AddTicks(4014));
+                value: new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
             migrationBuilder.UpdateData(
                 table: "ImagenesSitio",
                 keyColumn: "Id",
                 keyValue: 1,
                 column: "FechaCreacion",
-                value: new DateTime(2025, 7, 27, 20, 55, 58, 368, DateTimeKind.Utc).AddTicks(5549));
+                value: new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
             migrationBuilder.UpdateData(
                 table: "ImagenesSitio",
                 keyColumn: "Id",
                 keyValue: 2,
                 column: "FechaCreacion",
-                value: new DateTime(2025, 7, 27, 20, 55, 58, 368, DateTimeKind.Utc).AddTicks(5765));
+                value: new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
             migrationBuilder.UpdateData(
                 table: "ImagenesSitio",
                 keyColumn: "Id",
                 keyValue: 3,
                 column: "FechaCreacion",
-                value: new DateTime(2025, 7, 27, 20, 55, 58, 368, DateTimeKind.Utc).AddTicks(5767));
+                value: new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
             migrationBuilder.UpdateData(
                 table: "ImagenesSitio",
                 keyColumn: "Id",
                 keyValue: 4,
                 column: "FechaCreacion",
-                value: new DateTime(2025, 7, 27, 20, 55, 58, 368, DateTimeKind.Utc).AddTicks(5771));
+                value: new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
             migrationBuilder.UpdateData(
                 table: "ImagenesSitio",
                 keyColumn: "Id",
                 keyValue: 5,
                 column: "FechaCreacion",
-                value: new DateTime(2025, 7, 27, 20, 55, 58, 368, DateTimeKind.Utc).AddTicks(5772));
+                value: new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
         }
 
         /// <inheritdoc />
@@ -69,49 +69,49 @@ namespace KeyStore.Migrations.ContextoMigrations
                 keyColumn: "Id",
                 keyValue: 1,
                 column: "FechaCreacion",
-                value: new DateTime(2025, 7, 27, 20, 51, 9, 196, DateTimeKind.Utc).AddTicks(611));
+                value: new DateTime(2025, 7, 29, 3, 12, 37, 277, DateTimeKind.Utc).AddTicks(6264));
 
             migrationBuilder.UpdateData(
                 table: "ElementosHome",
                 keyColumn: "Id",
                 keyValue: 2,
                 column: "FechaCreacion",
-                value: new DateTime(2025, 7, 27, 20, 51, 9, 196, DateTimeKind.Utc).AddTicks(864));
+                value: new DateTime(2025, 7, 29, 3, 12, 37, 277, DateTimeKind.Utc).AddTicks(6468));
 
             migrationBuilder.UpdateData(
                 table: "ImagenesSitio",
                 keyColumn: "Id",
                 keyValue: 1,
                 column: "FechaCreacion",
-                value: new DateTime(2025, 7, 27, 20, 51, 9, 196, DateTimeKind.Utc).AddTicks(2324));
+                value: new DateTime(2025, 7, 29, 3, 12, 37, 277, DateTimeKind.Utc).AddTicks(8901));
 
             migrationBuilder.UpdateData(
                 table: "ImagenesSitio",
                 keyColumn: "Id",
                 keyValue: 2,
                 column: "FechaCreacion",
-                value: new DateTime(2025, 7, 27, 20, 51, 9, 196, DateTimeKind.Utc).AddTicks(2530));
+                value: new DateTime(2025, 7, 29, 3, 12, 37, 277, DateTimeKind.Utc).AddTicks(9690));
 
             migrationBuilder.UpdateData(
                 table: "ImagenesSitio",
                 keyColumn: "Id",
                 keyValue: 3,
                 column: "FechaCreacion",
-                value: new DateTime(2025, 7, 27, 20, 51, 9, 196, DateTimeKind.Utc).AddTicks(2531));
+                value: new DateTime(2025, 7, 29, 3, 12, 37, 277, DateTimeKind.Utc).AddTicks(9692));
 
             migrationBuilder.UpdateData(
                 table: "ImagenesSitio",
                 keyColumn: "Id",
                 keyValue: 4,
                 column: "FechaCreacion",
-                value: new DateTime(2025, 7, 27, 20, 51, 9, 196, DateTimeKind.Utc).AddTicks(2533));
+                value: new DateTime(2025, 7, 29, 3, 12, 37, 277, DateTimeKind.Utc).AddTicks(9694));
 
             migrationBuilder.UpdateData(
                 table: "ImagenesSitio",
                 keyColumn: "Id",
                 keyValue: 5,
                 column: "FechaCreacion",
-                value: new DateTime(2025, 7, 27, 20, 51, 9, 196, DateTimeKind.Utc).AddTicks(2534));
+                value: new DateTime(2025, 7, 29, 3, 12, 37, 277, DateTimeKind.Utc).AddTicks(9695));
         }
     }
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KeyStore.Migrations.ContextoMigrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20250727205558_AgregarTablaImagenSitio")]
-    partial class AgregarTablaImagenSitio
+    [Migration("20250729031934_InitialCreate1")]
+    partial class InitialCreate1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -175,7 +175,7 @@ namespace KeyStore.Migrations.ContextoMigrations
                             Id = 1,
                             Activo = true,
                             Descripcion = "Descubre nuestra colección exclusiva de teclados mecánicos, temas personalizados y accesorios premium para elevar tu experiencia de escritura y gaming.",
-                            FechaCreacion = new DateTime(2025, 7, 27, 20, 55, 58, 368, DateTimeKind.Utc).AddTicks(3748),
+                            FechaCreacion = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Orden = 1,
                             Precio = 99.99m,
                             Subtitulo = "Teclados Personalizados de Alta Calidad",
@@ -189,7 +189,7 @@ namespace KeyStore.Migrations.ContextoMigrations
                             Id = 2,
                             Activo = true,
                             Descripcion = "Nuestra misión es brindar experiencias de teclado personalizadas para todos. Conoce más sobre nuestro viaje y nuestra dedicación a la calidad e innovación.",
-                            FechaCreacion = new DateTime(2025, 7, 27, 20, 55, 58, 368, DateTimeKind.Utc).AddTicks(4014),
+                            FechaCreacion = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Orden = 10,
                             Precio = 0.01m,
                             Subtitulo = "Nuestra Pasión por los Teclados",
@@ -210,6 +210,14 @@ namespace KeyStore.Migrations.ContextoMigrations
 
                     b.Property<bool>("Activa")
                         .HasColumnType("bit");
+
+                    b.Property<int?>("Alto")
+                        .HasColumnType("int")
+                        .HasColumnName("Alto");
+
+                    b.Property<int?>("Ancho")
+                        .HasColumnType("int")
+                        .HasColumnName("Ancho");
 
                     b.Property<string>("Clave")
                         .IsRequired()
@@ -238,6 +246,18 @@ namespace KeyStore.Migrations.ContextoMigrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<string>("ObjectFit")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValue("cover");
+
+                    b.Property<bool>("OcultarFondo")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("TipoImagen")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -258,8 +278,10 @@ namespace KeyStore.Migrations.ContextoMigrations
                             Activa = true,
                             Clave = "hero-keyboard",
                             Descripcion = "Imagen principal del hero que aparece en la página de inicio junto al título KEYSTORE",
-                            FechaCreacion = new DateTime(2025, 7, 27, 20, 55, 58, 368, DateTimeKind.Utc).AddTicks(5549),
-                            Nombre = "Teclado Mecánico Principal - Hero"
+                            FechaCreacion = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Nombre = "Teclado Mecánico Principal - Hero",
+                            ObjectFit = "cover",
+                            OcultarFondo = true
                         },
                         new
                         {
@@ -267,8 +289,10 @@ namespace KeyStore.Migrations.ContextoMigrations
                             Activa = true,
                             Clave = "about-image",
                             Descripcion = "Imagen de setup gaming que aparece en la sección About Us",
-                            FechaCreacion = new DateTime(2025, 7, 27, 20, 55, 58, 368, DateTimeKind.Utc).AddTicks(5765),
-                            Nombre = "Setup Gaming - About Us"
+                            FechaCreacion = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Nombre = "Setup Gaming - About Us",
+                            ObjectFit = "cover",
+                            OcultarFondo = false
                         },
                         new
                         {
@@ -276,8 +300,10 @@ namespace KeyStore.Migrations.ContextoMigrations
                             Activa = true,
                             Clave = "product-1",
                             Descripcion = "Primera imagen de producto destacado en la sección featured",
-                            FechaCreacion = new DateTime(2025, 7, 27, 20, 55, 58, 368, DateTimeKind.Utc).AddTicks(5767),
-                            Nombre = "Producto Destacado 1"
+                            FechaCreacion = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Nombre = "Producto Destacado 1",
+                            ObjectFit = "cover",
+                            OcultarFondo = false
                         },
                         new
                         {
@@ -285,8 +311,10 @@ namespace KeyStore.Migrations.ContextoMigrations
                             Activa = true,
                             Clave = "product-2",
                             Descripcion = "Segunda imagen de producto destacado en la sección featured",
-                            FechaCreacion = new DateTime(2025, 7, 27, 20, 55, 58, 368, DateTimeKind.Utc).AddTicks(5771),
-                            Nombre = "Producto Destacado 2"
+                            FechaCreacion = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Nombre = "Producto Destacado 2",
+                            ObjectFit = "cover",
+                            OcultarFondo = false
                         },
                         new
                         {
@@ -294,8 +322,10 @@ namespace KeyStore.Migrations.ContextoMigrations
                             Activa = true,
                             Clave = "product-3",
                             Descripcion = "Tercera imagen de producto destacado en la sección featured",
-                            FechaCreacion = new DateTime(2025, 7, 27, 20, 55, 58, 368, DateTimeKind.Utc).AddTicks(5772),
-                            Nombre = "Producto Destacado 3"
+                            FechaCreacion = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Nombre = "Producto Destacado 3",
+                            ObjectFit = "cover",
+                            OcultarFondo = false
                         });
                 });
 

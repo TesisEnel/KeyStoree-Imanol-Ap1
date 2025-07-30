@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KeyStore.Migrations.ContextoMigrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20250727165931_AgregarElementosHome")]
-    partial class AgregarElementosHome
+    [Migration("20250729031237_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -130,6 +130,9 @@ namespace KeyStore.Migrations.ContextoMigrations
                     b.Property<int>("Orden")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("Precio")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("Subtitulo")
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
@@ -172,8 +175,9 @@ namespace KeyStore.Migrations.ContextoMigrations
                             Id = 1,
                             Activo = true,
                             Descripcion = "Descubre nuestra colección exclusiva de teclados mecánicos, temas personalizados y accesorios premium para elevar tu experiencia de escritura y gaming.",
-                            FechaCreacion = new DateTime(2025, 7, 27, 16, 59, 30, 475, DateTimeKind.Utc).AddTicks(2914),
+                            FechaCreacion = new DateTime(2025, 7, 29, 3, 12, 37, 277, DateTimeKind.Utc).AddTicks(6264),
                             Orden = 1,
+                            Precio = 99.99m,
                             Subtitulo = "Teclados Personalizados de Alta Calidad",
                             TextoBoton = "Comprar Ahora",
                             TipoElemento = "Hero",
@@ -185,13 +189,143 @@ namespace KeyStore.Migrations.ContextoMigrations
                             Id = 2,
                             Activo = true,
                             Descripcion = "Nuestra misión es brindar experiencias de teclado personalizadas para todos. Conoce más sobre nuestro viaje y nuestra dedicación a la calidad e innovación.",
-                            FechaCreacion = new DateTime(2025, 7, 27, 16, 59, 30, 475, DateTimeKind.Utc).AddTicks(3125),
+                            FechaCreacion = new DateTime(2025, 7, 29, 3, 12, 37, 277, DateTimeKind.Utc).AddTicks(6468),
                             Orden = 10,
+                            Precio = 0.01m,
                             Subtitulo = "Nuestra Pasión por los Teclados",
                             TextoBoton = "Learn more",
                             TipoElemento = "SeccionAbout",
                             Titulo = "About Us",
                             UrlEnlace = "/about"
+                        });
+                });
+
+            modelBuilder.Entity("KeyStore.Models.ImagenSitio", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Activa")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("Alto")
+                        .HasColumnType("int")
+                        .HasColumnName("Alto");
+
+                    b.Property<int?>("Ancho")
+                        .HasColumnType("int")
+                        .HasColumnName("Ancho");
+
+                    b.Property<string>("Clave")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Descripcion")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FechaModificacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<byte[]>("ImagenData")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("NombreArchivo")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("ObjectFit")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValue("cover");
+
+                    b.Property<bool>("OcultarFondo")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("TipoImagen")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Activa");
+
+                    b.HasIndex("Clave")
+                        .IsUnique();
+
+                    b.ToTable("ImagenesSitio");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Activa = true,
+                            Clave = "hero-keyboard",
+                            Descripcion = "Imagen principal del hero que aparece en la página de inicio junto al título KEYSTORE",
+                            FechaCreacion = new DateTime(2025, 7, 29, 3, 12, 37, 277, DateTimeKind.Utc).AddTicks(8901),
+                            Nombre = "Teclado Mecánico Principal - Hero",
+                            ObjectFit = "cover",
+                            OcultarFondo = true
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Activa = true,
+                            Clave = "about-image",
+                            Descripcion = "Imagen de setup gaming que aparece en la sección About Us",
+                            FechaCreacion = new DateTime(2025, 7, 29, 3, 12, 37, 277, DateTimeKind.Utc).AddTicks(9690),
+                            Nombre = "Setup Gaming - About Us",
+                            ObjectFit = "cover",
+                            OcultarFondo = false
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Activa = true,
+                            Clave = "product-1",
+                            Descripcion = "Primera imagen de producto destacado en la sección featured",
+                            FechaCreacion = new DateTime(2025, 7, 29, 3, 12, 37, 277, DateTimeKind.Utc).AddTicks(9692),
+                            Nombre = "Producto Destacado 1",
+                            ObjectFit = "cover",
+                            OcultarFondo = false
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Activa = true,
+                            Clave = "product-2",
+                            Descripcion = "Segunda imagen de producto destacado en la sección featured",
+                            FechaCreacion = new DateTime(2025, 7, 29, 3, 12, 37, 277, DateTimeKind.Utc).AddTicks(9694),
+                            Nombre = "Producto Destacado 2",
+                            ObjectFit = "cover",
+                            OcultarFondo = false
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Activa = true,
+                            Clave = "product-3",
+                            Descripcion = "Tercera imagen de producto destacado en la sección featured",
+                            FechaCreacion = new DateTime(2025, 7, 29, 3, 12, 37, 277, DateTimeKind.Utc).AddTicks(9695),
+                            Nombre = "Producto Destacado 3",
+                            ObjectFit = "cover",
+                            OcultarFondo = false
                         });
                 });
 
@@ -364,6 +498,29 @@ namespace KeyStore.Migrations.ContextoMigrations
                             Stock = 12,
                             TipoConexion = "Bluetooth",
                             TipoSwitch = "Marron_Tactil_Silencioso"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CategoriaId = 4,
+                            ColorPrincipal = "Rojo/Dorado",
+                            Descripcion = "Set de keycaps artesanales con diseño de dragón, perfectos para personalizar tu teclado mecánico.",
+                            EsDestacado = true,
+                            EsIluminado = false,
+                            EsInalámbrico = false,
+                            EsMecánico = false,
+                            EsTemaPersonalizado = true,
+                            ImagenUrl = "/images/dragon-keycaps.jpg",
+                            ImagenesSecundarias = "[]",
+                            Layout = "Universal",
+                            Marca = "KeyStore",
+                            Modelo = "ART-DRAGON-001",
+                            Nombre = "Keycaps Artisan Dragon",
+                            NombreTema = "Dragon",
+                            Precio = 35.99m,
+                            Stock = 20,
+                            TipoConexion = "USB_A",
+                            TipoSwitch = "Azul_Tactil"
                         });
                 });
 
