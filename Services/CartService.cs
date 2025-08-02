@@ -3,6 +3,8 @@ using System.Text.Json;
 using KeyStore.Models;
 using KeyStore.DAL;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Components.Authorization;
+using System.Security.Claims;
 
 namespace KeyStore.Services
 {
@@ -15,6 +17,7 @@ namespace KeyStore.Services
         Task ClearCartAsync();
         Task<int> GetCartCountAsync();
         Task<decimal> GetCartTotalAsync();
+        Task MergeAnonymousCartWithUserCartAsync();
         event Action? OnCartChanged;
     }
 
@@ -22,21 +25,46 @@ namespace KeyStore.Services
     {
         private readonly IJSRuntime _jsRuntime;
         private readonly IDbContextFactory<Contexto> _dbContextFactory;
+        private readonly AuthenticationStateProvider _authStateProvider;
         private const string CART_KEY = "keystore_cart";
 
         public event Action? OnCartChanged;
 
-        public CartService(IJSRuntime jsRuntime, IDbContextFactory<Contexto> dbContextFactory)
+        public CartService(
+            IJSRuntime jsRuntime,
+            IDbContextFactory<Contexto> dbContextFactory,
+            AuthenticationStateProvider authStateProvider)
         {
             _jsRuntime = jsRuntime;
             _dbContextFactory = dbContextFactory;
+            _authStateProvider = authStateProvider;
+        }
+
+        private async Task<string?> GetCurrentUserIdAsync()
+        {
+            try
+            {
+                var authState = await _authStateProvider.GetAuthenticationStateAsync();
+                return authState.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private async Task<string> GetCartKeyAsync()
+        {
+            var userId = await GetCurrentUserIdAsync();
+            return userId != null ? $"{CART_KEY}_{userId}" : CART_KEY;
         }
 
         public async Task<List<CartItem>> GetCartItemsAsync()
         {
             try
             {
-                var cartJson = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", CART_KEY);
+                var cartKey = await GetCartKeyAsync();
+                var cartJson = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", cartKey);
 
                 if (string.IsNullOrEmpty(cartJson))
                     return new List<CartItem>();
@@ -69,7 +97,6 @@ namespace KeyStore.Services
         {
             try
             {
-
                 await using var context = await _dbContextFactory.CreateDbContextAsync();
                 var producto = await context.Productos.FindAsync(productId);
 
@@ -78,7 +105,8 @@ namespace KeyStore.Services
                     throw new InvalidOperationException("Producto no disponible");
                 }
 
-                var cartJson = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", CART_KEY);
+                var cartKey = await GetCartKeyAsync();
+                var cartJson = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", cartKey);
                 var cartData = new Dictionary<int, int>();
 
                 if (!string.IsNullOrEmpty(cartJson))
@@ -111,7 +139,7 @@ namespace KeyStore.Services
                 }
 
                 var newCartJson = JsonSerializer.Serialize(cartData);
-                await _jsRuntime.InvokeVoidAsync("localStorage.setItem", CART_KEY, newCartJson);
+                await _jsRuntime.InvokeVoidAsync("localStorage.setItem", cartKey, newCartJson);
 
                 OnCartChanged?.Invoke();
             }
@@ -126,7 +154,8 @@ namespace KeyStore.Services
         {
             try
             {
-                var cartJson = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", CART_KEY);
+                var cartKey = await GetCartKeyAsync();
+                var cartJson = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", cartKey);
 
                 if (string.IsNullOrEmpty(cartJson))
                     return;
@@ -138,7 +167,7 @@ namespace KeyStore.Services
                     cartData.Remove(productId);
 
                     var newCartJson = JsonSerializer.Serialize(cartData);
-                    await _jsRuntime.InvokeVoidAsync("localStorage.setItem", CART_KEY, newCartJson);
+                    await _jsRuntime.InvokeVoidAsync("localStorage.setItem", cartKey, newCartJson);
 
                     OnCartChanged?.Invoke();
                 }
@@ -173,7 +202,8 @@ namespace KeyStore.Services
                     throw new InvalidOperationException($"Stock insuficiente. Disponible: {producto.Stock}");
                 }
 
-                var cartJson = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", CART_KEY);
+                var cartKey = await GetCartKeyAsync();
+                var cartJson = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", cartKey);
                 var cartData = new Dictionary<int, int>();
 
                 if (!string.IsNullOrEmpty(cartJson))
@@ -184,7 +214,7 @@ namespace KeyStore.Services
                 cartData[productId] = quantity;
 
                 var newCartJson = JsonSerializer.Serialize(cartData);
-                await _jsRuntime.InvokeVoidAsync("localStorage.setItem", CART_KEY, newCartJson);
+                await _jsRuntime.InvokeVoidAsync("localStorage.setItem", cartKey, newCartJson);
 
                 OnCartChanged?.Invoke();
             }
@@ -199,7 +229,8 @@ namespace KeyStore.Services
         {
             try
             {
-                await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", CART_KEY);
+                var cartKey = await GetCartKeyAsync();
+                await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", cartKey);
                 OnCartChanged?.Invoke();
             }
             catch (Exception ex)
@@ -232,6 +263,61 @@ namespace KeyStore.Services
             catch
             {
                 return 0;
+            }
+        }
+
+        public async Task MergeAnonymousCartWithUserCartAsync()
+        {
+            try
+            {
+                var userId = await GetCurrentUserIdAsync();
+                if (userId == null) return; 
+
+                var anonymousCartJson = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", CART_KEY);
+                if (string.IsNullOrEmpty(anonymousCartJson)) return; 
+
+                var anonymousCartData = JsonSerializer.Deserialize<Dictionary<int, int>>(anonymousCartJson) ?? new();
+                if (!anonymousCartData.Any()) return;
+
+                var userCartKey = $"{CART_KEY}_{userId}";
+                var userCartJson = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", userCartKey);
+                var userCartData = new Dictionary<int, int>();
+
+                if (!string.IsNullOrEmpty(userCartJson))
+                {
+                    userCartData = JsonSerializer.Deserialize<Dictionary<int, int>>(userCartJson) ?? new();
+                }
+
+                await using var context = await _dbContextFactory.CreateDbContextAsync();
+
+                foreach (var item in anonymousCartData)
+                {
+                    var producto = await context.Productos.FindAsync(item.Key);
+                    if (producto == null || producto.Stock <= 0) continue;
+
+                    if (userCartData.ContainsKey(item.Key))
+                    {
+                        var totalQuantity = userCartData[item.Key] + item.Value;
+                        userCartData[item.Key] = Math.Min(totalQuantity, producto.Stock);
+                    }
+                    else
+                    {
+                        userCartData[item.Key] = Math.Min(item.Value, producto.Stock);
+                    }
+                }
+
+                var mergedCartJson = JsonSerializer.Serialize(userCartData);
+                await _jsRuntime.InvokeVoidAsync("localStorage.setItem", userCartKey, mergedCartJson);
+
+                await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", CART_KEY);
+
+                OnCartChanged?.Invoke();
+
+                Console.WriteLine($"Carrito anónimo fusionado con carrito de usuario. Total items: {userCartData.Values.Sum()}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error merging anonymous cart: {ex.Message}");
             }
         }
     }
