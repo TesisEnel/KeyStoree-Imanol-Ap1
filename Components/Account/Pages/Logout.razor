@@ -1,0 +1,35 @@
+﻿@page "/logout"
+@using Microsoft.AspNetCore.Identity
+@using KeyStore.Data
+@inject SignInManager<ApplicationUser> SignInManager
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Cerrando sesión...</PageTitle>
+
+<div class="d-flex justify-content-center align-items-center" style="height: 100vh;">
+    <div class="text-center">
+        <div class="spinner-border text-primary mb-3" role="status">
+            <span class="visually-hidden">Cerrando sesión...</span>
+        </div>
+        <h5>Cerrando sesión...</h5>
+    </div>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await SignInManager.SignOutAsync();
+            await Task.Delay(0);
+
+            await JSRuntime.InvokeVoidAsync("location.reload");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error en logout: {ex.Message}");
+            NavigationManager.NavigateTo("/");
+        }
+    }
+}
