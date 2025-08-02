@@ -1,0 +1,212 @@
+/* ========================================
+   LOGOUT MODAL - ESTILOS
+   ======================================== */
+
+/* Modal Backdrop */
+.logout-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Modal Container */
+.logout-modal-container {
+    background: rgba(15, 15, 15, 0.95);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    border-radius: 20px;
+    padding: 40px 35px;
+    width: 100%;
+    max-width: 450px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9);
+    position: relative;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Borde decorativo */
+.logout-modal-container::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, rgba(138, 43, 226, 0.4), rgba(157, 78, 221, 0.4));
+    border-radius: 22px;
+    z-index: -1;
+}
+
+/* Header */
+.logout-modal-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logout-icon {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    box-shadow: 0 0 25px rgba(220, 38, 38, 0.4);
+}
+
+    .logout-icon svg {
+        width: 35px;
+        height: 35px;
+        color: white;
+    }
+
+.logout-title {
+    font-size: 2rem;
+    font-weight: 300;
+    color: #ffffff;
+    margin-bottom: 10px;
+    letter-spacing: -0.02em;
+}
+
+.logout-subtitle {
+    color: #888888;
+    font-size: 1rem;
+    font-weight: 300;
+    margin: 0;
+}
+
+/* Content */
+.logout-modal-content {
+    margin-bottom: 35px;
+}
+
+.logout-message {
+    color: #cccccc;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    text-align: center;
+    margin: 0;
+}
+
+/* Actions */
+.logout-modal-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.logout-cancel-btn,
+.logout-confirm-btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 15px 20px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.logout-cancel-btn {
+    background: rgba(75, 85, 99, 0.8);
+    color: #ffffff;
+    border: 2px solid rgba(75, 85, 99, 0.5);
+}
+
+    .logout-cancel-btn:hover {
+        background: rgba(75, 85, 99, 1);
+        border-color: rgba(75, 85, 99, 0.8);
+        transform: translateY(-2px);
+    }
+
+.logout-confirm-btn {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+    color: white;
+    border: 2px solid transparent;
+}
+
+    .logout-confirm-btn:hover:not(:disabled) {
+        background: linear-gradient(135deg, #b91c1c, #dc2626);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(220, 38, 38, 0.3);
+    }
+
+    .logout-confirm-btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+/* Spinner */
+.logout-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .logout-modal-container {
+        padding: 30px 25px;
+        margin: 10px;
+    }
+
+    .logout-modal-actions {
+        flex-direction: column;
+    }
+
+    .logout-cancel-btn,
+    .logout-confirm-btn {
+        min-width: 100%;
+    }
+}
