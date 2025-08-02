@@ -8,193 +8,508 @@
 @using System.Text.Json
 @rendermode InteractiveServer
 
+
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@using KeyStore.Data
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<ApplicationUser> UserManager
+
 <PageTitle>Carrito de Compras - KeyStore</PageTitle>
 
-<div class="cart-container">
-    <div class="cart-header">
-        <h1 class="cart-title">
-            <i class="bi bi-cart-fill"></i>
-            Carrito de Compras
-        </h1>
+<div class="modern-cart-container">
+
+    <div class="cart-header-modern">
+        <div class="cart-title-section">
+            <h1 class="cart-title-modern">
+                <i class="bi bi-bag-check-fill cart-icon"></i>
+                Mi Carrito
+            </h1>
+            @if (itemsCarrito.Count > 0)
+            {
+                <p class="cart-subtitle">@itemsCarrito.Count @(itemsCarrito.Count == 1 ? "producto" : "productos") en tu carrito</p>
+            }
+        </div>
+
         @if (itemsCarrito.Count > 0)
         {
-            <div class="cart-summary-header">
-                <span class="items-count">@itemsCarrito.Count @(itemsCarrito.Count == 1 ? "artículo" : "artículos")</span>
-                <button class="btn btn-outline-danger btn-sm" @onclick="LimpiarCarrito">
-                    <i class="bi bi-trash"></i>
-                    Limpiar carrito
-                </button>
-            </div>
+            <button class="btn-clear-cart" @onclick="LimpiarCarrito">
+                <i class="bi bi-trash3"></i>
+                Vaciar carrito
+            </button>
         }
     </div>
 
     @if (itemsCarrito.Count == 0)
     {
-        <div class="empty-cart">
-            <div class="empty-cart-icon">
-                <i class="bi bi-cart-x"></i>
+
+        <div class="empty-cart-modern">
+            <div class="empty-cart-illustration">
+                <i class="bi bi-cart-x-fill"></i>
             </div>
-            <h3>Tu carrito está vacío</h3>
-            <p>¡Descubre nuestros increíbles productos y comienza a llenar tu carrito!</p>
-            <button class="btn btn-primary" @onclick='() => NavigationManager.NavigateTo("/")'>
-                <i class="bi bi-arrow-left"></i>
-                Continuar comprando
+            <h2 class="empty-cart-title">Tu carrito está vacío</h2>
+            <p class="empty-cart-description">
+                Parece que aún no has agregado ningún producto.
+                <br>¡Explora nuestra increíble selección de teclados!
+            </p>
+            <button class="btn-continue-shopping-primary" @onclick='() => NavigationManager.NavigateTo("/")'>
+                <i class="bi bi-arrow-left-circle-fill"></i>
+                Explorar productos
             </button>
         </div>
     }
     else
     {
-        <div class="cart-content">
-            <div class="cart-items">
-                @foreach (var item in itemsCarrito)
-                {
-                    <div class="cart-item">
-                        <div class="item-image">
-                            @if (!string.IsNullOrEmpty(item.Producto.ImagenUrl))
-                            {
-                                <img src="@item.Producto.ImagenUrl" alt="@item.Producto.Nombre" />
-                            }
-                            else
-                            {
-                                <div class="no-image">
-                                    <i class="bi bi-keyboard"></i>
-                                </div>
-                            }
-                        </div>
+        <div class="cart-layout-modern">
 
-                        <div class="item-details">
-                            <h4 class="item-name">@item.Producto.Nombre</h4>
-                            <div class="item-specs">
-                                @if (!string.IsNullOrEmpty(item.Producto.Marca))
+            <div class="cart-items-section">
+                <div class="section-header">
+                    <h3 class="section-title">Productos</h3>
+                    <span class="section-count">@itemsCarrito.Count @(itemsCarrito.Count == 1 ? "artículo" : "artículos")</span>
+                </div>
+
+                <div class="cart-items-grid">
+                    @foreach (var item in itemsCarrito)
+                    {
+                        <div class="cart-item-modern">
+
+                            <div class="product-image-container">
+                                @if (!string.IsNullOrEmpty(item.Producto.ImagenUrl))
                                 {
-                                    <span class="spec-item">
-                                        <i class="bi bi-tag"></i>
-                                        @item.Producto.Marca
-                                    </span>
-                                }
-                                @if (!string.IsNullOrEmpty(item.Producto.ColorPrincipal))
-                                {
-                                    <span class="spec-item">
-                                        <i class="bi bi-palette"></i>
-                                        @item.Producto.ColorPrincipal
-                                    </span>
-                                }
-                                @if (item.Producto.EsMecánico)
-                                {
-                                    <span class="spec-item mechanical">
-                                        <i class="bi bi-gear-fill"></i>
-                                        Mecánico
-                                    </span>
-                                }
-                                @if (item.Producto.EsIluminado)
-                                {
-                                    <span class="spec-item rgb">
-                                        <i class="bi bi-lightbulb-fill"></i>
-                                        RGB
-                                    </span>
-                                }
-                            </div>
-                            <div class="item-availability">
-                                @if (item.Producto.Stock > 0)
-                                {
-                                    <span class="in-stock">
-                                        <i class="bi bi-check-circle-fill"></i>
-                                        En stock (@item.Producto.Stock disponibles)
-                                    </span>
+                                    <img src="@item.Producto.ImagenUrl" alt="@item.Producto.Nombre" class="product-image" />
                                 }
                                 else
                                 {
-                                    <span class="out-of-stock">
-                                        <i class="bi bi-x-circle-fill"></i>
-                                        Agotado
-                                    </span>
+                                    <div class="product-image-placeholder">
+                                        <i class="bi bi-keyboard-fill"></i>
+                                    </div>
                                 }
                             </div>
-                        </div>
 
-                        <div class="item-actions">
-                            <div class="quantity-controls">
-                                <button class="quantity-btn" @onclick="() => DisminuirCantidad(item.ProductoId)"
-                                        disabled="@(item.Cantidad <= 1)">
-                                    <i class="bi bi-dash"></i>
-                                </button>
-                                <span class="quantity">@item.Cantidad</span>
-                                <button class="quantity-btn" @onclick="() => AumentarCantidad(item.ProductoId)"
-                                        disabled="@(item.Cantidad >= item.Producto.Stock)">
-                                    <i class="bi bi-plus"></i>
-                                </button>
+                            <div class="product-info-section">
+                                <h4 class="product-name-modern">@item.Producto.Nombre</h4>
+
+                                <div class="product-features">
+                                    @if (!string.IsNullOrEmpty(item.Producto.Marca))
+                                    {
+                                        <span class="feature-tag brand-tag">
+                                            <i class="bi bi-award-fill"></i>
+                                            @item.Producto.Marca
+                                        </span>
+                                    }
+                                    @if (!string.IsNullOrEmpty(item.Producto.ColorPrincipal))
+                                    {
+                                        <span class="feature-tag color-tag">
+                                            <i class="bi bi-palette-fill"></i>
+                                            @item.Producto.ColorPrincipal
+                                        </span>
+                                    }
+                                    @if (item.Producto.EsMecánico)
+                                    {
+                                        <span class="feature-tag mechanical-tag">
+                                            <i class="bi bi-gear-wide-connected"></i>
+                                            Mecánico
+                                        </span>
+                                    }
+                                    @if (item.Producto.EsIluminado)
+                                    {
+                                        <span class="feature-tag rgb-tag">
+                                            <i class="bi bi-lightbulb-fill"></i>
+                                            RGB
+                                        </span>
+                                    }
+                                </div>
+
+                                <div class="stock-status">
+                                    @if (item.Producto.Stock > 0)
+                                    {
+                                        <span class="stock-available">
+                                            <i class="bi bi-check-circle-fill"></i>
+                                            Disponible (@item.Producto.Stock en stock)
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="stock-unavailable">
+                                            <i class="bi bi-exclamation-circle-fill"></i>
+                                            Sin stock
+                                        </span>
+                                    }
+                                </div>
                             </div>
 
-                            <div class="item-price">
-                                <div class="unit-price">$@item.Producto.Precio.ToString("F2") c/u</div>
-                                <div class="total-price">$@((item.Producto.Precio * item.Cantidad).ToString("F2"))</div>
+
+                            <div class="product-controls-section">
+                                <div class="quantity-section">
+                                    <label class="quantity-label">Cantidad</label>
+                                    <div class="quantity-controls-modern">
+                                        <button class="qty-btn qty-decrease"
+                                                @onclick="() => DisminuirCantidad(item.ProductoId)"
+                                                disabled="@(item.Cantidad <= 1)">
+                                            <i class="bi bi-dash"></i>
+                                        </button>
+                                        <span class="qty-display">@item.Cantidad</span>
+                                        <button class="qty-btn qty-increase"
+                                                @onclick="() => AumentarCantidad(item.ProductoId)"
+                                                disabled="@(item.Cantidad >= item.Producto.Stock)">
+                                            <i class="bi bi-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="price-section">
+                                    <div class="unit-price-modern">$@item.Producto.Precio.ToString("F2") c/u</div>
+                                    <div class="total-price-modern">$@((item.Producto.Precio * item.Cantidad).ToString("F2"))</div>
+                                </div>
+
+                                <button class="btn-remove-item"
+                                        @onclick="() => EliminarDelCarrito(item.ProductoId)"
+                                        title="Eliminar producto">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
                             </div>
-
-                            <button class="remove-btn" @onclick="() => EliminarDelCarrito(item.ProductoId)"
-                                    title="Eliminar del carrito">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                }
-            </div>
-
-            <div class="cart-sidebar">
-                <div class="order-summary">
-                    <h3>Resumen del pedido</h3>
-
-                    <div class="summary-line">
-                        <span>Subtotal (@itemsCarrito.Sum(i => i.Cantidad) artículos):</span>
-                        <span>$@Subtotal.ToString("F2")</span>
-                    </div>
-
-                    <div class="summary-line">
-                        <span>Envío:</span>
-                        <span>@(Subtotal >= 50 ? "GRATIS" : "$5.99")</span>
-                    </div>
-
-                    @if (Subtotal < 50)
-                    {
-                        <div class="summary-note">
-                            <i class="bi bi-info-circle"></i>
-                            Agrega $@((50 - Subtotal).ToString("F2")) más para envío gratis
                         </div>
                     }
+                </div>
+            </div>
 
-                    <div class="summary-line total">
-                        <span>Total:</span>
-                        <span>$@Total.ToString("F2")</span>
+
+            <div class="order-summary-section">
+                <div class="summary-card">
+                    <h3 class="summary-title">
+                        <i class="bi bi-receipt"></i>
+                        Resumen del pedido
+                    </h3>
+
+                    <div class="summary-details">
+                        <div class="summary-row">
+                            <span class="summary-label">Subtotal (@itemsCarrito.Sum(i => i.Cantidad) productos)</span>
+                            <span class="summary-value">$@Subtotal.ToString("F2")</span>
+                        </div>
+
+                        <div class="summary-row">
+                            <span class="summary-label">Envío</span>
+                            <span class="summary-value shipping-value">
+                                @if (Subtotal >= 50)
+                                {
+                                    <span class="free-shipping">GRATIS</span>
+                                }
+                                else
+                                {
+                                    <span>$5.99</span>
+                                }
+                            </span>
+                        </div>
+
+                        @if (Subtotal < 50)
+                        {
+                            <div class="free-shipping-notice">
+                                <i class="bi bi-info-circle-fill"></i>
+                                <span>Agrega <strong>$@((50 - Subtotal).ToString("F2"))</strong> más para envío gratuito</span>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="free-shipping-achieved">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <span>¡Felicidades! Has obtenido envío gratuito</span>
+                            </div>
+                        }
+
+                        <div class="summary-divider"></div>
+
+                        <div class="summary-row summary-total">
+                            <span class="summary-label">Total</span>
+                            <span class="summary-value total-amount">$@Total.ToString("F2")</span>
+                        </div>
                     </div>
 
-                    <div class="checkout-actions">
-                        <button class="btn btn-primary btn-lg checkout-btn" @onclick="ProcederAlPago"
-                                disabled="@(!itemsCarrito.Any(i => i.Producto.Stock > 0))">
-                            <i class="bi bi-credit-card"></i>
-                            Proceder al pago
-                        </button>
+                    <div class="checkout-section">
+                        <AuthorizeView>
+                            <Authorized>
+                                <button class="btn-checkout-modern"
+                                        @onclick="ProcederAlPago"
+                                        disabled="@(!itemsCarrito.Any(i => i.Producto.Stock > 0))">
+                                    <i class="bi bi-lock-fill"></i>
+                                    Proceder al pago
+                                </button>
+                            </Authorized>
+                            <NotAuthorized>
+                                <button class="btn-checkout-modern"
+                                        @onclick="RedirigirALogin"
+                                        disabled="@(!itemsCarrito.Any(i => i.Producto.Stock > 0))">
+                                    <i class="bi bi-person-fill"></i>
+                                    Iniciar sesión para continuar
+                                </button>
+                                <div class="login-notice">
+                                    <i class="bi bi-info-circle-fill"></i>
+                                    <small>Debes iniciar sesión para proceder con tu compra</small>
+                                </div>
+                            </NotAuthorized>
+                        </AuthorizeView>
 
-                        <button class="btn btn-outline-secondary continue-shopping"
+                        <button class="btn-continue-shopping"
                                 @onclick='() => NavigationManager.NavigateTo("/")'>
                             <i class="bi bi-arrow-left"></i>
-                            Continuar comprando
+                            Seguir comprando
                         </button>
                     </div>
                 </div>
 
-                <div class="shipping-info">
-                    <h4><i class="bi bi-truck"></i> Información de envío</h4>
-                    <ul>
-                        <li><i class="bi bi-check"></i> Envío gratis en pedidos de $50+</li>
-                        <li><i class="bi bi-check"></i> Entrega en 3-5 días hábiles</li>
-                        <li><i class="bi bi-check"></i> Garantía de satisfacción</li>
-                        <li><i class="bi bi-check"></i> Devoluciones fáciles</li>
-                    </ul>
+                <div class="shipping-benefits">
+                    <h4 class="benefits-title">
+                        <i class="bi bi-truck"></i>
+                        Beneficios de compra
+                    </h4>
+                    <div class="benefits-list">
+                        <div class="benefit-item">
+                            <i class="bi bi-shield-check"></i>
+                            <span>Compra 100% segura</span>
+                        </div>
+                        <div class="benefit-item">
+                            <i class="bi bi-truck"></i>
+                            <span>Envío gratis desde $50</span>
+                        </div>
+                        <div class="benefit-item">
+                            <i class="bi bi-clock"></i>
+                            <span>Entrega en 3-5 días</span>
+                        </div>
+                        <div class="benefit-item">
+                            <i class="bi bi-arrow-repeat"></i>
+                            <span>Devoluciones fáciles</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     }
 </div>
 
+<AuthorizeView>
+    <Authorized>
+        @if (mostrarModalPago)
+        {
+            <div class="modal-overlay-modern" @onclick="CerrarModalPago">
+                <div class="modal-container-checkout" @onclick:stopPropagation="true">
+
+                    <div class="modal-header-checkout">
+                        <h2 class="modal-title-checkout">
+                            <i class="bi bi-credit-card-2-front-fill"></i>
+                            Finalizar Compra
+                        </h2>
+                        <button class="btn-close-modal" @onclick="CerrarModalPago">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+
+
+                    <div class="modal-content-checkout">
+
+                        <div class="payment-method-section">
+                            <h3 class="section-title-checkout">
+                                <i class="bi bi-wallet2"></i>
+                                Método de Pago
+                            </h3>
+
+                            <div class="payment-options">
+                                <div class="payment-option @(metodoPagoSeleccionado == "tarjeta" ? "selected" : "")"
+                                     @onclick='() => SeleccionarMetodoPago("tarjeta")'>
+                                    <div class="payment-option-icon">
+                                        <i class="bi bi-credit-card-fill"></i>
+                                    </div>
+                                    <div class="payment-option-info">
+                                        <h4>Pago con Tarjeta</h4>
+                                        <p>Débito o Crédito - Envío a domicilio</p>
+                                    </div>
+                                    <div class="payment-option-radio">
+                                        <i class="bi @(metodoPagoSeleccionado == "tarjeta" ? "bi-check-circle-fill" : "bi-circle")"></i>
+                                    </div>
+                                </div>
+
+                                <div class="payment-option @(metodoPagoSeleccionado == "local" ? "selected" : "")"
+                                     @onclick='() => SeleccionarMetodoPago("local")'>
+                                    <div class="payment-option-icon">
+                                        <i class="bi bi-shop"></i>
+                                    </div>
+                                    <div class="payment-option-info">
+                                        <h4>Pago en Local</h4>
+                                        <p>Efectivo o Transferencia - Retiro en tienda</p>
+                                    </div>
+                                    <div class="payment-option-radio">
+                                        <i class="bi @(metodoPagoSeleccionado == "local" ? "bi-check-circle-fill" : "bi-circle")"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (metodoPagoSeleccionado == "tarjeta")
+                        {
+                            <div class="delivery-form-section">
+                                <h3 class="section-title-checkout">
+                                    <i class="bi bi-geo-alt-fill"></i>
+                                    Dirección de Entrega
+                                </h3>
+
+                                <div class="form-grid">
+                                    <div class="form-group full-width">
+                                        <label class="form-label">Nombre Completo *</label>
+                                        <input type="text" class="form-input-modern" @bind="direccionEntrega.NombreCompleto"
+                                               placeholder="Ingresa tu nombre completo" />
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Teléfono *</label>
+                                        <input type="tel" class="form-input-modern" @bind="direccionEntrega.Telefono"
+                                               placeholder="(000) 000-0000" />
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Email *</label>
+                                        <input type="email" class="form-input-modern" @bind="direccionEntrega.Email"
+                                               placeholder="tu@email.com" />
+                                    </div>
+
+                                    <div class="form-group full-width">
+                                        <label class="form-label">Dirección *</label>
+                                        <input type="text" class="form-input-modern" @bind="direccionEntrega.Direccion"
+                                               placeholder="Calle, número, colonia" />
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Ciudad *</label>
+                                        <input type="text" class="form-input-modern" @bind="direccionEntrega.Ciudad"
+                                               placeholder="Ciudad" />
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Código Postal *</label>
+                                        <input type="text" class="form-input-modern" @bind="direccionEntrega.CodigoPostal"
+                                               placeholder="00000" />
+                                    </div>
+
+                                    <div class="form-group full-width">
+                                        <label class="form-label">Referencias (Opcional)</label>
+                                        <textarea class="form-textarea-modern" @bind="direccionEntrega.Referencias"
+                                                  placeholder="Referencias para encontrar tu domicilio"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        @if (metodoPagoSeleccionado == "local")
+                        {
+                            <div class="store-info-section">
+                                <h3 class="section-title-checkout">
+                                    <i class="bi bi-shop-window"></i>
+                                    Información de la Tienda
+                                </h3>
+
+                                <div class="store-details">
+                                    <div class="store-detail-item">
+                                        <i class="bi bi-geo-alt-fill"></i>
+                                        <div>
+                                            <strong>Dirección:</strong>
+                                            <p>Calle Principal #123, Centro, Ciudad</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="store-detail-item">
+                                        <i class="bi bi-clock-fill"></i>
+                                        <div>
+                                            <strong>Horarios:</strong>
+                                            <p>
+                                                Lunes a Viernes: 9:00 AM - 7:00 PM<br>
+                                                Sábados: 10:00 AM - 6:00 PM<br>
+                                                Domingos: Cerrado
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="store-detail-item">
+                                        <i class="bi bi-telephone-fill"></i>
+                                        <div>
+                                            <strong>Teléfono:</strong>
+                                            <p>(555) 123-4567</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="pickup-notice">
+                                    <i class="bi bi-info-circle-fill"></i>
+                                    <p>
+                                        Tu pedido estará listo para recoger en <strong>2-3 días hábiles</strong>.
+                                        Te enviaremos una notificación cuando esté disponible.
+                                    </p>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="order-summary-modal">
+                            <h3 class="section-title-checkout">
+                                <i class="bi bi-receipt-cutoff"></i>
+                                Resumen del Pedido
+                            </h3>
+
+                            <div class="summary-items">
+                                @foreach (var item in itemsCarrito.Take(3))
+                                {
+                                    <div class="summary-item">
+                                        <span class="item-name">@item.Producto.Nombre</span>
+                                        <span class="item-quantity">x@item.Cantidad</span>
+                                        <span class="item-price">$@((item.Producto.Precio * item.Cantidad).ToString("F2"))</span>
+                                    </div>
+                                }
+
+                                @if (itemsCarrito.Count > 3)
+                                {
+                                    <div class="summary-item more-items">
+                                        <span>+@(itemsCarrito.Count - 3) productos más</span>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="summary-totals">
+                                <div class="summary-row">
+                                    <span>Subtotal:</span>
+                                    <span>$@Subtotal.ToString("F2")</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Envío:</span>
+                                    <span>@(metodoPagoSeleccionado == "local" ? "GRATIS" : (CostoEnvio == 0 ? "GRATIS" : "$" + CostoEnvio.ToString("F2")))</span>
+                                </div>
+                                <div class="summary-row total-row">
+                                    <span><strong>Total:</strong></span>
+                                    <span><strong>$@(metodoPagoSeleccionado == "local" ? Subtotal.ToString("F2") : Total.ToString("F2"))</strong></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer-checkout">
+                        <button class="btn-cancel-checkout" @onclick="CerrarModalPago">
+                            <i class="bi bi-x-circle"></i>
+                            Cancelar
+                        </button>
+
+                        <button class="btn-confirm-checkout"
+                                @onclick="ConfirmarPedido"
+                                disabled="@(!PuedeConfirmarPedido())">
+                            <i class="bi bi-check-circle-fill"></i>
+                            @if (metodoPagoSeleccionado == "tarjeta")
+                            {
+                                <span>Confirmar y Pagar</span>
+                            }
+                            else
+                            {
+                                <span>Confirmar Pedido</span>
+                            }
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </Authorized>
+</AuthorizeView>
 
 @code {
     private List<ItemCarrito> itemsCarrito = new();
@@ -203,17 +518,53 @@
     private decimal CostoEnvio => Subtotal >= 50 ? 0 : 5.99m;
     private decimal Total => Subtotal + CostoEnvio;
 
+
+    private bool mostrarModalPago = false;
+    private string metodoPagoSeleccionado = "";
+    private DireccionEntrega direccionEntrega = new();
+
+
+    private bool usuarioAutenticado = false;
+
     protected override async Task OnInitializedAsync()
     {
+        await VerificarAutenticacion();
         await CargarCarrito();
+    }
+
+    private async Task VerificarAutenticacion()
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            usuarioAutenticado = authState.User.Identity?.IsAuthenticated ?? false;
+
+            Console.WriteLine($"Usuario autenticado: {usuarioAutenticado}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error verificando autenticación: {ex.Message}");
+            usuarioAutenticado = false;
+        }
     }
 
     private async Task CargarCarrito()
     {
         try
         {
+            string cartKey = "keystore_cart";
 
-            var carritoJson = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "keystore_cart");
+            if (usuarioAutenticado)
+            {
+                var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+                var userId = authState.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    cartKey = $"keystore_cart_{userId}";
+                }
+            }
+
+            var carritoJson = await JSRuntime.InvokeAsync<string>("localStorage.getItem", cartKey);
 
             if (!string.IsNullOrEmpty(carritoJson))
             {
@@ -245,9 +596,21 @@
     {
         try
         {
+            string cartKey = "keystore_cart";
+
+            if (usuarioAutenticado)
+            {
+                var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+                var userId = authState.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    cartKey = $"keystore_cart_{userId}";
+                }
+            }
+
             var carritoDict = itemsCarrito.ToDictionary(i => i.ProductoId, i => i.Cantidad);
             var carritoJson = JsonSerializer.Serialize(carritoDict);
-            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "keystore_cart", carritoJson);
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", cartKey, carritoJson);
         }
         catch (Exception ex)
         {
@@ -287,20 +650,119 @@
     private async Task LimpiarCarrito()
     {
         var confirmado = await JSRuntime.InvokeAsync<bool>("confirm",
-            "¿Estás seguro de que deseas eliminar todos los productos del carrito?");
+            "¿Estás seguro de que deseas vaciar tu carrito? Esta acción no se puede deshacer.");
 
         if (confirmado)
         {
             itemsCarrito.Clear();
-            await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "keystore_cart");
+
+            string cartKey = "keystore_cart";
+            if (usuarioAutenticado)
+            {
+                var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+                var userId = authState.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    cartKey = $"keystore_cart_{userId}";
+                }
+            }
+
+            await JSRuntime.InvokeVoidAsync("localStorage.removeItem", cartKey);
             StateHasChanged();
         }
     }
 
-    private async Task ProcederAlPago()
+    private void RedirigirALogin()
     {
 
-        await JSRuntime.InvokeVoidAsync("alert", "Función de pago en desarrollo. ¡Pronto disponible!");
+        var returnUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.NavigateTo($"/Account/Login?ReturnUrl={Uri.EscapeDataString("/cart")}", forceLoad: true);
+    }
+
+    private void ProcederAlPago()
+    {
+        if (!usuarioAutenticado)
+        {
+            RedirigirALogin();
+            return;
+        }
+
+        mostrarModalPago = true;
+        metodoPagoSeleccionado = ""; 
+        direccionEntrega = new(); 
+        StateHasChanged();
+    }
+
+    private void CerrarModalPago()
+    {
+        mostrarModalPago = false;
+        StateHasChanged();
+    }
+
+    private void SeleccionarMetodoPago(string metodo)
+    {
+        metodoPagoSeleccionado = metodo;
+        StateHasChanged();
+    }
+
+    private bool PuedeConfirmarPedido()
+    {
+        if (string.IsNullOrEmpty(metodoPagoSeleccionado))
+            return false;
+
+        if (metodoPagoSeleccionado == "tarjeta")
+        {
+            return !string.IsNullOrWhiteSpace(direccionEntrega.NombreCompleto) &&
+                   !string.IsNullOrWhiteSpace(direccionEntrega.Telefono) &&
+                   !string.IsNullOrWhiteSpace(direccionEntrega.Email) &&
+                   !string.IsNullOrWhiteSpace(direccionEntrega.Direccion) &&
+                   !string.IsNullOrWhiteSpace(direccionEntrega.Ciudad) &&
+                   !string.IsNullOrWhiteSpace(direccionEntrega.CodigoPostal);
+        }
+
+        return true; 
+    }
+
+    private async Task ConfirmarPedido()
+    {
+        if (!PuedeConfirmarPedido())
+            return;
+
+        try
+        {
+            if (metodoPagoSeleccionado == "tarjeta")
+            {
+                await JSRuntime.InvokeVoidAsync("alert",
+                    $"Pedido confirmado para entrega en:\n{direccionEntrega.Direccion}, {direccionEntrega.Ciudad}\n\nRedirigiendo al procesador de pagos...");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("alert",
+                    "¡Pedido confirmado! Te contactaremos cuando esté listo para recoger en nuestra tienda.");
+            }
+
+            itemsCarrito.Clear();
+
+            string cartKey = "keystore_cart";
+            if (usuarioAutenticado)
+            {
+                var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+                var userId = authState.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    cartKey = $"keystore_cart_{userId}";
+                }
+            }
+
+            await JSRuntime.InvokeVoidAsync("localStorage.removeItem", cartKey);
+
+            CerrarModalPago();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error al procesar el pedido: {ex.Message}");
+        }
     }
 
     public class ItemCarrito
@@ -308,5 +770,16 @@
         public int ProductoId { get; set; }
         public int Cantidad { get; set; }
         public Producto Producto { get; set; } = new();
+    }
+
+    public class DireccionEntrega
+    {
+        public string NombreCompleto { get; set; } = "";
+        public string Telefono { get; set; } = "";
+        public string Email { get; set; } = "";
+        public string Direccion { get; set; } = "";
+        public string Ciudad { get; set; } = "";
+        public string CodigoPostal { get; set; } = "";
+        public string Referencias { get; set; } = "";
     }
 }

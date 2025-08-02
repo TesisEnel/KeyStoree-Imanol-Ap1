@@ -1,4 +1,4 @@
-﻿@page "/Productos/Crear"
+﻿@page "/Productos/Editar/{Id:int}"
 @using Microsoft.EntityFrameworkCore
 @using KeyStore.DAL
 @using KeyStore.Models
@@ -8,7 +8,7 @@
 @inject IImagenService ImagenService
 @rendermode InteractiveServer
 
-<PageTitle>Crear Producto - KeyStore</PageTitle>
+<PageTitle>Editar Producto - KeyStore</PageTitle>
 
 @if (isLoading)
 {
@@ -18,18 +18,36 @@
         </div>
     </div>
 }
+else if (producto == null)
+{
+    <div class="container mt-4">
+        <div class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-triangle"></i>
+            <strong>Producto no encontrado</strong><br>
+            El producto que intentas editar no existe o ha sido eliminado.
+        </div>
+        <a href="/admin/manage" class="btn btn-primary">
+            <i class="bi bi-arrow-left"></i> Volver a Gestionar Productos
+        </a>
+    </div>
+}
 else
 {
-    <EditForm Model="producto" OnValidSubmit="GuardarProducto">
+    <EditForm Model="producto" OnValidSubmit="ActualizarProducto">
         <DataAnnotationsValidator />
         <ValidationSummary />
 
         <div class="container mt-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="fw-semibold text-primary">KEYSTORE - Crear Producto</h3>
-                <a href="/productos" class="btn btn-outline-secondary">
-                    <i class="bi bi-box-seam"></i> Ver Productos
-                </a>
+                <h3 class="fw-semibold text-primary">KEYSTORE - Editar Producto</h3>
+                <div class="d-flex gap-2">
+                    <a href="/admin/manage" class="btn btn-outline-secondary">
+                        <i class="bi bi-list-ul"></i> Gestionar Productos
+                    </a>
+                    <a href="/Productos/Crear" class="btn btn-outline-success">
+                        <i class="bi bi-plus-circle"></i> Crear Nuevo
+                    </a>
+                </div>
             </div>
 
             @if (!string.IsNullOrEmpty(mensaje))
@@ -43,11 +61,10 @@ else
             <div class="row mt-4">
                 <div class="col-md-8">
                     <div class="card shadow-sm">
-                        <div class="card-header bg-primary text-white">
-                            <strong><i class="bi bi-plus-circle"></i> Información del Producto</strong>
+                        <div class="card-header bg-warning text-dark">
+                            <strong><i class="bi bi-pencil-square"></i> Editando: @producto.Nombre</strong>
                         </div>
                         <div class="card-body">
-
                             <div class="row">
                                 <div class="col-md-8">
                                     <div class="mb-3">
@@ -198,7 +215,7 @@ else
                                 </div>
                             }
 
-                            @if (producto.CategoriaId == 3) 
+                            @if (producto.CategoriaId == 3)
                             {
                                 <div class="card mt-3">
                                     <div class="card-header bg-light">
@@ -272,18 +289,18 @@ else
                             </div>
 
                             <div class="mt-4 d-flex justify-content-center gap-2">
-                                <a href="/productos" class="btn btn-outline-danger">
-                                    <i class="bi bi-arrow-left"></i> Volver
+                                <a href="/admin/manage" class="btn btn-outline-danger">
+                                    <i class="bi bi-arrow-left"></i> Cancelar
                                 </a>
-                                <button type="submit" class="btn btn-success" disabled="@guardando">
+                                <button type="submit" class="btn btn-warning" disabled="@guardando">
                                     @if (guardando)
                                     {
                                         <span class="spinner-border spinner-border-sm me-2"></span>
                                     }
-                                    <i class="bi bi-floppy"></i> Guardar Producto
+                                    <i class="bi bi-floppy"></i> Actualizar Producto
                                 </button>
-                                <button type="button" class="btn btn-outline-primary" @onclick="LimpiarFormulario">
-                                    <i class="bi bi-plus"></i> Limpiar
+                                <button type="button" class="btn btn-outline-danger" @onclick="MostrarConfirmacionEliminar">
+                                    <i class="bi bi-trash"></i> Eliminar Producto
                                 </button>
                             </div>
                         </div>
@@ -332,7 +349,7 @@ else
                             }
 
                             <div class="mt-3">
-                                <label class="form-label fw-bold">Subir Imagen del Producto</label>
+                                <label class="form-label fw-bold">Cambiar Imagen del Producto</label>
                                 <InputFile OnChange="SubirImagen" class="form-control" accept="image/*" />
                                 <small class="form-text text-muted">
                                     <i class="bi bi-info-circle"></i>
@@ -350,15 +367,35 @@ else
                     </div>
 
                     <div class="card shadow-sm mt-3">
+                        <div class="card-header bg-secondary text-white">
+                            <strong><i class="bi bi-info-circle"></i> Información del Producto</strong>
+                        </div>
+                        <div class="card-body">
+                            <small>
+                                <strong>ID del Producto:</strong> @producto.Id<br>
+                                <strong>Categoría Actual:</strong> @ObtenerNombreCategoria(producto.CategoriaId)<br>
+                                <strong>Creado:</strong> Producto existente<br>
+                                <strong>Estado:</strong> @(producto.Stock > 0 ? $"En stock ({producto.Stock})" : "Sin stock")<br>
+                                @if (producto.EsDestacado)
+                                {
+                                    <strong>⭐ Producto Destacado</strong>
+
+                                    <br>
+                                }
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm mt-3">
                         <div class="card-header bg-warning text-dark">
                             <strong><i class="bi bi-lightbulb"></i> Ayuda</strong>
                         </div>
                         <div class="card-body">
                             <small>
-                                <strong>Categorías disponibles:</strong><br>
-                                • <strong>Teclados:</strong> Gaming, mecánicos, RGB<br>
-                                • <strong>Mouse:</strong> Gaming, inalámbricos, ergonómicos<br>
-                                • <strong>Audífonos:</strong> Gaming, inalámbricos, con micrófono<br><br>
+                                <strong>Edición de productos:</strong><br>
+                                • Puedes cambiar cualquier campo<br>
+                                • La imagen se puede actualizar o eliminar<br>
+                                • Los cambios se guardan al hacer clic en "Actualizar"<br><br>
                                 <strong>Campos obligatorios:</strong><br>
                                 • Nombre, Categoría, Precio y Stock
                             </small>
@@ -370,11 +407,50 @@ else
     </EditForm>
 }
 
+@if (mostrarModalEliminar)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-exclamation-triangle text-danger"></i>
+                        Eliminar Producto
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro que deseas eliminar este producto?</p>
+                    <div class="alert alert-warning">
+                        <strong>@producto?.Nombre</strong><br>
+                        <small>Esta acción no se puede deshacer y se eliminará la imagen asociada.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CancelarEliminacion">
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn btn-danger" @onclick="ConfirmarEliminacion" disabled="@eliminandoProducto">
+                        @if (eliminandoProducto)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                        }
+                        <i class="bi bi-trash"></i> Eliminar Definitivamente
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
-    public Producto producto { get; set; } = new Producto();
+    [Parameter] public int Id { get; set; }
+
+    public Producto? producto { get; set; }
     private bool isLoading = true;
     private bool guardando = false;
+    private bool eliminandoProducto = false;
     private bool subiendoImagen = false;
+    private bool mostrarModalEliminar = false;
     private string mensajeImagen = string.Empty;
     private string mensaje = string.Empty;
     private bool esError = false;
@@ -384,27 +460,48 @@ else
     protected override async Task OnInitializedAsync()
     {
         isLoading = true;
-
-        producto.Stock = 0;
-        producto.Precio = 0.01m;
-        producto.CategoriaId = 0;
-        producto.TipoConexion = TipoConexion.USB_A;
-        producto.TipoSwitch = TipoSwitch.Rojo_Linear;
-
-        await Task.Delay(100);
+        await CargarProducto();
         isLoading = false;
+    }
+
+    private async Task CargarProducto()
+    {
+        try
+        {
+            await using var contexto = await DbContextFactory.CreateDbContextAsync();
+            producto = await contexto.Productos
+                .FirstOrDefaultAsync(p => p.Id == Id);
+
+            if (producto == null)
+            {
+                mensaje = "Producto no encontrado.";
+                esError = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            mensaje = $"Error cargando producto: {ex.Message}";
+            esError = true;
+            producto = null;
+        }
     }
 
     private void OnCategoriaChanged(ChangeEventArgs e)
     {
-        if (int.TryParse(e.Value?.ToString(), out int categoriaId))
+        if (producto != null && int.TryParse(e.Value?.ToString(), out int categoriaId))
         {
+            var categoriaAnterior = producto.CategoriaId;
             producto.CategoriaId = categoriaId;
-            producto.Layout = string.Empty;
-            producto.EsMecánico = false;
-            producto.EsIluminado = false;
-            producto.EsInalámbrico = false;
-            producto.TipoSwitch = TipoSwitch.Rojo_Linear;
+
+            if (categoriaAnterior != categoriaId)
+            {
+                if (categoriaId != 1) 
+                {
+                    producto.Layout = string.Empty;
+                    producto.EsMecánico = false;
+                    producto.TipoSwitch = TipoSwitch.Rojo_Linear;
+                }
+            }
 
             StateHasChanged();
         }
@@ -415,7 +512,7 @@ else
         mensajeImagen = string.Empty;
         var archivo = e.File;
 
-        if (archivo != null)
+        if (archivo != null && producto != null)
         {
             try
             {
@@ -428,15 +525,24 @@ else
                     return;
                 }
 
+                var imagenAnterior = producto.ImagenUrl;
+
                 var rutaImagen = await ImagenService.SubirImagenAsync(archivo, "productos");
 
-                if (!string.IsNullOrEmpty(producto.ImagenUrl))
+                if (!string.IsNullOrEmpty(imagenAnterior))
                 {
-                    await ImagenService.EliminarImagenAsync(producto.ImagenUrl);
+                    try
+                    {
+                        await ImagenService.EliminarImagenAsync(imagenAnterior);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error eliminando imagen anterior: {ex.Message}");
+                    }
                 }
 
                 producto.ImagenUrl = rutaImagen;
-                mensajeImagen = "Imagen subida correctamente.";
+                mensajeImagen = "Imagen actualizada correctamente.";
                 StateHasChanged();
             }
             catch (Exception ex)
@@ -453,6 +559,8 @@ else
 
     private async Task EliminarImagen()
     {
+        if (producto == null) return;
+
         try
         {
             if (!string.IsNullOrEmpty(producto.ImagenUrl))
@@ -469,8 +577,10 @@ else
         }
     }
 
-    public async Task GuardarProducto()
+    public async Task ActualizarProducto()
     {
+        if (producto == null) return;
+
         try
         {
             guardando = true;
@@ -507,25 +617,17 @@ else
 
             await using var contexto = await DbContextFactory.CreateDbContextAsync();
 
-            if (producto.Id == 0)
-            {
-                contexto.Productos.Add(producto);
-            }
-            else
-            {
-                contexto.Productos.Update(producto);
-            }
-
+            contexto.Productos.Update(producto);
             await contexto.SaveChangesAsync();
 
-            mensaje = producto.Id == 0 ?
-                "Producto creado exitosamente." :
-                "Producto actualizado exitosamente.";
+            mensaje = "Producto actualizado exitosamente.";
             esError = false;
 
             await Task.Delay(1500);
             if (!esError)
-                LimpiarFormulario();
+            {
+                NavigationManager.NavigateTo("/admin/manage");
+            }
         }
         catch (DbUpdateException dbEx)
         {
@@ -544,18 +646,65 @@ else
         }
     }
 
-    private void LimpiarFormulario()
+    private void MostrarConfirmacionEliminar()
     {
-        producto = new Producto
+        mostrarModalEliminar = true;
+    }
+
+    private void CancelarEliminacion()
+    {
+        mostrarModalEliminar = false;
+    }
+
+    private async Task ConfirmarEliminacion()
+    {
+        if (producto == null) return;
+
+        try
+        {
+            eliminandoProducto = true;
+            StateHasChanged();
+
+            await using var contexto = await DbContextFactory.CreateDbContextAsync();
+
+            if (!string.IsNullOrEmpty(producto.ImagenUrl))
             {
-                Stock = 0,
-                Precio = 0.01m,
-                CategoriaId = 0,
-                TipoConexion = TipoConexion.USB_A,
-                TipoSwitch = TipoSwitch.Rojo_Linear
-            };
-        mensajeImagen = string.Empty;
-        mensaje = string.Empty;
-        StateHasChanged();
+                try
+                {
+                    await ImagenService.EliminarImagenAsync(producto.ImagenUrl);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error eliminando imagen: {ex.Message}");
+                }
+            }
+
+            contexto.Productos.Remove(producto);
+            await contexto.SaveChangesAsync();
+
+            NavigationManager.NavigateTo("/admin/manage");
+        }
+        catch (Exception ex)
+        {
+            mensaje = $"Error eliminando producto: {ex.Message}";
+            esError = true;
+            mostrarModalEliminar = false;
+        }
+        finally
+        {
+            eliminandoProducto = false;
+            StateHasChanged();
+        }
+    }
+
+    private string ObtenerNombreCategoria(int categoriaId)
+    {
+        return categoriaId switch
+        {
+            1 => "Teclados",
+            2 => "Mouse",
+            3 => "Audífonos",
+            _ => "Categoría"
+        };
     }
 }

@@ -1,0 +1,264 @@
+﻿@page "/about"
+@inject IDbContextFactory<Contexto> DbContextFactory
+@inject IJSRuntime JSRuntime
+@using Microsoft.EntityFrameworkCore
+@using KeyStore.DAL
+@using KeyStore.Models
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<div class="about-page-container">
+
+    <section class="about-hero-section">
+        <div class="about-hero-content">
+            <div class="about-hero-text">
+                <h1 class="about-hero-title">
+                    <span class="hero-subtitle-text">Nuestra Historia</span>
+                </h1>
+                <p class="about-hero-description">
+                    Transformando la experiencia de escritura desde 2022,
+                    creando conexiones perfectas entre tecnología y creatividad.
+                </p>
+            </div>
+            <div class="about-hero-image">
+                <div class="hero-keystore-text">KEYSTORE</div>
+                <div class="hero-glow-about"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="founder-section">
+        <div class="founder-container">
+            <div class="founder-content">
+                <div class="founder-header">
+                    <h2 class="founder-title">Nuestro Fundador</h2>
+                    <div class="founder-name">Imanol</div>
+                    <div class="founder-role">CEO & Fundador</div>
+                </div>
+
+                <div class="founder-story">
+                    <p>
+                        Fundé KEYSTORE en 2025 con una visión clara: crear la experiencia de compra de perifericos perfecta
+                        para cada usuario. Como apasionado de la tecnología desde joven, siempre creí que
+                        los periféricos no son solo herramientas, sino extensiones de nuestra creatividad.
+                    </p>
+                    <p>
+                        Lo que comenzó como un proyecto personal para encontrar el periferico ideal,
+                        se transformó en una misión para ayudar a otros a descubrir esa conexión perfecta
+                        entre sus ideas y la tecnología. Cada producto que ofrecemos pasa por nuestro
+                        riguroso proceso de selección, garantizando calidad premium y experiencias excepcionales.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <section class="mission-vision-section">
+        <div class="mission-vision-container">
+            <div class="mission-card">
+                <div class="card-icon">
+                    <i class="bi bi-bullseye"></i>
+                </div>
+                <h3 class="card-title">Misión</h3>
+                <p class="card-description">
+                    Proporcionar a nuestros clientes la experiencia de perifericos más personalizada y premium del mercado,
+                    ofreciendo productos de alta calidad que potencien su productividad y creatividad. Nos comprometemos
+                    a brindar un servicio excepcional, precios competitivos y la confianza de un soporte técnico
+                    especializado que garantice la satisfacción total de cada usuario.
+                </p>
+            </div>
+
+            <div class="vision-card">
+                <div class="card-icon">
+                    <i class="bi bi-eye"></i>
+                </div>
+                <h3 class="card-title">Visión</h3>
+                <p class="card-description">
+                    Convertirnos en la marca líder de periféricos premium en América Latina, siendo reconocidos
+                    por revolucionar la experiencia de escritura y gaming. Aspiramos a crear una comunidad global
+                    de entusiastas que encuentren en KEYSTORE no solo productos excepcionales, sino la perfecta
+                    fusión entre tecnología, diseño y personalización.
+                </p>
+            </div>
+        </div>
+    </section>
+
+
+    <section class="values-section">
+        <div class="values-header">
+            <h2 class="section-title">Nuestros Valores</h2>
+            <p class="values-subtitle">Los principios que guían cada decisión en KEYSTORE</p>
+        </div>
+
+        <div class="values-grid">
+            <div class="value-item">
+                <div class="value-icon">
+                    <i class="bi bi-award"></i>
+                </div>
+                <h4 class="value-title">Calidad Premium</h4>
+                <p class="value-description">
+                    Cada producto pasa por estrictos controles de calidad para garantizar durabilidad y rendimiento excepcional.
+                </p>
+            </div>
+
+            <div class="value-item">
+                <div class="value-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+                <h4 class="value-title">Enfoque al Cliente</h4>
+                <p class="value-description">
+                    Nuestros clientes son el centro de todo. Escuchamos, entendemos y superamos sus expectativas.
+                </p>
+            </div>
+
+            <div class="value-item">
+                <div class="value-icon">
+                    <i class="bi bi-lightbulb"></i>
+                </div>
+                <h4 class="value-title">Innovación</h4>
+                <p class="value-description">
+                    Constantemente exploramos nuevas tecnologías y tendencias para ofrecer lo último en periféricos.
+                </p>
+            </div>
+
+            <div class="value-item">
+                <div class="value-icon">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <h4 class="value-title">Confiabilidad</h4>
+                <p class="value-description">
+                    Cumplimos nuestras promesas con transparencia, honestidad y un compromiso inquebrantable.
+                </p>
+            </div>
+
+            <div class="value-item">
+                <div class="value-icon">
+                    <i class="bi bi-palette"></i>
+                </div>
+                <h4 class="value-title">Personalización</h4>
+                <p class="value-description">
+                    Creemos que cada usuario es único, por eso ofrecemos opciones infinitas de personalización.
+                </p>
+            </div>
+
+            <div class="value-item">
+                <div class="value-icon">
+                    <i class="bi bi-heart"></i>
+                </div>
+                <h4 class="value-title">Pasión</h4>
+                <p class="value-description">
+                    Amamos lo que hacemos y esa pasión se refleja en cada detalle de nuestros productos y servicios.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats-section">
+        <div class="stats-container">
+            <div class="stat-item">
+                <div class="stat-number">@totalProductos</div>
+                <div class="stat-label">Productos Premium</div>
+            </div>
+
+            <div class="stat-item">
+                <div class="stat-number">2022</div>
+                <div class="stat-label">Año de Fundación</div>
+            </div>
+
+            <div class="stat-item">
+                <div class="stat-number">99%</div>
+                <div class="stat-label">Satisfacción del Cliente</div>
+            </div>
+
+            <div class="stat-item">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">Soporte Técnico</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2 class="cta-title">¿Listo para Elevar tu Experiencia?</h2>
+            <p class="cta-description">
+                Descubre nuestra colección completa de teclados premium y encuentra
+                el compañero perfecto para tu creatividad.
+            </p>
+            <div class="cta-buttons">
+                <a href="/shop" class="btn btn-primary cta-btn">
+                    <i class="bi bi-shop"></i>
+                    Explorar Tienda
+                </a>
+                <a href="/" class="btn btn-secondary cta-btn">
+                    <i class="bi bi-house"></i>
+                    Volver al Inicio
+                </a>
+            </div>
+        </div>
+    </section>
+</div>
+
+@code {
+    private Dictionary<string, ImagenSitio> imagenesSitio = new();
+    private int totalProductos = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarImagenesSitio();
+        await CargarEstadisticas();
+    }
+
+    private async Task CargarImagenesSitio()
+    {
+        try
+        {
+            await using var contexto = await DbContextFactory.CreateDbContextAsync();
+            var imagenes = await contexto.ImagenesSitio
+                .Where(i => i.Activa && i.ImagenData != null)
+                .ToListAsync();
+
+            imagenesSitio = imagenes.ToDictionary(i => i.Clave, i => i);
+            Console.WriteLine($"Imágenes del sitio cargadas para About: {imagenesSitio.Count}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando imágenes del sitio: {ex.Message}");
+            imagenesSitio = new Dictionary<string, ImagenSitio>();
+        }
+    }
+
+    private async Task CargarEstadisticas()
+    {
+        try
+        {
+            await using var contexto = await DbContextFactory.CreateDbContextAsync();
+            totalProductos = await contexto.Productos.CountAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando estadísticas: {ex.Message}");
+            totalProductos = 0;
+        }
+    }
+
+    private string ObtenerImagenSitio(string clave)
+    {
+        if (imagenesSitio.TryGetValue(clave, out var imagen) &&
+            imagen.ImagenData != null && imagen.ImagenData.Length > 0)
+        {
+            var base64 = Convert.ToBase64String(imagen.ImagenData);
+            return $"data:{imagen.TipoImagen};base64,{base64}";
+        }
+        return string.Empty;
+    }
+
+    private ImagenSitio? ObtenerConfiguracionImagen(string clave)
+    {
+        if (imagenesSitio.TryGetValue(clave, out var imagen))
+        {
+            return imagen;
+        }
+        return null;
+    }
+}

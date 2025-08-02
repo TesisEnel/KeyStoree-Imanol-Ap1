@@ -5,96 +5,148 @@
 @using Microsoft.EntityFrameworkCore
 @using KeyStore.DAL
 @using KeyStore.Models
-@inject IDbContextFactory<Contexto> DbContextFactory
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@using KeyStore.Data
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<ApplicationUser> UserManager
+
 <div class="home-container">
-
-    <div class="admin-floating-panel">
-        <div class="admin-toggle-btn" onclick="toggleAdminPanel()">
-            <i class="bi bi-gear-fill"></i>
-        </div>
-        <div class="admin-dropdown" id="adminDropdown">
-            <div class="admin-dropdown-header">
-                <i class="bi bi-shield-lock-fill"></i>
-                <span>Panel Admin</span>
-            </div>
-            <a href="/Home/Crear" class="admin-dropdown-item">
-                <i class="bi bi-plus-circle-fill"></i>
-                <span>Crear Elemento</span>
-            </a>
-            <a href="/admin/imagenes" class="admin-dropdown-item">
-                <i class="bi bi-images"></i>
-                <span>Gestionar Imágenes</span>
-            </a>
-            <a href="/admin/manage" class="admin-dropdown-item">
-                <i class="bi bi-list-ul"></i>
-                <span>Gestionar</span>
-            </a>
-        </div>
-    </div>
-
     <section class="hero-section">
         <div class="hero-content">
             <div class="hero-text">
                 <h1 class="brand-title">KEYSTORE</h1>
-                <div class="brand-subtitle">Premium Keyboard Experience</div>
+                <div class="brand-subtitle">Experiencia Premium</div>
                 <div class="hero-buttons">
                     <button class="btn btn-primary">Comprar Ahora</button>
-                    <button class="btn btn-secondary">Explorar</button>
+                    <a href="/Shop" class="btn btn-secondary">Explorar</a>
                 </div>
             </div>
             <div class="hero-image">
-                <div class="keyboard-main">
-                    @{
-                        var heroImage = ObtenerImagenSitio("hero-keyboard");
-                        var heroImagenConfig = ObtenerConfiguracionImagen("hero-keyboard");
-                    }
-                    @if (!string.IsNullOrEmpty(heroImage))
+
+                <div id="heroCarousel" class="carousel slide hero-carousel" data-bs-ride="carousel" data-bs-interval="5000">
+                    @if (productosCarousel != null && productosCarousel.Any())
                     {
-                        <img src="@heroImage"
-                             alt="Teclado mecánico principal"
-                             class="img-fluid"
-                             style="@(heroImagenConfig?.GenerarEstilosCSS() ?? "object-fit: cover;")" />
+                        <div class="carousel-inner">
+                            @for (int i = 0; i < productosCarousel.Count; i++)
+                            {
+                                var producto = productosCarousel[i];
+                                <div class="carousel-item @(i == 0 ? "active" : "")">
+                                    <div class="hero-carousel-card">
+                                        @if (!string.IsNullOrEmpty(producto.ImagenUrl))
+                                        {
+                                            <img src="@producto.ImagenUrl"
+                                                 class="hero-carousel-image"
+                                                 alt="@producto.Nombre">
+                                        }
+                                        else
+                                        {
+                                            <div class="hero-carousel-placeholder">
+                                                <i class="bi bi-image"></i>
+                                                <span>Sin imagen</span>
+                                            </div>
+                                        }
+
+                                        <div class="hero-carousel-overlay">
+                                            <div class="hero-carousel-info">
+                                                <h3 class="hero-carousel-title">@producto.Nombre</h3>
+                                                <p class="hero-carousel-price">$@producto.Precio.ToString("F2")</p>
+                                                @if (!string.IsNullOrEmpty(producto.Marca))
+                                                {
+                                                    <p class="hero-carousel-brand">@producto.Marca</p>
+                                                }
+                                                <button class="btn btn-primary hero-carousel-btn"
+                                                        @onclick="() => AgregarAlCarrito(producto.Id)"
+                                                        disabled="@procesandoCarrito">
+                                                    <i class="bi bi-cart-plus"></i> Agregar al Carrito
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+
+                        <div class="carousel-indicators hero-carousel-indicators">
+                            @for (int i = 0; i < productosCarousel.Count; i++)
+                            {
+                                <button type="button"
+                                        data-bs-target="#heroCarousel"
+                                        data-bs-slide-to="@i"
+                                        class="@(i == 0 ? "active" : "")"
+                                        aria-current="@(i == 0 ? "true" : "false")"
+                                        aria-label="Slide @(i + 1)">
+                                </button>
+                            }
+                        </div>
                     }
-                    else if (heroImagenConfig?.OcultarFondo != true)
+                    else
                     {
-                        <span class="image-ref">[IMAGEN: Teclado mecánico principal - hero-keyboard.jpg]</span>
+                        <div class="carousel-inner">
+                            <div class="carousel-item active">
+                                <div class="hero-empty-carousel">
+                                    <div class="empty-carousel-content">
+                                        <i class="bi bi-box-seam display-1 text-muted mb-3"></i>
+                                        <h4 class="text-white">No hay productos para mostrar</h4>
+                                        <p class="text-muted">Agrega algunos productos para que aparezcan en el carousel</p>
+                                        <AuthorizeView Roles="Admin">
+                                            <Authorized>
+                                                <a href="/Productos/Crear" class="btn btn-primary">
+                                                    <i class="bi bi-plus-circle"></i> Crear Producto
+                                                </a>
+                                            </Authorized>
+                                        </AuthorizeView>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     }
-                    <div class="hero-glow"></div>
                 </div>
+                <div class="hero-glow"></div>
             </div>
         </div>
     </section>
 
     <section class="categories-section">
         <h2 class="section-title">Productos</h2>
+
+
+        <div style="color: white; text-align: center; margin-bottom: 20px;">
+            <small>Debug: @(productos?.Count ?? 0) productos cargados</small>
+        </div>
+
         <div class="categories-grid">
             @if (productos != null && productos.Any())
             {
-                foreach (var item in productos.OrderBy(p => p.Orden))
+                foreach (var producto in productos)
                 {
                     <div class="category-card">
                         <div class="category-image">
-                            @if (item.ImagenData != null && item.ImagenData.Length > 0)
+                            @if (!string.IsNullOrEmpty(producto.ImagenUrl))
                             {
-                                var base64 = Convert.ToBase64String(item.ImagenData);
-                                <img src="data:image/jpeg;base64,@base64" alt="@item.NombreImagen" class="img-fluid" />
+                                <img src="@producto.ImagenUrl" alt="@producto.Nombre" class="img-fluid" />
                             }
                             else
                             {
                                 <span class="image-ref">[Sin imagen]</span>
                             }
                             <div class="category-overlay">
-                                <button class="add-btn-new" @onclick="() => AgregarAlCarrito(item.Id)" disabled="@procesandoCarrito">
+                                <button class="add-btn-new" @onclick="() => AgregarAlCarrito(producto.Id)" disabled="@procesandoCarrito">
                                     <i class="bi bi-plus"></i>
                                 </button>
                             </div>
                         </div>
                         <div class="category-info">
-                            <p class="category-title">@item.Titulo</p>
-                            <div class="category-price">Desde $@item.Precio.ToString("F2")</div>
+                            <p class="category-title">@producto.Nombre</p>
+                            <div class="category-price">$@producto.Precio.ToString("F2")</div>
+                            @if (!string.IsNullOrEmpty(producto.Marca))
+                            {
+                                <small class="category-brand">@producto.Marca</small>
+                            }
                         </div>
                     </div>
                 }
@@ -104,99 +156,150 @@
                 <div class="empty-state">
                     <i class="bi bi-box-seam"></i>
                     <h4>No hay productos aún</h4>
-                    <p>Agrega productos para mostrar aquí</p>
+                    <p>
+                        <AuthorizeView Roles="Admin">
+                            <Authorized>
+                                <a href="/Productos/Crear" class="btn btn-primary">
+                                    <i class="bi bi-plus-circle"></i> Crear tu primer producto
+                                </a>
+                            </Authorized>
+                            <NotAuthorized>
+                                <span>Próximamente tendremos productos disponibles</span>
+                            </NotAuthorized>
+                        </AuthorizeView>
+                    </p>
                 </div>
             }
         </div>
     </section>
 
     <section class="featured-section">
-        <p class="featured-subtitle">Eleva tu experiencia de escritura con nuestros temas de teclado personalizados</p>
+        <h2 class="section-title">Productos Destacados</h2>
+        <p class="featured-subtitle">Eleva tu experiencia con nuestros productos más populares</p>
+
+        @* Debug info - Remover después de solucionar *@
+        <div style="color: white; text-align: center; margin-bottom: 20px;">
+            <small>Debug: @(productosDestacados?.Count ?? 0) productos destacados cargados</small>
+        </div>
+
         <div class="products-grid">
-            <div class="product-card">
-                <div class="product-image">
-                    @{
-                        var product1Image = ObtenerImagenSitio("product-1");
-                        var product1Config = ObtenerConfiguracionImagen("product-1");
-                    }
-                    @if (!string.IsNullOrEmpty(product1Image))
-                    {
-                        <img src="@product1Image"
-                             alt="Producto destacado 1"
-                             class="img-fluid"
-                             style="@(product1Config?.GenerarEstilosCSS() ?? "object-fit: cover;")" />
-                    }
-                    else if (product1Config?.OcultarFondo != true)
-                    {
-                        <span class="image-ref">[IMAGEN: Producto 1 - product-1.jpg]</span>
-                    }
-                    <div class="product-overlay">
-                        <button class="add-btn-featured" @onclick="() => AgregarProductoDestacado(1)" disabled="@procesandoCarrito">
-                            <i class="bi bi-cart-plus"></i>
-                        </button>
+            @if (productosDestacados != null && productosDestacados.Any())
+            {
+                foreach (var producto in productosDestacados.Take(3))
+                {
+                    <div class="product-card">
+                        <div class="product-image">
+                            @if (!string.IsNullOrEmpty(producto.ImagenUrl))
+                            {
+                                <img src="@producto.ImagenUrl"
+                                     alt="@producto.Nombre"
+                                     class="img-fluid"
+                                     style="object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <span class="image-ref">[IMAGEN: @producto.Nombre]</span>
+                            }
+                            <div class="product-overlay">
+                                <button class="add-btn-featured" @onclick="() => AgregarAlCarrito(producto.Id)" disabled="@procesandoCarrito">
+                                    <i class="bi bi-cart-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <h5>@producto.Nombre</h5>
+                            <p class="price">$@producto.Precio.ToString("F2")</p>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+
+                <div class="product-card">
+                    <div class="product-image">
+                        @{
+                            var product1Image = ObtenerImagenSitio("product-1");
+                            var product1Config = ObtenerConfiguracionImagen("product-1");
+                        }
+                        @if (!string.IsNullOrEmpty(product1Image))
+                        {
+                            <img src="@product1Image"
+                                 alt="Producto destacado 1"
+                                 class="img-fluid"
+                                 style="@(product1Config?.GenerarEstilosCSS() ?? "object-fit: cover;")" />
+                        }
+                        else if (product1Config?.OcultarFondo != true)
+                        {
+                            <span class="image-ref">[IMAGEN: Producto 1 - product-1.jpg]</span>
+                        }
+                        <div class="product-overlay">
+                            <button class="add-btn-featured" @onclick="() => AgregarProductoDestacado(1)" disabled="@procesandoCarrito">
+                                <i class="bi bi-cart-plus"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="product-card">
-                <div class="product-image">
-                    @{
-                        var product2Image = ObtenerImagenSitio("product-2");
-                        var product2Config = ObtenerConfiguracionImagen("product-2");
-                    }
-                    @if (!string.IsNullOrEmpty(product2Image))
-                    {
-                        <img src="@product2Image"
-                             alt="Producto destacado 2"
-                             class="img-fluid"
-                             style="@(product2Config?.GenerarEstilosCSS() ?? "object-fit: cover;")" />
-                    }
-                    else if (product2Config?.OcultarFondo != true)
-                    {
-                        <span class="image-ref">[IMAGEN: Producto 2 - product-2.jpg]</span>
-                    }
-                    <div class="product-overlay">
-                        <button class="add-btn-featured" @onclick="() => AgregarProductoDestacado(2)" disabled="@procesandoCarrito">
-                            <i class="bi bi-cart-plus"></i>
-                        </button>
+                <div class="product-card">
+                    <div class="product-image">
+                        @{
+                            var product2Image = ObtenerImagenSitio("product-2");
+                            var product2Config = ObtenerConfiguracionImagen("product-2");
+                        }
+                        @if (!string.IsNullOrEmpty(product2Image))
+                        {
+                            <img src="@product2Image"
+                                 alt="Producto destacado 2"
+                                 class="img-fluid"
+                                 style="@(product2Config?.GenerarEstilosCSS() ?? "object-fit: cover;")" />
+                        }
+                        else if (product2Config?.OcultarFondo != true)
+                        {
+                            <span class="image-ref">[IMAGEN: Producto 2 - product-2.jpg]</span>
+                        }
+                        <div class="product-overlay">
+                            <button class="add-btn-featured" @onclick="() => AgregarProductoDestacado(2)" disabled="@procesandoCarrito">
+                                <i class="bi bi-cart-plus"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="product-card">
-                <div class="product-image">
-                    @{
-                        var product3Image = ObtenerImagenSitio("product-3");
-                        var product3Config = ObtenerConfiguracionImagen("product-3");
-                    }
-                    @if (!string.IsNullOrEmpty(product3Image))
-                    {
-                        <img src="@product3Image"
-                             alt="Producto destacado 3"
-                             class="img-fluid"
-                             style="@(product3Config?.GenerarEstilosCSS() ?? "object-fit: cover;")" />
-                    }
-                    else if (product3Config?.OcultarFondo != true)
-                    {
-                        <span class="image-ref">[IMAGEN: Producto 3 - product-3.jpg]</span>
-                    }
-                    <div class="product-overlay">
-                        <button class="add-btn-featured" @onclick="() => AgregarProductoDestacado(3)" disabled="@procesandoCarrito">
-                            <i class="bi bi-cart-plus"></i>
-                        </button>
+                <div class="product-card">
+                    <div class="product-image">
+                        @{
+                            var product3Image = ObtenerImagenSitio("product-3");
+                            var product3Config = ObtenerConfiguracionImagen("product-3");
+                        }
+                        @if (!string.IsNullOrEmpty(product3Image))
+                        {
+                            <img src="@product3Image"
+                                 alt="Producto destacado 3"
+                                 class="img-fluid"
+                                 style="@(product3Config?.GenerarEstilosCSS() ?? "object-fit: cover;")" />
+                        }
+                        else if (product3Config?.OcultarFondo != true)
+                        {
+                            <span class="image-ref">[IMAGEN: Producto 3 - product-3.jpg]</span>
+                        }
+                        <div class="product-overlay">
+                            <button class="add-btn-featured" @onclick="() => AgregarProductoDestacado(3)" disabled="@procesandoCarrito">
+                                <i class="bi bi-cart-plus"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
         </div>
     </section>
 
     <section class="about-section">
         <div class="about-content">
             <div class="about-text">
-                <h3 class="about-title">About Us</h3>
+                <h3 class="about-title">Sobre Nosotros</h3>
                 <p class="about-description">
-                    Our mission is to bring personalized keyboard experiences to everyone. Learn more about our
-                    journey and our dedication to quality and innovation.
+                    Transformando la experiencia de escritura desde 2022, creando conexiones perfectas entre tecnología y creatividad.
                 </p>
-                <a href="#" class="learn-more">Learn more</a>
+                <a href="/about" class="learn-more">Saber mas</a>
             </div>
             <div class="about-image">
                 @{
@@ -229,7 +332,6 @@
     </footer>
 </div>
 
-
 @if (mostrarToast)
 {
     <div class="toast-container position-fixed top-0 end-0 p-3">
@@ -246,22 +348,10 @@
     </div>
 }
 
-<script>
-    function toggleAdminPanel() {
-        const dropdown = document.getElementById('adminDropdown');
-        dropdown.classList.toggle('show');
-    }
-
-    document.addEventListener('click', function(event) {
-        const panel = document.querySelector('.admin-floating-panel');
-        if (!panel.contains(event.target)) {
-            document.getElementById('adminDropdown').classList.remove('show');
-        }
-    });
-</script>
-
 @code {
-    private List<ElementoHome> productos;
+    private List<Producto> productos = new();
+    private List<Producto> productosDestacados = new();
+    private List<Producto> productosCarousel = new();
     private Dictionary<string, ImagenSitio> imagenesSitio = new();
     private bool procesandoCarrito = false;
     private bool mostrarToast = false;
@@ -269,17 +359,151 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Console.WriteLine("Iniciando OnInitializedAsync...");
+
         await CargarProductos();
+        await CargarProductosDestacados();
+        await CargarProductosCarousel();
         await CargarImagenesSitio();
+
+        Console.WriteLine("Finalizando OnInitializedAsync...");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Console.WriteLine("Primer render completado");
+
+
+            await Task.Delay(300);
+
+            try
+            {
+
+                var result = await JSRuntime.InvokeAsync<bool>("initializeHeroCarousel");
+
+                if (result)
+                {
+                    Console.WriteLine("Carousel inicializado exitosamente");
+
+
+                    await JSRuntime.InvokeVoidAsync("observeCarouselChanges");
+                }
+                else
+                {
+                    Console.WriteLine("Fallo en la inicialización del carousel");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error inicializando carousel: {ex.Message}");
+
+
+                await Task.Delay(1000);
+                try
+                {
+                    await JSRuntime.InvokeVoidAsync("reinitializeComponents");
+                    Console.WriteLine("Componentes reinicializados en segundo intento");
+                }
+                catch (Exception ex2)
+                {
+                    Console.WriteLine($"Error en reinicialización: {ex2.Message}");
+                }
+            }
+        }
     }
 
     private async Task CargarProductos()
     {
-        await using var contexto = await DbContextFactory.CreateDbContextAsync();
-        productos = await contexto.ElementosHome
-            .Where(e => e.TipoElemento == "Categoria")
-            .OrderBy(e => e.Orden)
-            .ToListAsync();
+        try
+        {
+            Console.WriteLine("Iniciando carga de productos...");
+            await using var contexto = await DbContextFactory.CreateDbContextAsync();
+            Console.WriteLine("Contexto creado exitosamente");
+
+            var todosLosProductos = await contexto.Productos.ToListAsync();
+            Console.WriteLine($"Total de productos en BD: {todosLosProductos.Count}");
+
+            productos = await contexto.Productos
+                .Where(p => p.Stock > 0)
+                .OrderBy(p => p.Nombre)
+                .ToListAsync();
+
+            Console.WriteLine($"Productos con stock > 0: {productos.Count}");
+
+            foreach (var p in productos.Take(3))
+            {
+                Console.WriteLine($"Producto: {p.Nombre}, Stock: {p.Stock}, Precio: {p.Precio}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando productos: {ex.Message}");
+            Console.WriteLine($"StackTrace: {ex.StackTrace}");
+            productos = new List<Producto>();
+        }
+    }
+
+    private async Task CargarProductosDestacados()
+    {
+        try
+        {
+            Console.WriteLine("Cargando productos destacados...");
+            await using var contexto = await DbContextFactory.CreateDbContextAsync();
+            productosDestacados = await contexto.Productos
+                .Where(p => p.EsDestacado && p.Stock > 0)
+                .OrderBy(p => p.Nombre)
+                .Take(6)
+                .ToListAsync();
+
+            Console.WriteLine($"Productos destacados cargados: {productosDestacados.Count}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando productos destacados: {ex.Message}");
+            productosDestacados = new List<Producto>();
+        }
+    }
+
+    private async Task CargarProductosCarousel()
+    {
+        try
+        {
+            Console.WriteLine("Cargando productos del carousel...");
+            await using var contexto = await DbContextFactory.CreateDbContextAsync();
+            productosCarousel = await contexto.Productos
+                .Where(p => p.Stock > 0 && !string.IsNullOrEmpty(p.ImagenUrl))
+                .OrderByDescending(p => p.EsDestacado)
+                .ThenBy(p => p.Id)
+                .Take(5)
+                .ToListAsync();
+
+            Console.WriteLine($"Productos del carousel cargados: {productosCarousel.Count}");
+
+            StateHasChanged();
+
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(300);
+                await InvokeAsync(async () =>
+                {
+                    try
+                    {
+                        await JSRuntime.InvokeVoidAsync("reinitializeComponents");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error reinicializando carousel: {ex.Message}");
+                    }
+                });
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando productos del carousel: {ex.Message}");
+            productosCarousel = new List<Producto>();
+        }
     }
 
     private async Task CargarImagenesSitio()
@@ -292,9 +516,11 @@
                 .ToListAsync();
 
             imagenesSitio = imagenes.ToDictionary(i => i.Clave, i => i);
+            Console.WriteLine($"Imágenes del sitio cargadas: {imagenesSitio.Count}");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            Console.WriteLine($"Error cargando imágenes del sitio: {ex.Message}");
             imagenesSitio = new Dictionary<string, ImagenSitio>();
         }
     }
@@ -310,7 +536,6 @@
         return string.Empty;
     }
 
-
     private ImagenSitio? ObtenerConfiguracionImagen(string clave)
     {
         if (imagenesSitio.TryGetValue(clave, out var imagen))
@@ -320,7 +545,7 @@
         return null;
     }
 
-    private async Task AgregarAlCarrito(int elementoId)
+    private async Task AgregarAlCarrito(int productoId)
     {
         if (procesandoCarrito) return;
 
@@ -330,7 +555,7 @@
 
             await using var contexto = await DbContextFactory.CreateDbContextAsync();
             var producto = await contexto.Productos
-                .FirstOrDefaultAsync(p => p.CategoriaId == elementoId || p.Id == elementoId);
+                .FirstOrDefaultAsync(p => p.Id == productoId);
 
             if (producto != null)
             {
@@ -338,7 +563,6 @@
 
                 mensajeToast = $"'{producto.Nombre}' agregado al carrito";
                 mostrarToast = true;
-
 
                 _ = Task.Delay(3000).ContinueWith(_ => InvokeAsync(() =>
                 {
@@ -348,16 +572,13 @@
             }
             else
             {
-
-                mensajeToast = "Producto agregado al carrito";
+                mensajeToast = "Producto no encontrado";
                 mostrarToast = true;
-
-
-                await AgregarProductoGenerico(elementoId);
             }
         }
         catch (Exception ex)
         {
+            Console.WriteLine($"Error agregando al carrito: {ex.Message}");
             mensajeToast = $"Error: {ex.Message}";
             mostrarToast = true;
         }
@@ -376,8 +597,7 @@
         {
             procesandoCarrito = true;
 
-
-            var productosDestacados = new Dictionary<int, string>
+            var productosDestacadosPorDefecto = new Dictionary<int, string>
             {
                 { 1, "Teclado RGB Gaming Pro" },
                 { 2, "Tema Cyberpunk 2077" },
@@ -386,13 +606,12 @@
 
             await CartService.AddToCartAsync(productoId, 1);
 
-            var nombreProducto = productosDestacados.ContainsKey(productoId)
-                ? productosDestacados[productoId]
+            var nombreProducto = productosDestacadosPorDefecto.ContainsKey(productoId)
+                ? productosDestacadosPorDefecto[productoId]
                 : "Producto destacado";
 
             mensajeToast = $"'{nombreProducto}' agregado al carrito";
             mostrarToast = true;
-
 
             _ = Task.Delay(3000).ContinueWith(_ => InvokeAsync(() =>
             {
@@ -402,6 +621,7 @@
         }
         catch (Exception ex)
         {
+            Console.WriteLine($"Error agregando producto destacado al carrito: {ex.Message}");
             mensajeToast = $"Error: {ex.Message}";
             mostrarToast = true;
         }
@@ -409,26 +629,6 @@
         {
             procesandoCarrito = false;
             StateHasChanged();
-        }
-    }
-
-    private async Task AgregarProductoGenerico(int elementoId)
-    {
-
-        try
-        {
-
-            var elemento = productos?.FirstOrDefault(p => p.Id == elementoId);
-            if (elemento != null)
-            {
-
-                await CartService.AddToCartAsync(elementoId, 1);
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error agregando producto genérico: {ex.Message}");
-            throw;
         }
     }
 }

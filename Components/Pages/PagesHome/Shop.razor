@@ -1,0 +1,592 @@
+﻿@page "/shop"
+@inject IDbContextFactory<Contexto> DbContextFactory
+@inject KeyStore.Services.ICartService CartService
+@inject IJSRuntime JSRuntime
+@using Microsoft.EntityFrameworkCore
+@using KeyStore.DAL
+@using KeyStore.Models
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<div class="shop-container">
+    <div class="shop-header">
+        <div class="shop-title-section">
+            <h1 class="shop-title">
+                <i class="bi bi-shop"></i>
+                TIENDA
+            </h1>
+            <p class="shop-subtitle">Descubre nuestra colección completa de productos</p>
+        </div>
+        <div class="shop-stats">
+            <span class="product-count">@productosFiltrados.Count productos encontrados</span>
+        </div>
+    </div>
+
+    <div class="shop-controls">
+        <div class="category-filters">
+            <button class="filter-btn @(categoriaSeleccionada == 0 ? "active" : "")"
+                    @onclick="() => FiltrarPorCategoria(0)">
+                <i class="bi bi-grid-3x3-gap"></i>
+                Todos (@totalProductos)
+            </button>
+            @foreach (var categoria in categorias)
+            {
+                <button class="filter-btn @(categoriaSeleccionada == categoria.Id ? "active" : "")"
+                        @onclick="() => FiltrarPorCategoria(categoria.Id)">
+                    <i class="@ObtenerIconoCategoria(categoria.Nombre)"></i>
+                    @categoria.Nombre (@ObtenerConteoCategoria(categoria.Id))
+                </button>
+            }
+        </div>
+
+        <div class="search-sort-controls">
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text"
+                       placeholder="Buscar productos..."
+                       @bind="filtro.Busqueda"
+                       @oninput="OnBusquedaChanged"
+                       class="search-input" />
+                @if (!string.IsNullOrEmpty(filtro.Busqueda))
+                {
+                    <button class="clear-search" @onclick="LimpiarBusqueda">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </button>
+                }
+            </div>
+
+            <div class="sort-controls">
+                <select class="sort-select" @onchange="OnOrdenamientoChanged">
+                    <option value="nombre">Nombre A-Z</option>
+                    <option value="nombre_desc">Nombre Z-A</option>
+                    <option value="precio">Precio: Menor a Mayor</option>
+                    <option value="precio_desc">Precio: Mayor a Menor</option>
+                    <option value="stock">Más Stock</option>
+                    <option value="destacado">Destacados Primero</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    @if (cargando)
+    {
+        <div class="loading-state">
+            <div class="loading-spinner">
+                <i class="bi bi-arrow-clockwise"></i>
+            </div>
+            <p>Cargando productos...</p>
+        </div>
+    }
+    else if (productosFiltrados.Any())
+    {
+        <div class="products-grid-shop">
+            @foreach (var producto in productosFiltrados)
+            {
+                <div class="product-card-shop">
+                    @if (producto.EsDestacado)
+                    {
+                        <div class="product-badge featured">
+                            <i class="bi bi-star-fill"></i>
+                            Destacado
+                        </div>
+                    }
+                    @if (producto.Stock <= 0)
+                    {
+                        <div class="product-badge out-of-stock">
+                            Sin Stock
+                        </div>
+                    }
+                    else if (producto.Stock <= 5)
+                    {
+                        <div class="product-badge low-stock">
+                            Pocas Unidades
+                        </div>
+                    }
+
+                    <div class="product-image-shop">
+                        @if (!string.IsNullOrEmpty(producto.ImagenUrl))
+                        {
+                            <img src="@producto.ImagenUrl"
+                                 alt="@producto.Nombre"
+                                 class="img-fluid product-img" />
+                        }
+                        else
+                        {
+                            <div class="product-placeholder">
+                                <i class="bi bi-image"></i>
+                                <span>Sin imagen</span>
+                            </div>
+                        }
+
+                        <div class="product-overlay-shop">
+                            <button class="btn-quick-view"
+                                    @onclick="() => MostrarDetalleRapido(producto)"
+                                    title="Vista rápida">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn-add-cart @(producto.Stock <= 0 ? "disabled" : "")"
+                                    @onclick="() => AgregarAlCarrito(producto.Id)"
+                                    disabled="@(procesandoCarrito || producto.Stock <= 0)"
+                                    title="@(producto.Stock <= 0 ? "Sin stock" : "Agregar al carrito")">
+                                <i class="bi bi-cart-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="product-info-shop">
+                        <div class="product-category">@ObtenerNombreCategoria(producto.CategoriaId)</div>
+                        <h3 class="product-name">@producto.Nombre</h3>
+
+                        <div class="product-features">
+                            @if (!string.IsNullOrEmpty(producto.Marca))
+                            {
+                                <span class="feature-tag">
+                                    <i class="bi bi-award"></i>
+                                    @producto.Marca
+                                </span>
+                            }
+                            @if (producto.EsIluminado)
+                            {
+                                <span class="feature-tag rgb">
+                                    <i class="bi bi-lightbulb"></i>
+                                    RGB
+                                </span>
+                            }
+                            @if (producto.EsInalámbrico)
+                            {
+                                <span class="feature-tag wireless">
+                                    <i class="bi bi-wifi"></i>
+                                    Inalámbrico
+                                </span>
+                            }
+                            @if (producto.EsMecánico)
+                            {
+                                <span class="feature-tag mechanical">
+                                    <i class="bi bi-gear"></i>
+                                    Mecánico
+                                </span>
+                            }
+                        </div>
+
+                        <div class="product-pricing">
+                            <div class="price-section">
+                                <span class="current-price">$@producto.Precio.ToString("F2")</span>
+                            </div>
+                            <div class="stock-info">
+                                @if (producto.Stock > 0)
+                                {
+                                    <span class="stock-available">
+                                        <i class="bi bi-check-circle"></i>
+                                        @producto.Stock en stock
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="stock-unavailable">
+                                        <i class="bi bi-x-circle"></i>
+                                        Sin stock
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-results">
+            <div class="empty-illustration">
+                <i class="bi bi-search"></i>
+            </div>
+            <h3>No se encontraron productos</h3>
+            <p>
+                @if (!string.IsNullOrEmpty(filtro.Busqueda) || categoriaSeleccionada != 0)
+                {
+                    @if (!string.IsNullOrEmpty(filtro.Busqueda))
+                    {
+                        <span>No hay productos que coincidan con "<strong>@filtro.Busqueda</strong>"</span>
+                    }
+                    else
+                    {
+                        <span>No hay productos en esta categoría</span>
+                    }
+                    <br />
+                    <button class="btn btn-primary" @onclick="LimpiarFiltros">
+                        <i class="bi bi-arrow-clockwise"></i>
+                        Limpiar filtros
+                    </button>
+                }
+                else
+                {
+                    <span>Aún no hay productos disponibles en la tienda</span>
+                    <br />
+                    <a href="/Productos/Crear" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i>
+                        Agregar primer producto
+                    </a>
+                }
+            </p>
+        </div>
+    }
+</div>
+
+@if (productoSeleccionado != null && mostrarModalDetalle)
+{
+    <div class="modal-overlay-shop" @onclick="CerrarModalDetalle">
+        <div class="modal-container-detail" @onclick:stopPropagation="true">
+            <div class="modal-header-detail">
+                <h2 class="modal-title-detail">@productoSeleccionado.Nombre</h2>
+                <button class="btn-close-modal" @onclick="CerrarModalDetalle">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <div class="modal-content-detail">
+                <div class="detail-layout">
+                    <div class="detail-image-section">
+                        @if (!string.IsNullOrEmpty(productoSeleccionado.ImagenUrl))
+                        {
+                            <img src="@productoSeleccionado.ImagenUrl"
+                                 alt="@productoSeleccionado.Nombre"
+                                 class="detail-image" />
+                        }
+                        else
+                        {
+                            <div class="detail-placeholder">
+                                <i class="bi bi-image"></i>
+                                <span>Sin imagen disponible</span>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="detail-info-section">
+                        <div class="detail-category">@ObtenerNombreCategoria(productoSeleccionado.CategoriaId)</div>
+
+                        @if (!string.IsNullOrEmpty(productoSeleccionado.Descripcion))
+                        {
+                            <p class="detail-description">@productoSeleccionado.Descripcion</p>
+                        }
+
+                        <div class="detail-specs">
+                            @if (!string.IsNullOrEmpty(productoSeleccionado.Marca))
+                            {
+                                <div class="spec-item">
+                                    <strong>Marca:</strong> @productoSeleccionado.Marca
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(productoSeleccionado.Modelo))
+                            {
+                                <div class="spec-item">
+                                    <strong>Modelo:</strong> @productoSeleccionado.Modelo
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(productoSeleccionado.Layout))
+                            {
+                                <div class="spec-item">
+                                    <strong>Layout:</strong> @productoSeleccionado.Layout
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(productoSeleccionado.ColorPrincipal))
+                            {
+                                <div class="spec-item">
+                                    <strong>Color:</strong> @productoSeleccionado.ColorPrincipal
+                                </div>
+                            }
+                            @if (productoSeleccionado.TipoConexion != TipoConexion.USB_C || productoSeleccionado.TipoSwitch != TipoSwitch.Rojo_Linear)
+                            {
+                                <div class="spec-item">
+                                    <strong>Conexión:</strong> @productoSeleccionado.TipoConexion.ToString().Replace("_", " ")
+                                </div>
+                                <div class="spec-item">
+                                    <strong>Switch:</strong> @productoSeleccionado.TipoSwitch.ToString().Replace("_", " ")
+                                </div>
+                            }
+                        </div>
+
+                        <div class="detail-features">
+                            @if (productoSeleccionado.EsIluminado)
+                            {
+                                <span class="detail-feature rgb">
+                                    <i class="bi bi-lightbulb-fill"></i>
+                                    Iluminación RGB
+                                </span>
+                            }
+                            @if (productoSeleccionado.EsInalámbrico)
+                            {
+                                <span class="detail-feature wireless">
+                                    <i class="bi bi-wifi"></i>
+                                    Conexión Inalámbrica
+                                </span>
+                            }
+                            @if (productoSeleccionado.EsMecánico)
+                            {
+                                <span class="detail-feature mechanical">
+                                    <i class="bi bi-gear-fill"></i>
+                                    Switches Mecánicos
+                                </span>
+                            }
+                            @if (productoSeleccionado.EsTemaPersonalizado && !string.IsNullOrEmpty(productoSeleccionado.NombreTema))
+                            {
+                                <span class="detail-feature theme">
+                                    <i class="bi bi-palette-fill"></i>
+                                    Tema: @productoSeleccionado.NombreTema
+                                </span>
+                            }
+                        </div>
+
+                        <div class="detail-actions">
+                            <div class="detail-pricing">
+                                <span class="detail-price">$@productoSeleccionado.Precio.ToString("F2")</span>
+                                <div class="detail-stock">
+                                    @if (productoSeleccionado.Stock > 0)
+                                    {
+                                        <span class="stock-available">
+                                            <i class="bi bi-check-circle-fill"></i>
+                                            @productoSeleccionado.Stock disponibles
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="stock-unavailable">
+                                            <i class="bi bi-x-circle-fill"></i>
+                                            Sin stock
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="detail-buttons">
+                                <button class="btn-add-cart-detail @(productoSeleccionado.Stock <= 0 ? "disabled" : "")"
+                                        @onclick="() => AgregarAlCarrito(productoSeleccionado.Id)"
+                                        disabled="@(procesandoCarrito || productoSeleccionado.Stock <= 0)">
+                                    <i class="bi bi-cart-plus"></i>
+                                    @(productoSeleccionado.Stock <= 0 ? "Sin stock" : "Agregar al carrito")
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (mostrarToast)
+{
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div class="toast show" role="alert">
+            <div class="toast-header">
+                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                <strong class="me-auto">Carrito</strong>
+                <button type="button" class="btn-close" @onclick="() => mostrarToast = false"></button>
+            </div>
+            <div class="toast-body">
+                @mensajeToast
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Producto> todosLosProductos = new();
+    private List<Producto> productosFiltrados = new();
+    private List<Categoria> categorias = new();
+    private FiltroProductos filtro = new();
+    private int categoriaSeleccionada = 0;
+    private int totalProductos = 0;
+    private bool cargando = true;
+    private bool procesandoCarrito = false;
+    private bool mostrarToast = false;
+    private string mensajeToast = "";
+
+    private bool mostrarModalDetalle = false;
+    private Producto? productoSeleccionado = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarDatos();
+        cargando = false;
+    }
+
+    private async Task CargarDatos()
+    {
+        try
+        {
+            await using var contexto = await DbContextFactory.CreateDbContextAsync();
+
+            todosLosProductos = await contexto.Productos
+                .OrderBy(p => p.Nombre)
+                .ToListAsync();
+
+            totalProductos = todosLosProductos.Count;
+
+            categorias = await contexto.Categorias
+                .Where(c => c.EsActiva)
+                .OrderBy(c => c.Orden)
+                .ThenBy(c => c.Nombre)
+                .ToListAsync();
+
+            AplicarFiltros();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando datos: {ex.Message}");
+            todosLosProductos = new List<Producto>();
+            categorias = new List<Categoria>();
+            productosFiltrados = new List<Producto>();
+        }
+    }
+
+    private void FiltrarPorCategoria(int categoriaId)
+    {
+        categoriaSeleccionada = categoriaId;
+        filtro.CategoriaId = categoriaId == 0 ? null : categoriaId;
+        AplicarFiltros();
+    }
+
+    private void AplicarFiltros()
+    {
+        var query = todosLosProductos.AsQueryable();
+
+        if (filtro.CategoriaId.HasValue)
+        {
+            query = query.Where(p => p.CategoriaId == filtro.CategoriaId.Value);
+        }
+
+        if (!string.IsNullOrEmpty(filtro.Busqueda))
+        {
+            var busqueda = filtro.Busqueda.ToLower();
+            query = query.Where(p =>
+                p.Nombre.ToLower().Contains(busqueda) ||
+                p.Descripcion.ToLower().Contains(busqueda) ||
+                p.Marca.ToLower().Contains(busqueda) ||
+                p.Modelo.ToLower().Contains(busqueda));
+        }
+
+        query = filtro.OrdenarPor.ToLower() switch
+        {
+            "nombre_desc" => query.OrderByDescending(p => p.Nombre),
+            "precio" => query.OrderBy(p => p.Precio),
+            "precio_desc" => query.OrderByDescending(p => p.Precio),
+            "stock" => query.OrderByDescending(p => p.Stock),
+            "destacado" => query.OrderByDescending(p => p.EsDestacado).ThenBy(p => p.Nombre),
+            _ => query.OrderBy(p => p.Nombre)
+        };
+
+        productosFiltrados = query.ToList();
+        StateHasChanged();
+    }
+
+    private async Task OnBusquedaChanged(ChangeEventArgs e)
+    {
+        filtro.Busqueda = e.Value?.ToString() ?? "";
+
+        await Task.Delay(300);
+        AplicarFiltros();
+    }
+
+    private void OnOrdenamientoChanged(ChangeEventArgs e)
+    {
+        filtro.OrdenarPor = e.Value?.ToString() ?? "nombre";
+        AplicarFiltros();
+    }
+
+    private void LimpiarBusqueda()
+    {
+        filtro.Busqueda = "";
+        AplicarFiltros();
+    }
+
+    private void LimpiarFiltros()
+    {
+        filtro = new FiltroProductos();
+        categoriaSeleccionada = 0;
+        AplicarFiltros();
+    }
+
+    private string ObtenerIconoCategoria(string nombreCategoria)
+    {
+        return nombreCategoria.ToLower() switch
+        {
+            "teclado" => "bi bi-keyboard",
+            "teclados" => "bi bi-keyboard",
+            "audifonos" => "bi bi-headphones",
+            "audífonos" => "bi bi-headphones",
+            "mouse" => "bi bi-mouse",
+            _ => "bi bi-circle"
+        };
+    }
+
+    private int ObtenerConteoCategoria(int categoriaId)
+    {
+        return todosLosProductos.Count(p => p.CategoriaId == categoriaId);
+    }
+
+    private string ObtenerNombreCategoria(int categoriaId)
+    {
+        return categorias.FirstOrDefault(c => c.Id == categoriaId)?.Nombre ?? "Sin categoría";
+    }
+
+    private void MostrarDetalleRapido(Producto producto)
+    {
+        productoSeleccionado = producto;
+        mostrarModalDetalle = true;
+    }
+
+    private void CerrarModalDetalle()
+    {
+        mostrarModalDetalle = false;
+        productoSeleccionado = null;
+    }
+
+    private async Task AgregarAlCarrito(int productoId)
+    {
+        if (procesandoCarrito) return;
+
+        try
+        {
+            procesandoCarrito = true;
+
+            await using var contexto = await DbContextFactory.CreateDbContextAsync();
+            var producto = await contexto.Productos
+                .FirstOrDefaultAsync(p => p.Id == productoId);
+
+            if (producto != null && producto.Stock > 0)
+            {
+                await CartService.AddToCartAsync(producto.Id, 1);
+
+                mensajeToast = $"'{producto.Nombre}' agregado al carrito";
+                mostrarToast = true;
+
+                _ = Task.Delay(3000).ContinueWith(_ => InvokeAsync(() =>
+                {
+                    mostrarToast = false;
+                    StateHasChanged();
+                }));
+
+                if (mostrarModalDetalle)
+                {
+                    CerrarModalDetalle();
+                }
+            }
+            else
+            {
+                mensajeToast = "Producto sin stock disponible";
+                mostrarToast = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error agregando al carrito: {ex.Message}");
+            mensajeToast = $"Error al agregar producto: {ex.Message}";
+            mostrarToast = true;
+        }
+        finally
+        {
+            procesandoCarrito = false;
+            StateHasChanged();
+        }
+    }
+}
