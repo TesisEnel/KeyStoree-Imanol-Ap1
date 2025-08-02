@@ -15,7 +15,6 @@ namespace KeyStore.DAL
         public DbSet<ElementoHome> ElementosHome { get; set; }
         public DbSet<ImagenSitio> ImagenesSitio { get; set; }
 
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -112,7 +111,6 @@ namespace KeyStore.DAL
                 entity.HasIndex(e => e.Orden);
             });
 
-
             modelBuilder.Entity<ElementoHome>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -131,7 +129,6 @@ namespace KeyStore.DAL
                 entity.HasIndex(e => e.Orden);
             });
 
-
             modelBuilder.Entity<ImagenSitio>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -141,7 +138,6 @@ namespace KeyStore.DAL
                 entity.Property(e => e.TipoImagen).HasMaxLength(100);
                 entity.Property(e => e.NombreArchivo).HasMaxLength(255);
                 entity.Property(e => e.FechaCreacion).IsRequired();
-
 
                 entity.Property(e => e.Ancho).HasColumnName("Ancho");
                 entity.Property(e => e.Alto).HasColumnName("Alto");
@@ -161,160 +157,28 @@ namespace KeyStore.DAL
                 new Categoria
                 {
                     Id = 1,
-                    Nombre = "Teclados RGB",
-                    Descripcion = "Teclados con iluminación RGB personalizable",
+                    Nombre = "Teclados",
+                    Descripcion = "Teclados gaming, mecánicos y RGB",
                     EsActiva = true,
                     Orden = 1
                 },
                 new Categoria
                 {
                     Id = 2,
-                    Nombre = "Teclados Mecánicos",
-                    Descripcion = "Teclados mecánicos de alta calidad",
+                    Nombre = "Mouse",
+                    Descripcion = "Mouse gaming, inalámbricos y ergonómicos",
                     EsActiva = true,
                     Orden = 2
                 },
                 new Categoria
                 {
                     Id = 3,
-                    Nombre = "Temas Personalizados",
-                    Descripcion = "Keycaps y temas únicos para personalizar tu teclado",
+                    Nombre = "Audífonos",
+                    Descripcion = "Audífonos gaming, inalámbricos y con micrófono",
                     EsActiva = true,
                     Orden = 3
-                },
-                new Categoria
-                {
-                    Id = 4,
-                    Nombre = "Accesorios",
-                    Descripcion = "Accesorios y complementos para teclados",
-                    EsActiva = true,
-                    Orden = 4
                 }
             );
-
-            modelBuilder.Entity<Producto>().HasData(
-                new Producto
-                {
-                    Id = 1,
-                    Nombre = "Teclado RGB Gaming Pro",
-                    Descripcion = "Teclado mecánico profesional con switches Cherry MX Red y retroiluminación RGB completa. Perfecto para gaming y trabajo.",
-                    Precio = 89.99m,
-                    Stock = 15,
-                    CategoriaId = 1,
-                    ImagenUrl = "/images/keyboard-rgb-1.jpg",
-                    Marca = "KeyStore",
-                    Modelo = "RGB-PRO-001",
-                    Layout = "Español",
-                    EsIluminado = true,
-                    EsInalámbrico = false,
-                    EsMecánico = true,
-                    ColorPrincipal = "Negro",
-                    EsTemaPersonalizado = false,
-                    NombreTema = "",
-                    EsDestacado = true,
-                    TipoConexion = TipoConexion.USB_C,
-                    TipoSwitch = TipoSwitch.Rojo_Linear
-                },
-                new Producto
-                {
-                    Id = 2,
-                    Nombre = "Tema Cyberpunk 2077",
-                    Descripcion = "Set completo de keycaps inspirado en el universo de Cyberpunk 2077. Incluye teclas especiales y colores únicos.",
-                    Precio = 45.99m,
-                    Stock = 8,
-                    CategoriaId = 3,
-                    ImagenUrl = "/images/cyberpunk-theme.jpg",
-                    Marca = "KeyStore",
-                    Modelo = "THEME-CP77",
-                    Layout = "Universal",
-                    EsIluminado = false,
-                    EsInalámbrico = false,
-                    EsMecánico = false,
-                    ColorPrincipal = "Amarillo/Negro",
-                    EsTemaPersonalizado = true,
-                    NombreTema = "Cyberpunk",
-                    EsDestacado = true,
-                    TipoConexion = TipoConexion.USB_A,
-                    TipoSwitch = TipoSwitch.Azul_Tactil
-                },
-                new Producto
-                {
-                    Id = 3,
-                    Nombre = "Teclado Mecánico Wireless Elite",
-                    Descripcion = "Teclado mecánico inalámbrico premium con conexión Bluetooth 5.0 y batería de larga duración.",
-                    Precio = 125.99m,
-                    Stock = 12,
-                    CategoriaId = 2,
-                    ImagenUrl = "/images/wireless-mechanical.jpg",
-                    Marca = "KeyStore",
-                    Modelo = "WRL-ELITE-001",
-                    Layout = "Internacional",
-                    EsIluminado = true,
-                    EsInalámbrico = true,
-                    EsMecánico = true,
-                    ColorPrincipal = "Blanco",
-                    EsTemaPersonalizado = false,
-                    NombreTema = "",
-                    EsDestacado = false,
-                    TipoConexion = TipoConexion.Bluetooth,
-                    TipoSwitch = TipoSwitch.Marron_Tactil_Silencioso
-                },
-                new Producto
-                {
-                    Id = 4,
-                    Nombre = "Keycaps Artisan Dragon",
-                    Descripcion = "Set de keycaps artesanales con diseño de dragón, perfectos para personalizar tu teclado mecánico.",
-                    Precio = 35.99m,
-                    Stock = 20,
-                    CategoriaId = 4,
-                    ImagenUrl = "/images/dragon-keycaps.jpg",
-                    Marca = "KeyStore",
-                    Modelo = "ART-DRAGON-001",
-                    Layout = "Universal",
-                    EsIluminado = false,
-                    EsInalámbrico = false,
-                    EsMecánico = false,
-                    ColorPrincipal = "Rojo/Dorado",
-                    EsTemaPersonalizado = true,
-                    NombreTema = "Dragon",
-                    EsDestacado = true,
-                    TipoConexion = TipoConexion.USB_A,
-                    TipoSwitch = TipoSwitch.Azul_Tactil
-                }
-            );
-
-
-            modelBuilder.Entity<ElementoHome>().HasData(
-                new ElementoHome
-                {
-                    Id = 1,
-                    TipoElemento = "Hero",
-                    Titulo = "KEYSTORE",
-                    Subtitulo = "Teclados Personalizados de Alta Calidad",
-                    Descripcion = "Descubre nuestra colección exclusiva de teclados mecánicos, temas personalizados y accesorios premium para elevar tu experiencia de escritura y gaming.",
-                    TextoBoton = "Comprar Ahora",
-                    UrlEnlace = "/productos",
-                    Precio = 99.99m,
-                    Orden = 1,
-                    Activo = true,
-                    FechaCreacion = DateTime.UtcNow
-                },
-                new ElementoHome
-                {
-                    Id = 2,
-                    TipoElemento = "SeccionAbout",
-                    Titulo = "About Us",
-                    Subtitulo = "Nuestra Pasión por los Teclados",
-                    Descripcion = "Nuestra misión es brindar experiencias de teclado personalizadas para todos. Conoce más sobre nuestro viaje y nuestra dedicación a la calidad e innovación.",
-                    TextoBoton = "Learn more",
-                    UrlEnlace = "/about",
-                    Precio = 0.01m,
-                    Orden = 10,
-                    Activo = true,
-                    FechaCreacion = DateTime.UtcNow
-                }
-            );
-
 
             modelBuilder.Entity<ImagenSitio>().HasData(
                 new ImagenSitio
@@ -322,11 +186,11 @@ namespace KeyStore.DAL
                     Id = 1,
                     Clave = "hero-keyboard",
                     Nombre = "Teclado Mecánico Principal - Hero",
-                    Descripcion = "Imagen principal del hero que aparece en la página de inicio junto al título KEYSTORE",
+                    Descripcion = "Imagen principal del hero que aparece en la página de inicio",
                     Activa = true,
-                    FechaCreacion = DateTime.UtcNow,
+                    FechaCreacion = new DateTime(2023, 1, 1),
                     ObjectFit = "cover",
-                    OcultarFondo = true 
+                    OcultarFondo = true
                 },
                 new ImagenSitio
                 {
@@ -335,7 +199,7 @@ namespace KeyStore.DAL
                     Nombre = "Setup Gaming - About Us",
                     Descripcion = "Imagen de setup gaming que aparece en la sección About Us",
                     Activa = true,
-                    FechaCreacion = DateTime.UtcNow,
+                    FechaCreacion = new DateTime(2023, 1, 1),
                     ObjectFit = "cover",
                     OcultarFondo = false
                 },
@@ -346,29 +210,7 @@ namespace KeyStore.DAL
                     Nombre = "Producto Destacado 1",
                     Descripcion = "Primera imagen de producto destacado en la sección featured",
                     Activa = true,
-                    FechaCreacion = DateTime.UtcNow,
-                    ObjectFit = "cover",
-                    OcultarFondo = false
-                },
-                new ImagenSitio
-                {
-                    Id = 4,
-                    Clave = "product-2",
-                    Nombre = "Producto Destacado 2",
-                    Descripcion = "Segunda imagen de producto destacado en la sección featured",
-                    Activa = true,
-                    FechaCreacion = DateTime.UtcNow,
-                    ObjectFit = "cover",
-                    OcultarFondo = false
-                },
-                new ImagenSitio
-                {
-                    Id = 5,
-                    Clave = "product-3",
-                    Nombre = "Producto Destacado 3",
-                    Descripcion = "Tercera imagen de producto destacado en la sección featured",
-                    Activa = true,
-                    FechaCreacion = DateTime.UtcNow,
+                    FechaCreacion = new DateTime(2023, 1, 1),
                     ObjectFit = "cover",
                     OcultarFondo = false
                 }
