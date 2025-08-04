@@ -9,7 +9,6 @@
 @using Microsoft.JSInterop
 @using KeyStore
 @using KeyStore.Components
-@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Identity
 @using KeyStore.Data
 @using KeyStore.Services
@@ -83,10 +82,15 @@
                     </div>
                 }
 
-
                 @if (!isAuthenticated)
                 {
                     <NavLink href="/auth" class="position-relative text-white">
+                        <i class="bi bi-person-circle fs-4"></i>
+                    </NavLink>
+                }
+                else
+                {
+                    <NavLink href="/perfil" class="position-relative text-white" title="Mi Perfil">
                         <i class="bi bi-person-circle fs-4"></i>
                     </NavLink>
                 }
@@ -94,6 +98,11 @@
                 <NavLink href="/cart" class="position-relative text-white">
                     <i class="bi bi-cart3 fs-4"></i>
                 </NavLink>
+
+                    <NavLink class="nav-link" href="/pedidos" activeClass="text-purple">
+                        <i class="bi bi-bag-check me-2"></i>
+                    </NavLink>
+
 
                 @if (isAuthenticated)
                 {
@@ -148,12 +157,11 @@
 }
 
 <style>
-    /* Ocultar la flecha del dropdown ya que usamos nuestro propio ícono */
+
     .dropdown-toggle-custom::after {
         display: none !important;
     }
 
-    /* Estilos personalizados para el dropdown */
     .dropdown-menu-dark {
         background-color: #212529;
         border: 1px solid #495057;
@@ -173,7 +181,7 @@
     private bool isAuthenticated = false;
     private bool isAdmin = false;
     private bool showLogoutModal = false;
-    private bool isLoggingOut = false; 
+    private bool isLoggingOut = false;
     private AuthenticationState? authState;
     private bool isInitialized = false;
 
@@ -234,7 +242,6 @@
             isAuthenticated = authState.User?.Identity?.IsAuthenticated ?? false;
             isAdmin = authState.User?.IsInRole("Admin") ?? false;
 
-            // Log solo si hubo cambios
             if (isInitialized && (wasAuthenticated != isAuthenticated || wasAdmin != isAdmin))
             {
                 Console.WriteLine($"📊 NavMenu: Cambio de estado detectado - Auth: {wasAuthenticated}→{isAuthenticated}, Admin: {wasAdmin}→{isAdmin}");
@@ -256,7 +263,7 @@
 
     private void HideLogoutModal()
     {
-        if (isLoggingOut) return; 
+        if (isLoggingOut) return;
         showLogoutModal = false;
         StateHasChanged();
     }

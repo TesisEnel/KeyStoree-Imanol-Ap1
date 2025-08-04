@@ -4,7 +4,7 @@
 <PageTitle>KEYSTORE</PageTitle>
 
 <HeadContent>
-    <!-- Bootstrap Icons (ya tienes Bootstrap CSS en App.razor) -->
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 </HeadContent>
 
@@ -17,9 +17,9 @@
 </div>
 
 <script>
-    // Funciones globales para el sitio
+
     window.siteUtils = {
-        // Inicializar carousel de Bootstrap
+
         initializeCarousel: function(carouselId, options = {}) {
             const defaultOptions = {
                 interval: 5000,
@@ -38,13 +38,13 @@
             }
 
             try {
-                // Destruir instancia existente si existe
+
                 const existingCarousel = bootstrap.Carousel.getInstance(carouselElement);
                 if (existingCarousel) {
                     existingCarousel.dispose();
                 }
 
-                // Crear nueva instancia
+  
                 const carousel = new bootstrap.Carousel(carouselElement, finalOptions);
                 console.log(`Carousel ${carouselId} inicializado correctamente`);
 
@@ -55,7 +55,6 @@
             }
         },
 
-        // Control manual del carousel
         carouselControl: function(carouselId, direction) {
             const carousel = document.getElementById(carouselId);
             if (carousel) {
@@ -70,7 +69,7 @@
             }
         },
 
-        // Ir a slide específico
+
         carouselGoTo: function(carouselId, slideIndex) {
             const carousel = document.getElementById(carouselId);
             if (carousel) {
@@ -82,7 +81,6 @@
         }
     };
 
-    // Función global para inicializar carousel desde Blazor
     window.initializeHeroCarousel = function() {
         console.log('Llamando a initializeHeroCarousel...');
         return window.siteUtils.initializeCarousel('heroCarousel', {
@@ -93,9 +91,8 @@
         });
     };
 
-    // FUNCIÓN CORREGIDA PARA DROPDOWNS
     window.initDropdowns = function() {
-        // Esperar a que Bootstrap esté completamente cargado
+
         if (typeof bootstrap === 'undefined') {
             console.error('Bootstrap no está cargado');
             return;
@@ -103,17 +100,16 @@
 
         console.log('Inicializando dropdowns...');
 
-        // Bootstrap 5 inicializa automáticamente los dropdowns con data-bs-toggle
-        // Solo necesitamos verificar que estén funcionando
+
         const dropdownElements = document.querySelectorAll('[data-bs-toggle="dropdown"]');
 
         dropdownElements.forEach((element, index) => {
             try {
-                // Verificar si ya tiene una instancia
+
                 let dropdownInstance = bootstrap.Dropdown.getInstance(element);
 
                 if (!dropdownInstance) {
-                    // Crear nueva instancia si no existe
+
                     dropdownInstance = new bootstrap.Dropdown(element);
                     console.log(`Dropdown ${index + 1} inicializado manualmente`);
                 } else {
@@ -127,16 +123,14 @@
         console.log(`Total dropdowns procesados: ${dropdownElements.length}`);
     };
 
-    // Event listener para asegurar que Bootstrap esté cargado
     document.addEventListener('DOMContentLoaded', function() {
         console.log('DOM cargado');
         console.log('Bootstrap disponible:', typeof bootstrap !== 'undefined');
 
-        // Intentar inicializar dropdowns después de un delay
+
         setTimeout(() => {
             if (typeof bootstrap !== 'undefined') {
                 console.log('Bootstrap confirmado, inicializando dropdowns automáticamente...');
-                // Los dropdowns se inicializan automáticamente con data-bs-toggle
             }
         }, 500);
     });
