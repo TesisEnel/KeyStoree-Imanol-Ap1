@@ -1,15 +1,10 @@
-﻿/* ========================================
-   RESET Y CONFIGURACIÓN BÁSICA
-   ======================================== */
-
-/* Reset básico */
+﻿
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* Cuerpo básico */
 body {
     background: #000000;
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -19,46 +14,40 @@ body {
     padding: 0;
 }
 
-/* HTML también con fondo negro para eliminar espacios blancos */
 html {
     background: #000000;
     margin: 0;
     padding: 0;
 }
 
-/* Contenedor principal */
 .main-content {
     padding-top: 80px;
-    background: #000000; /* Asegurar fondo negro */
+    background: #000000; 
 }
 
-/* Asegurar que no haya espacios blancos arriba - SIN afectar navbar */
+
 .container-fluid:not(.navbar, .container-fluid),
 .container:not(.navbar, .container) {
     background: #000000 !important;
     padding: 0;
 }
 
-/* Específicamente para el contenido principal, no el navbar */
+
 .main-content .container-fluid,
 .main-content .container {
     background: #000000 !important;
 }
 
-/* ========================================
-   NAVEGACIÓN (NAVBAR)
-   ======================================== */
 
-/* Navbar con transparencia y blur mejorado - SOLO NEGRO */
 .navbar {
-    background: rgba(10, 10, 10, 0.85) !important; /* Negro transparente */
-    backdrop-filter: blur(25px) saturate(180%); /* Más blur y saturación */
-    -webkit-backdrop-filter: blur(25px) saturate(180%); /* Safari compatibility */
+    background: rgba(10, 10, 10, 0.85) !important; 
+    backdrop-filter: blur(25px) saturate(180%); 
+    -webkit-backdrop-filter: blur(25px) saturate(180%); 
     border-bottom: 1px solid rgba(138, 43, 226, 0.4);
     box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* Forzar fondo con blur a todos los elementos del navbar */
+
 .navbar-nav,
 .navbar-brand,
 .navbar-toggler,
@@ -66,7 +55,7 @@ html {
     background: transparent !important;
 }
 
-/* Asegurar que el navbar mantenga su efecto glassmorphism - SOLO NEGRO */
+
 .navbar::before {
     content: '';
     position: absolute;
@@ -74,27 +63,19 @@ html {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.3); /* Solo negro transparente, sin morado */
+    background: rgba(0, 0, 0, 0.3);
     z-index: -1;
     border-radius: inherit;
 }
 
-/* ========================================
-   CONTENEDOR HOME
-   ======================================== */
 
-/* Contenedor home con fondo negro simple */
 .home-container {
     background: #000000;
     min-height: 100vh;
     padding: 0;
 }
 
-/* ========================================
-   SECCIÓN HERO - LAYOUT PRINCIPAL
-   ======================================== */
 
-/* Hero section minimalista */
 .hero-section {
     padding: 60px 40px;
     margin-bottom: 80px;
@@ -103,27 +84,24 @@ html {
 
 .hero-content {
     display: grid;
-    grid-template-columns: 1fr 1.5fr; /* Más espacio para el carousel */
-    gap: 60px; /* Reducido para aprovechar mejor el espacio */
+    grid-template-columns: 1fr 1.5fr; 
+    gap: 60px; 
     align-items: center;
-    max-width: 1600px; /* Aumentado para más ancho */
+    max-width: 1600px; 
     margin: 0 auto;
 }
 
-/* ========================================
-   HERO - TEXTO Y TÍTULOS
-   ======================================== */
 
-/* Texto del hero */
+
 .hero-text {
     z-index: 2;
 }
 
 .brand-title {
-    font-size: 4.1rem; /* Aumentado de 3.8rem a 4.1rem - un poco más grande */
-    font-weight: 600; /* MÁS DELGADO - Cambiado de 800 a 300 */
+    font-size: 4.1rem; 
+    font-weight: 600; 
     color: #ffffff;
-    letter-spacing: -0.01em; /* Reducido aún más el spacing */
+    letter-spacing: -0.01em; 
     margin-bottom: 15px;
 }
 
@@ -136,9 +114,7 @@ html {
     text-transform: uppercase;
 }
 
-/* ========================================
-   HERO - BOTONES (MÁS REDONDEADOS)
-   ======================================== */
+
 
 .hero-buttons {
     display: flex;
@@ -147,10 +123,10 @@ html {
 }
 
     .hero-buttons .btn {
-        padding: 18px 40px; /* Aumentado el padding */
+        padding: 18px 40px; 
         font-size: 1.1rem;
         font-weight: 600;
-        border-radius: 50px; /* MÁS REDONDEADO - de 8px a 50px */
+        border-radius: 50px; 
         text-transform: uppercase;
         letter-spacing: 0.05em;
         transition: all 0.3s ease;
@@ -158,17 +134,16 @@ html {
         cursor: pointer;
     }
 
-    /* Efecto neón para botones morados - MÁS REDONDEADO */
     .hero-buttons .btn-primary {
-        background: linear-gradient(135deg, #8a2be2 0%, #9d4edd 100%); /* Gradiente elegante */
+        background: linear-gradient(135deg, #8a2be2 0%, #9d4edd 100%); 
         color: white;
         box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
-        border-radius: 50px; /* Completamente redondeado */
+        border-radius: 50px; 
     }
 
         .hero-buttons .btn-primary:hover {
             box-shadow: 0 0 30px rgba(138, 43, 226, 0.8), 0 0 40px rgba(138, 43, 226, 0.6), 0 0 50px rgba(138, 43, 226, 0.4);
-            transform: translateY(-3px); /* Aumentado el hover effect */
+            transform: translateY(-3px); 
             background: linear-gradient(135deg, #9d4edd 0%, #8a2be2 100%);
         }
 
@@ -176,68 +151,57 @@ html {
         background: transparent;
         color: white;
         border: 2px solid #8a2be2;
-        border-radius: 50px; /* Completamente redondeado */
+        border-radius: 50px; 
     }
 
         .hero-buttons .btn-secondary:hover {
             background: rgba(138, 43, 226, 0.1);
-            transform: translateY(-3px); /* Aumentado el hover effect */
+            transform: translateY(-3px); 
             box-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
         }
 
-/* ========================================
-   HERO - CAROUSEL CONTAINER
-   ======================================== */
 
-/* Hero image y carousel CORREGIDO */
 .hero-image {
     display: flex;
-    justify-content: flex-start; /* Pegado a la izquierda para aprovechar espacio */
+    justify-content: flex-start; 
     align-items: center;
     position: relative;
-    width: 100%; /* Ocupa todo el espacio disponible */
+    width: 100%; 
 }
 
-/* Carousel corregido - contenedor principal MÁS ANCHO */
 .hero-carousel {
-    width: 100%; /* Ocupa todo el ancho disponible */
-    max-width: 1100px; /* Aumentado de 900px a 1100px */
+    width: 100%; 
+    max-width: 1100px; 
     margin: 0;
     position: relative;
     overflow: hidden;
     border-radius: 16px;
 }
 
-    /* IMPORTANTE: Forzar posicionamiento correcto del carousel-inner */
     .hero-carousel .carousel-inner {
         position: relative;
         width: 100%;
         overflow: hidden;
     }
 
-    /* ========================================
-   HERO - CAROUSEL SLIDES
-   ======================================== */
 
-    /* Cada slide del carousel - CORREGIDO para eliminar espacios blancos */
     .hero-carousel .carousel-item {
-        height: 700px; /* Aumentado de 650px a 700px */
+        height: 700px; 
         display: flex;
         align-items: center;
         justify-content: center;
         position: relative;
-        /* CRÍTICO: Asegurar que los slides inactivos estén ocultos */
+
         opacity: 0;
         transition: opacity 0.6s ease-in-out;
-        background: #000000; /* Fondo negro para eliminar espacios blancos */
+        background: #000000; 
     }
 
-        /* Solo el slide activo debe ser visible */
+
         .hero-carousel .carousel-item.active {
             opacity: 1;
         }
 
-/* Card del carousel sin espacios blancos - CORREGIDO */
 .hero-carousel-card {
     position: relative;
     width: 100%;
@@ -245,19 +209,16 @@ html {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #000000; /* Fondo negro sólido */
+    background: #000000; 
     border-radius: 16px;
     overflow: hidden;
 }
 
-/* ========================================
-   HERO - CAROUSEL IMÁGENES
-   ======================================== */
 
-/* Imagen directa más grande - CORREGIDO */
+
 .hero-carousel-image {
-    width: 95%; /* Aumentado de 90% a 95% */
-    height: 95%; /* Aumentado de 90% a 95% */
+    width: 95%;
+    height: 95%;
     object-fit: contain;
     transition: transform 0.3s ease;
     position: relative;
@@ -275,7 +236,7 @@ html {
     align-items: center;
     justify-content: center;
     color: #666666;
-    background: #000000; /* Fondo negro */
+    background: #000000; 
 }
 
     .hero-carousel-placeholder i {
@@ -283,11 +244,7 @@ html {
         margin-bottom: 15px;
     }
 
-/* ========================================
-   HERO - CAROUSEL OVERLAYS Y INFO
-   ======================================== */
 
-/* Overlay del carousel minimalista - CORREGIDO */
 .hero-carousel-overlay {
     position: absolute;
     top: 0;
@@ -308,7 +265,6 @@ html {
     opacity: 1;
 }
 
-/* Información del producto en overlay - CORREGIDO */
 .hero-carousel-info {
     text-align: center;
     padding: 40px 30px;
@@ -347,16 +303,12 @@ html {
     letter-spacing: 0.5px;
 }
 
-/* ========================================
-   HERO - CAROUSEL BOTÓN (REDONDEADO)
-   ======================================== */
 
-/* Botón del carousel NUEVO - Elegante y completamente redondeado */
 .hero-carousel-btn {
     background: linear-gradient(135deg, #8a2be2 0%, #9d4edd 100%);
     border: none;
-    padding: 16px 36px; /* Aumentado para más elegancia */
-    border-radius: 50px; /* Completamente redondeado */
+    padding: 16px 36px; 
+    border-radius: 50px; 
     color: white;
     font-weight: 600;
     font-size: 0.95rem;
@@ -386,7 +338,7 @@ html {
     }
 
     .hero-carousel-btn:hover {
-        transform: translateY(-3px); /* Aumentado el hover effect */
+        transform: translateY(-3px);
         box-shadow: 0 8px 25px rgba(138, 43, 226, 0.6), 0 0 30px rgba(138, 43, 226, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.2);
         background: linear-gradient(135deg, #9d4edd 0%, #8a2be2 100%);
     }
@@ -395,19 +347,16 @@ html {
         transform: translateY(0);
     }
 
-/* ========================================
-   HERO - CAROUSEL ESTADO VACÍO
-   ======================================== */
 
-/* Estado vacío más grande - SIN espacios blancos */
+
 .hero-empty-carousel {
-    height: 700px; /* Aumentado de 650px a 700px */
+    height: 700px; 
     display: flex;
     align-items: center;
     justify-content: center;
     color: #666666;
     border-radius: 16px;
-    background: #000000; /* Fondo negro sólido */
+    background: #000000;
     border: 2px dashed rgba(138, 43, 226, 0.3);
 }
 
@@ -420,11 +369,8 @@ html {
         margin-bottom: 20px;
     }
 
-/* ========================================
-   SECCIONES DE CONTENIDO
-   ======================================== */
 
-/* Secciones del contenido minimalistas */
+
 .categories-section,
 .featured-section,
 .about-section {
@@ -444,11 +390,6 @@ html {
     text-align: center;
 }
 
-/* ========================================
-   GRIDS DE PRODUCTOS
-   ======================================== */
-
-/* Grid de productos minimalista */
 .categories-grid,
 .products-grid {
     display: grid;
@@ -1075,6 +1016,199 @@ html {
     align-items: center;
     gap: 6px;
 }
+/* ========================================
+   SECCIÓN DE DIRECCIONES GUARDADAS
+   ======================================== */
+
+.saved-addresses-section {
+    margin-bottom: 30px;
+}
+
+.subsection-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0 0 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+    .subsection-title i {
+        color: #8a2be2;
+        font-size: 1.3rem;
+    }
+
+.saved-addresses-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.saved-address {
+    background: linear-gradient(135deg, rgba(25, 25, 25, 0.9) 0%, rgba(35, 35, 35, 0.8) 100%);
+    border: 1px solid rgba(138, 43, 226, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+    .saved-address:hover {
+        border-color: rgba(138, 43, 226, 0.5);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(138, 43, 226, 0.2);
+    }
+
+    .saved-address.selected {
+        border-color: #8a2be2;
+        background: linear-gradient(135deg, rgba(138, 43, 226, 0.1) 0%, rgba(157, 78, 221, 0.1) 100%);
+        box-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
+    }
+
+        .saved-address.selected::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #8a2be2 0%, #9d4edd 100%);
+            border-radius: 12px 12px 0 0;
+        }
+
+.address-badge {
+    position: absolute;
+    top: -8px;
+    right: 15px;
+    background: linear-gradient(135deg, #8a2be2 0%, #9d4edd 100%);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 2px 10px rgba(138, 43, 226, 0.4);
+}
+
+    .address-badge i {
+        font-size: 0.7rem;
+    }
+
+.address-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.address-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.address-text {
+    color: #cccccc;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.address-phone {
+    color: #8a2be2;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+    .address-phone i {
+        font-size: 0.85rem;
+    }
+
+.address-radio {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 5px;
+}
+
+    .address-radio i {
+        font-size: 1.5rem;
+        color: #666666;
+        transition: all 0.3s ease;
+    }
+
+.saved-address.selected .address-radio i {
+    color: #8a2be2;
+}
+
+.btn-add-new-address {
+    background: transparent;
+    border: 2px solid rgba(138, 43, 226, 0.4);
+    color: #8a2be2;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+    .btn-add-new-address:hover {
+        background: rgba(138, 43, 226, 0.1);
+        border-color: #8a2be2;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(138, 43, 226, 0.3);
+    }
+
+    .btn-add-new-address i {
+        font-size: 1.1rem;
+    }
+
+.btn-cancel-new-address {
+    background: transparent;
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    color: #8a2be2;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+    .btn-cancel-new-address:hover {
+        background: rgba(138, 43, 226, 0.05);
+        border-color: #8a2be2;
+    }
+
+
 
 /* ========================================
    CONTROLES DEL PRODUCTO
@@ -1622,6 +1756,155 @@ html {
     resize: vertical;
     min-height: 80px;
 }
+/* ========================================
+   MODAL DE ÉXITO
+   ======================================== */
+
+.modal-container-success {
+    background: rgba(15, 15, 15, 0.95);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow: hidden;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header-success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding: 30px 30px 20px 30px;
+    border-bottom: 1px solid rgba(34, 197, 94, 0.2);
+    background: rgba(34, 197, 94, 0.05);
+}
+
+.success-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(34, 197, 94, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #22c55e;
+    font-size: 3rem;
+    animation: successPulse 2s ease-in-out infinite;
+}
+
+@keyframes successPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.modal-title-success {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+    text-align: center;
+}
+
+.modal-content-success {
+    flex: 1;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.success-message {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.success-text {
+    color: #cccccc;
+    font-size: 1.1rem;
+    text-align: center;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.order-details {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: rgba(25, 25, 25, 0.6);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #ffffff;
+    font-size: 1rem;
+}
+
+    .detail-item i {
+        color: #22c55e;
+        font-size: 1.2rem;
+        width: 20px;
+        text-align: center;
+    }
+
+.modal-footer-success {
+    display: flex;
+    gap: 15px;
+    padding: 20px 30px 30px 30px;
+    justify-content: center;
+}
+
+.btn-continue-success,
+.btn-close-success {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-continue-success {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+}
+
+    .btn-continue-success:hover {
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
+    }
+
+.btn-close-success {
+    background: rgba(75, 75, 75, 0.8);
+    color: #ffffff;
+    border: 1px solid rgba(138, 43, 226, 0.3);
+}
+
+    .btn-close-success:hover {
+        background: rgba(95, 95, 95, 0.9);
+        border-color: rgba(138, 43, 226, 0.5);
+    }
+
 
 /* ========================================
    INFORMACIÓN DE LA TIENDA
