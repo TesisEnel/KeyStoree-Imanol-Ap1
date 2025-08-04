@@ -1,9 +1,9 @@
 ﻿@page "/admin/manage"
 @using Microsoft.EntityFrameworkCore
-@using KeyStore.DAL
+@using KeyStore.Data
 @using KeyStore.Models
 @using KeyStore.Services
-@inject IDbContextFactory<Contexto> DbContextFactory
+@inject ApplicationDbContext context
 @inject NavigationManager NavigationManager
 @inject IImagenService ImagenService
 @inject IJSRuntime JSRuntime
@@ -321,8 +321,7 @@ else
     {
         try
         {
-            await using var contexto = await DbContextFactory.CreateDbContextAsync();
-            todosLosProductos = await contexto.Productos
+            todosLosProductos = await context.Productos
                 .OrderBy(p => p.Nombre)
                 .ToListAsync();
         }
@@ -450,11 +449,9 @@ else
             eliminandoProductos = true;
             StateHasChanged();
 
-            await using var contexto = await DbContextFactory.CreateDbContextAsync();
-
             foreach (var productoId in productosParaEliminar)
             {
-                var producto = await contexto.Productos.FindAsync(productoId);
+                var producto = await context.Productos.FindAsync(productoId);
                 if (producto != null)
                 {
                     if (!string.IsNullOrEmpty(producto.ImagenUrl))
@@ -469,12 +466,12 @@ else
                         }
                     }
 
-                    contexto.Productos.Remove(producto);
+                    context.Productos.Remove(producto);
                     productosSeleccionados.Remove(productoId);
                 }
             }
 
-            await contexto.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             mensaje = productosParaEliminar.Count == 1 ?
                 "Producto eliminado correctamente." :
@@ -488,10 +485,27 @@ else
             mostrarModalEliminar = false;
             productosParaEliminar.Clear();
         }
+        catch (DbUpdateException dbEx)
+        {
+            var innerMessage = dbEx.InnerException?.Message ?? dbEx.Message;
+
+            if (innerMessage.Contains("FOREIGN KEY") || innerMessage.Contains("REFERENCE"))
+            {
+                mensaje = "Error: No se pueden eliminar algunos productos porque están siendo usados en otras partes del sistema.";
+            }
+            else
+            {
+                mensaje = $"Error de base de datos: {innerMessage}";
+            }
+
+            esError = true;
+            Console.WriteLine($"Error eliminando productos: {dbEx}");
+        }
         catch (Exception ex)
         {
             mensaje = $"Error eliminando productos: {ex.Message}";
             esError = true;
+            Console.WriteLine($"Error general: {ex}");
         }
         finally
         {

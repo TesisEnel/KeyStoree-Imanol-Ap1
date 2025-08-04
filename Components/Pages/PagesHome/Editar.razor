@@ -1,9 +1,9 @@
 ﻿@page "/Productos/Editar/{Id:int}"
 @using Microsoft.EntityFrameworkCore
-@using KeyStore.DAL
+@using KeyStore.Data
 @using KeyStore.Models
 @using KeyStore.Services
-@inject IDbContextFactory<Contexto> DbContextFactory
+@inject ApplicationDbContext context
 @inject NavigationManager NavigationManager
 @inject IImagenService ImagenService
 @rendermode InteractiveServer
@@ -409,7 +409,7 @@ else
 
 @if (mostrarModalEliminar)
 {
-    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal fade show d-block" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -468,8 +468,7 @@ else
     {
         try
         {
-            await using var contexto = await DbContextFactory.CreateDbContextAsync();
-            producto = await contexto.Productos
+            producto = await context.Productos
                 .FirstOrDefaultAsync(p => p.Id == Id);
 
             if (producto == null)
@@ -495,7 +494,7 @@ else
 
             if (categoriaAnterior != categoriaId)
             {
-                if (categoriaId != 1) 
+                if (categoriaId != 1)
                 {
                     producto.Layout = string.Empty;
                     producto.EsMecánico = false;
@@ -615,10 +614,8 @@ else
                 return;
             }
 
-            await using var contexto = await DbContextFactory.CreateDbContextAsync();
-
-            contexto.Productos.Update(producto);
-            await contexto.SaveChangesAsync();
+            context.Productos.Update(producto);
+            await context.SaveChangesAsync();
 
             mensaje = "Producto actualizado exitosamente.";
             esError = false;
@@ -629,15 +626,37 @@ else
                 NavigationManager.NavigateTo("/admin/manage");
             }
         }
+        catch (DbUpdateConcurrencyException concurrencyEx)
+        {
+            mensaje = "Error: El producto fue modificado por otro usuario. Por favor, recarga la página e intenta de nuevo.";
+            esError = true;
+            Console.WriteLine($"Error de concurrencia: {concurrencyEx.Message}");
+        }
         catch (DbUpdateException dbEx)
         {
-            mensaje = $"Error de base de datos: {dbEx.InnerException?.Message ?? dbEx.Message}";
+            var innerMessage = dbEx.InnerException?.Message ?? dbEx.Message;
+
+            if (innerMessage.Contains("UNIQUE") || innerMessage.Contains("duplicate"))
+            {
+                mensaje = "Error: Ya existe un producto con ese nombre.";
+            }
+            else if (innerMessage.Contains("FOREIGN KEY"))
+            {
+                mensaje = "Error: La categoría seleccionada no es válida.";
+            }
+            else
+            {
+                mensaje = $"Error de base de datos: {innerMessage}";
+            }
+
             esError = true;
+            Console.WriteLine($"Error de BD: {dbEx}");
         }
         catch (Exception ex)
         {
             mensaje = $"Error inesperado: {ex.Message}";
             esError = true;
+            Console.WriteLine($"Error general: {ex}");
         }
         finally
         {
@@ -665,8 +684,6 @@ else
             eliminandoProducto = true;
             StateHasChanged();
 
-            await using var contexto = await DbContextFactory.CreateDbContextAsync();
-
             if (!string.IsNullOrEmpty(producto.ImagenUrl))
             {
                 try
@@ -679,16 +696,34 @@ else
                 }
             }
 
-            contexto.Productos.Remove(producto);
-            await contexto.SaveChangesAsync();
+            context.Productos.Remove(producto);
+            await context.SaveChangesAsync();
 
             NavigationManager.NavigateTo("/admin/manage");
+        }
+        catch (DbUpdateException dbEx)
+        {
+            var innerMessage = dbEx.InnerException?.Message ?? dbEx.Message;
+
+            if (innerMessage.Contains("FOREIGN KEY") || innerMessage.Contains("REFERENCE"))
+            {
+                mensaje = "Error: No se puede eliminar el producto porque está siendo usado en otras partes del sistema.";
+            }
+            else
+            {
+                mensaje = $"Error de base de datos al eliminar: {innerMessage}";
+            }
+
+            esError = true;
+            mostrarModalEliminar = false;
+            Console.WriteLine($"Error eliminando producto: {dbEx}");
         }
         catch (Exception ex)
         {
             mensaje = $"Error eliminando producto: {ex.Message}";
             esError = true;
             mostrarModalEliminar = false;
+            Console.WriteLine($"Error general eliminando: {ex}");
         }
         finally
         {

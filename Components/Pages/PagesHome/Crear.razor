@@ -1,9 +1,9 @@
 ﻿@page "/Productos/Crear"
 @using Microsoft.EntityFrameworkCore
-@using KeyStore.DAL
+@using KeyStore.Data
 @using KeyStore.Models
 @using KeyStore.Services
-@inject IDbContextFactory<Contexto> DbContextFactory
+@inject ApplicationDbContext context
 @inject NavigationManager NavigationManager
 @inject IImagenService ImagenService
 @rendermode InteractiveServer
@@ -27,7 +27,7 @@ else
         <div class="container mt-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3 class="fw-semibold text-primary">KEYSTORE - Crear Producto</h3>
-                <a href="/productos" class="btn btn-outline-secondary">
+                <a href="/admin/manage" class="btn btn-outline-secondary">
                     <i class="bi bi-box-seam"></i> Ver Productos
                 </a>
             </div>
@@ -505,37 +505,60 @@ else
                 return;
             }
 
-            await using var contexto = await DbContextFactory.CreateDbContextAsync();
-
             if (producto.Id == 0)
             {
-                contexto.Productos.Add(producto);
+                context.Productos.Add(producto);
+                mensaje = "Producto creado exitosamente.";
             }
             else
             {
-                contexto.Productos.Update(producto);
+                context.Productos.Update(producto);
+                mensaje = "Producto actualizado exitosamente.";
             }
 
-            await contexto.SaveChangesAsync();
-
-            mensaje = producto.Id == 0 ?
-                "Producto creado exitosamente." :
-                "Producto actualizado exitosamente.";
+            await context.SaveChangesAsync();
             esError = false;
 
+
             await Task.Delay(1500);
+
             if (!esError)
+            {
                 LimpiarFormulario();
+            }
+        }
+        catch (DbUpdateConcurrencyException concurrencyEx)
+        {
+            mensaje = "Error: El producto fue modificado por otro usuario. Por favor, recarga la página e intenta de nuevo.";
+            esError = true;
+
+            Console.WriteLine($"Error de concurrencia: {concurrencyEx.Message}");
         }
         catch (DbUpdateException dbEx)
         {
-            mensaje = $"Error de base de datos: {dbEx.InnerException?.Message ?? dbEx.Message}";
+            var innerMessage = dbEx.InnerException?.Message ?? dbEx.Message;
+
+            if (innerMessage.Contains("UNIQUE") || innerMessage.Contains("duplicate"))
+            {
+                mensaje = "Error: Ya existe un producto con ese nombre.";
+            }
+            else if (innerMessage.Contains("FOREIGN KEY"))
+            {
+                mensaje = "Error: La categoría seleccionada no es válida.";
+            }
+            else
+            {
+                mensaje = $"Error de base de datos: {innerMessage}";
+            }
+
             esError = true;
+            Console.WriteLine($"Error de BD: {dbEx}");
         }
         catch (Exception ex)
         {
             mensaje = $"Error inesperado: {ex.Message}";
             esError = true;
+            Console.WriteLine($"Error general: {ex}");
         }
         finally
         {
@@ -543,6 +566,7 @@ else
             StateHasChanged();
         }
     }
+    
 
     private void LimpiarFormulario()
     {

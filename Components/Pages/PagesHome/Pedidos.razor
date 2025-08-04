@@ -1,0 +1,1293 @@
+﻿@page "/pedidos"
+@inject ApplicationDbContext context
+@inject IJSRuntime JSRuntime
+@using Microsoft.EntityFrameworkCore
+@using KeyStore.Models
+@using KeyStore.Data
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<ApplicationUser> UserManager
+@using KeyStore.Extensions
+@attribute [Authorize]
+
+
+
+<PageTitle>Mis Pedidos - KeyStore</PageTitle>
+
+
+
+<div class="pedidos-container">
+
+	<div class="pedidos-header ">
+
+		<div class="header-content">
+
+			<div class="header-info">
+
+				<h1 class="page-title">
+
+					<i class="bi bi-bag-check-fill"></i>
+
+					@if (esAdmin)
+
+					{
+
+						<span>Gestión de Pedidos</span>
+
+					}
+
+					else
+
+					{
+
+						<span>Mis Pedidos</span>
+
+					}
+
+				</h1>
+
+				<p class="page-subtitle">
+
+					@if (esAdmin)
+
+					{
+
+						<span>Administra todos los pedidos de la plataforma</span>
+
+					}
+
+					else
+
+					{
+
+						<span>Revisa el estado de tus compras</span>
+
+					}
+
+				</p>
+
+			</div>
+
+
+
+			@if (esAdmin)
+
+			{
+
+				<div class="admin-stats">
+
+					<div class="stat-card">
+
+						<div class="stat-icon procesando">
+
+							<i class="bi bi-clock-fill"></i>
+
+						</div>
+
+						<div class="stat-info">
+
+							<span class="stat-number">@pedidos.Count(p => p.Estado == EstadoPedido.Procesando)</span>
+
+							<span class="stat-label">Procesando</span>
+
+						</div>
+
+					</div>
+
+					<div class="stat-card">
+
+						<div class="stat-icon enviado">
+
+							<i class="bi bi-truck"></i>
+
+						</div>
+
+						<div class="stat-info">
+
+							<span class="stat-number">@pedidos.Count(p => p.Estado == EstadoPedido.Enviado)</span>
+
+							<span class="stat-label">Enviados</span>
+
+						</div>
+
+					</div>
+
+					<div class="stat-card">
+
+						<div class="stat-icon entregado">
+
+							<i class="bi bi-check-circle-fill"></i>
+
+						</div>
+
+						<div class="stat-info">
+
+							<span class="stat-number">@pedidos.Count(p => p.Estado == EstadoPedido.Entregado)</span>
+
+							<span class="stat-label">Entregados</span>
+
+						</div>
+
+					</div>
+
+				</div>
+
+			}
+
+		</div>
+
+	</div>
+
+
+
+	@if (cargando)
+
+	{
+
+		<div class="loading-container">
+
+			<div class="loading-spinner">
+
+				<div class="spinner"></div>
+
+				<p>Cargando pedidos...</p>
+
+			</div>
+
+		</div>
+
+	}
+
+	else if (!pedidos.Any())
+
+	{
+
+		<div class="empty-state">
+
+			<div class="empty-icon">
+
+				<i class="bi bi-bag-x"></i>
+
+			</div>
+
+			<h3 class="empty-title">
+
+				@if (esAdmin)
+
+				{
+
+					<span>No hay pedidos registrados</span>
+
+				}
+
+				else
+
+				{
+
+					<span>No tienes pedidos aún</span>
+
+				}
+
+			</h3>
+
+			<p class="empty-description">
+
+				@if (esAdmin)
+
+				{
+
+					<span>Los pedidos aparecerán aquí cuando los usuarios realicen compras.</span>
+
+				}
+
+				else
+
+				{
+
+					<span>Cuando realices tu primera compra, aparecerá aquí con toda la información de seguimiento.</span>
+
+				}
+
+			</p>
+
+			@if (!esAdmin)
+
+			{
+
+				<button class="btn-primary" @onclick='() => NavigationManager.NavigateTo("/")'>
+
+					<i class="bi bi-arrow-left-circle"></i>
+
+					Explorar productos
+
+				</button>
+
+			}
+
+		</div>
+
+	}
+
+	else
+
+	{
+
+		<div class="pedidos-content">
+
+
+
+			@if (esAdmin)
+
+			{
+
+				<div class="admin-filters">
+
+					<div class="filter-group">
+
+						<label class="filter-label">Estado:</label>
+
+						<select class="filter-select" value="@filtroEstado" @onchange="OnFiltroEstadoChanged">
+
+							<option value="">Todos los estados</option>
+
+							<option value="@((int)EstadoPedido.Procesando)">Procesando</option>
+
+							<option value="@((int)EstadoPedido.Enviado)">Enviado</option>
+
+							<option value="@((int)EstadoPedido.Entregado)">Entregado</option>
+
+						</select>
+
+					</div>
+
+					<div class="filter-group">
+
+						<label class="filter-label">Método de pago:</label>
+
+						<select class="filter-select" value="@filtroMetodoPago" @onchange="OnFiltroMetodoPagoChanged">
+
+							<option value="">Todos los métodos</option>
+
+							<option value="tarjeta">Pago con Tarjeta</option>
+
+							<option value="local">Pago en Local</option>
+
+						</select>
+
+					</div>
+
+					<div class="filter-group">
+
+						<label class="filter-label">Buscar:</label>
+
+						<input type="text" class="filter-input" placeholder="Buscar por número de orden o cliente..."
+											   value="@textoBusqueda" @onchange="OnTextoBusquedaChanged" />
+
+					</div>
+
+				</div>
+
+			}
+
+
+
+			<div class="pedidos-grid">
+
+				@foreach (var pedido in pedidosFiltrados)
+
+				{
+
+					<div class="pedido-card">
+
+						<div class="pedido-header estado-@(GetEstadoColor(pedido.Estado))">
+
+							<div class="pedido-info">
+
+								<h3 class="pedido-numero">#@pedido.NumeroOrden</h3>
+
+								<p class="pedido-fecha">@pedido.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</p>
+
+								@if (esAdmin)
+
+								{
+
+									<p class="pedido-cliente">
+
+										<i class="bi bi-person-fill"></i>
+
+										@pedido.NombreUsuario (@pedido.EmailUsuario)
+
+									</p>
+
+								}
+
+							</div>
+
+							<div class="pedido-estado">
+
+								<span class="estado-badge estado-@pedido.EstadoColor">
+
+									<i class="bi @pedido.EstadoIcono"></i>
+
+									@pedido.EstadoTexto
+
+								</span>
+
+								@if (esAdmin)
+
+								{
+
+									<div class="estado-actions">
+
+										<button class="btn-estado btn-estado-sm"  
+																		@onclick="() => MostrarCambiarEstado(pedido)"
+																		disabled="@procesandoEstado">
+
+											<i class="bi bi-arrow-repeat"></i>
+
+										</button>
+
+									</div>
+
+								}
+
+							</div>
+
+						</div>
+
+
+
+						<div class="pedido-resumen">
+
+							<div class="resumen-item">
+
+								<span class="resumen-label">Productos:</span>
+
+								<span class="resumen-value">@pedido.CantidadProductos artículos</span>
+
+							</div>
+
+							<div class="resumen-item">
+
+								<span class="resumen-label">Método:</span>
+
+								<span class="resumen-value">@pedido.MetodoPagoTexto</span>
+
+							</div>
+
+							<div class="resumen-item">
+
+								<span class="resumen-label">Total:</span>
+
+								<span class="resumen-value total">$@pedido.Total.ToString("F2")</span>
+
+							</div>
+
+						</div>
+
+
+
+						<div class="pedido-direccion">
+
+							<i class="bi bi-geo-alt-fill"></i>
+
+							<span>@pedido.DireccionCompleta</span>
+
+						</div>
+
+
+
+						<div class="pedido-detalles" id="detalles-@pedido.Id" style="display: none;">
+
+							<div class="detalles-header">
+
+								<h4>Productos del Pedido</h4>
+
+							</div>
+
+							<div class="productos-list">
+
+								@foreach (var detalle in pedido.Detalles)
+
+								{
+
+									<div class="producto-item">
+
+										<div class="producto-imagen">
+
+											@if (!string.IsNullOrEmpty(detalle.ImagenProducto))
+
+											{
+
+												<img src="@detalle.ImagenProducto" alt="@detalle.NombreProducto" />
+
+											}
+
+											else
+
+											{
+
+												<div class="producto-placeholder">
+
+													<i class="bi bi-keyboard-fill"></i>
+
+												</div>
+
+											}
+
+										</div>
+
+										<div class="producto-info">
+
+											<h5 class="producto-nombre">@detalle.NombreProducto</h5>
+
+											@if (!string.IsNullOrEmpty(detalle.MarcaProducto))
+
+											{
+
+												<p class="producto-marca">@detalle.MarcaProducto</p>
+
+											}
+
+										</div>
+
+										<div class="producto-cantidad">
+
+											<span class="cantidad-label">Cantidad:</span>
+
+											<span class="cantidad-value">@detalle.Cantidad</span>
+
+										</div>
+
+										<div class="producto-precios">
+
+											<div class="precio-unitario">$@detalle.PrecioUnitario.ToString("F2") c/u</div>
+
+											<div class="precio-total">$@detalle.Subtotal.ToString("F2")</div>
+
+										</div>
+
+									</div>
+
+								}
+
+							</div>
+
+						</div>
+
+
+
+						<div class="pedido-actions">
+
+							<button class="btn-detalles" @onclick="() => ToggleDetalles(pedido.Id)">
+
+								<i class="bi bi-eye"></i>
+
+								<span id="btn-text-@pedido.Id">Ver detalles</span>
+
+							</button>
+
+						</div>
+
+					</div>
+
+				}
+
+			</div>
+
+		</div>
+
+	}
+
+</div>
+
+
+
+<!-- Modal para cambiar estado (solo admin) -->
+@if (esAdmin && mostrarModalEstado && pedidoSeleccionado != null)
+
+{
+
+	<div class="modal-overlay" @onclick="CerrarModalEstado">
+
+		<div class="modal-estado" @onclick:stopPropagation="true">
+
+			<div class="modal-header">
+
+				<h2 class="modal-title">
+
+					<i class="bi bi-arrow-repeat"></i>
+
+					Cambiar Estado del Pedido
+
+				</h2>
+
+				<button class="btn-close-modal" @onclick="CerrarModalEstado">
+
+					<i class="bi bi-x-lg"></i>
+
+				</button>
+
+			</div>
+
+
+
+			<div class="modal-content">
+
+				<div class="pedido-info-modal">
+
+					<h3>Pedido #@pedidoSeleccionado.NumeroOrden</h3>
+
+					<p>Cliente: @pedidoSeleccionado.NombreUsuario</p>
+
+					<p>Estado actual: <span class="estado-badge estado-@pedidoSeleccionado.EstadoColor">@pedidoSeleccionado.EstadoTexto</span></p>
+
+				</div>
+
+
+
+				<div class="estado-options">
+
+					<h4>Nuevo Estado:</h4>
+
+					<div class="estado-radio-group">
+
+						<div class="estado-option">
+
+							<input type="radio" id="procesando" name="nuevoEstado" value="@((int)EstadoPedido.Procesando)" @onchange="@((e) => nuevoEstado = EstadoPedido.Procesando)" checked="@(nuevoEstado == EstadoPedido.Procesando)" />
+
+							<label for="procesando" class="estado-label">
+
+								<i class="bi bi-clock-fill text-warning"></i>
+
+								<span>Procesando</span>
+
+								<small>El pedido está siendo preparado</small>
+
+							</label>
+
+						</div>
+
+						<div class="estado-option">
+
+							<input type="radio" id="enviado" name="nuevoEstado" value="@((int)EstadoPedido.Enviado)" @onchange="@((e) => nuevoEstado = EstadoPedido.Enviado)" checked="@(nuevoEstado == EstadoPedido.Enviado)" />
+
+							<label for="enviado" class="estado-label">
+
+								<i class="bi bi-truck text-info"></i>
+
+								<span>Enviado</span>
+
+								<small>El pedido ha sido despachado</small>
+
+							</label>
+
+						</div>
+
+						<div class="estado-option">
+
+							<input type="radio" id="entregado" name="nuevoEstado" value="@((int)EstadoPedido.Entregado)" @onchange="@((e) => nuevoEstado = EstadoPedido.Entregado)" checked="@(nuevoEstado == EstadoPedido.Entregado)" />
+
+							<label for="entregado" class="estado-label">
+
+								<i class="bi bi-check-circle-fill text-success"></i>
+
+								<span>Entregado</span>
+
+								<small>El pedido ha sido entregado</small>
+
+							</label>
+
+						</div>
+
+					</div>
+
+				</div>
+
+
+
+				<div class="notas-section">
+
+					<label for="notas" class="form-label">Notas adicionales (opcional):</label>
+
+					<textarea id="notas" class="form-control" rows="3" @bind="notasEstado" placeholder="Agregar comentarios sobre el cambio de estado..."></textarea>
+
+				</div>
+
+			</div>
+
+
+
+			<div class="modal-footer">
+
+				<button type="button" class="btn btn-secondary" @onclick="CerrarModalEstado" disabled="@procesandoEstado">
+
+					Cancelar
+
+				</button>
+
+				<button type="button" class="btn btn-primary" @onclick="CambiarEstadoPedido" disabled="@procesandoEstado">
+
+					@if (procesandoEstado)
+
+					{
+
+						<span class="spinner-border spinner-border-sm me-2"></span>
+
+						<span>Actualizando...</span>
+
+					}
+
+					else
+
+					{
+
+						<i class="bi bi-check-circle"></i>
+
+						<span>Actualizar Estado</span>
+
+					}
+
+				</button>
+
+			</div>
+
+		</div>
+
+	</div>
+
+}
+
+
+
+<!-- Toast de notificaciones -->
+@if (mostrarToast)
+
+{
+
+	<div class="toast-container position-fixed top-0 end-0 p-3">
+
+		<div class="toast show @(tipoToast == "success" ? "toast-success" : "toast-error")" role="alert">
+
+			<div class="toast-header">
+
+				<i class="bi @(tipoToast == "success" ? "bi-check-circle-fill text-success" : "bi-exclamation-triangle-fill text-danger") me-2"></i>
+
+				<strong class="me-auto">@(tipoToast == "success" ? "Éxito" : "Error")</strong>
+
+				<button type="button" class="btn-close" @onclick="() => mostrarToast = false"></button>
+
+			</div>
+
+			<div class="toast-body">
+
+				@mensajeToast
+
+			</div>
+
+		</div>
+
+	</div>
+
+}
+
+
+
+
+
+@code {
+
+	private List<PedidoDto> pedidos = new();
+
+	private List<PedidoDto> pedidosFiltrados = new();
+
+	private bool cargando = true;
+
+	private bool esAdmin = false;
+
+	private string usuarioId = "";
+
+
+
+	private string filtroEstado = "";
+
+	private string filtroMetodoPago = "";
+
+	private string textoBusqueda = "";
+
+
+
+
+	private bool mostrarModalEstado = false;
+
+	private PedidoDto? pedidoSeleccionado = null;
+
+	private EstadoPedido nuevoEstado = EstadoPedido.Procesando;
+
+	private string notasEstado = "";
+
+	private bool procesandoEstado = false;
+
+
+
+
+	private bool mostrarToast = false;
+
+	private string mensajeToast = "";
+
+	private string tipoToast = "success";
+
+
+
+
+
+	protected override async Task OnInitializedAsync()
+
+	{
+
+		await VerificarAutenticacion();
+
+		await CargarPedidos();
+
+		FiltrarPedidos();
+
+		cargando = false;
+
+	}
+
+
+
+	private string GetEstadoColor(EstadoPedido estado)
+
+	{
+
+		return estado switch
+
+		{
+
+			EstadoPedido.Procesando => "procesando",
+
+			EstadoPedido.Enviado => "enviado",
+
+			EstadoPedido.Entregado => "entregado",
+
+			_ => "procesando"
+
+		};
+
+	}
+
+
+
+
+
+
+
+
+
+	private async Task VerificarAutenticacion()
+
+	{
+
+		try
+
+		{
+
+			var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+			if (authState.User?.Identity?.IsAuthenticated != true)
+
+			{
+
+				NavigationManager.NavigateTo("/auth");
+
+				return;
+
+			}
+
+
+
+			usuarioId = authState.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "";
+
+			esAdmin = authState.User.IsInRole("Admin");
+
+		}
+
+		catch (Exception ex)
+
+		{
+
+			Console.WriteLine($"Error verificando autenticación: {ex.Message}");
+
+			NavigationManager.NavigateTo("/auth");
+
+		}
+
+	}
+
+
+
+	private async Task CargarPedidos()
+
+	{
+
+		try
+
+		{
+
+			var query = context.Pedidos
+
+					.Include(p => p.Usuario)
+
+					.Include(p => p.Detalles)
+
+					.ThenInclude(d => d.Producto)
+
+					.AsQueryable();
+
+
+
+			if (!esAdmin)
+
+			{
+
+				query = query.Where(p => p.UserId == usuarioId);
+
+			}
+
+
+
+			var pedidosDb = await query
+
+					.OrderByDescending(p => p.FechaCreacion)
+
+					.ToListAsync();
+
+
+
+			pedidos = pedidosDb.Select(p => new PedidoDto
+
+				{
+
+					Id = p.Id,
+
+					NumeroOrden = p.NumeroOrden,
+
+					FechaCreacion = p.FechaCreacion,
+
+					Estado = p.Estado,
+
+					Total = p.Total,
+
+					MetodoPago = p.MetodoPago,
+
+					DireccionCompleta = p.GetDireccionCompleta(), 
+
+					NombreDestinatario = p.NombreDestinatario ?? "",
+
+					NombreUsuario = p.Usuario?.NombreCompleto ?? "Usuario",
+
+					EmailUsuario = p.Usuario?.Email ?? "",
+
+					CantidadProductos = p.GetCantidadTotal(), 
+
+					Detalles = p.Detalles.Select(d => new DetallePedidoDto
+
+					{
+
+						Id = d.Id,
+
+						ProductoId = d.ProductoId,
+
+						NombreProducto = d.NombreProducto,
+
+						MarcaProducto = d.MarcaProducto,
+
+						ImagenProducto = d.ImagenProducto,
+
+						Cantidad = d.Cantidad,
+
+						PrecioUnitario = d.PrecioUnitario,
+
+						Subtotal = d.GetSubtotal() 
+
+					}).ToList()
+
+				}).ToList();
+
+		}
+
+		catch (Exception ex)
+
+		{
+
+			Console.WriteLine($"Error cargando pedidos: {ex.Message}");
+
+			MostrarToast("Error cargando pedidos", "error");
+
+		}
+
+	}
+
+	private void FiltrarPedidos()
+
+	{
+
+		var resultado = pedidos.AsEnumerable();
+
+
+
+
+		if (!string.IsNullOrEmpty(filtroEstado) && int.TryParse(filtroEstado, out int estadoInt))
+
+		{
+
+			var estado = (EstadoPedido)estadoInt;
+
+			resultado = resultado.Where(p => p.Estado == estado);
+
+		}
+
+
+
+		if (!string.IsNullOrEmpty(filtroMetodoPago))
+
+		{
+
+			resultado = resultado.Where(p => p.MetodoPago == filtroMetodoPago);
+
+		}
+
+
+
+
+		if (!string.IsNullOrEmpty(textoBusqueda))
+
+		{
+
+			var busqueda = textoBusqueda.ToLower();
+
+			resultado = resultado.Where(p =>
+
+					p.NumeroOrden.ToLower().Contains(busqueda) ||
+
+					p.NombreUsuario.ToLower().Contains(busqueda) ||
+
+					p.EmailUsuario.ToLower().Contains(busqueda)
+
+			);
+
+		}
+
+
+
+		pedidosFiltrados = resultado.ToList();
+
+		StateHasChanged();
+
+	}
+
+
+
+	private async Task ToggleDetalles(int pedidoId)
+
+	{
+
+		try
+
+		{
+
+			var elemento = $"detalles-{pedidoId}";
+
+			var botonTexto = $"btn-text-{pedidoId}";
+
+
+
+			var isVisible = await JSRuntime.InvokeAsync<bool>("eval", $"document.getElementById('{elemento}').style.display !== 'none'");
+
+
+
+			if (isVisible)
+
+			{
+
+				await JSRuntime.InvokeVoidAsync("eval", $"document.getElementById('{elemento}').style.display = 'none'");
+
+				await JSRuntime.InvokeVoidAsync("eval", $"document.getElementById('{botonTexto}').textContent = 'Ver detalles'");
+
+			}
+
+			else
+
+			{
+
+				await JSRuntime.InvokeVoidAsync("eval", $"document.getElementById('{elemento}').style.display = 'block'");
+
+				await JSRuntime.InvokeVoidAsync("eval", $"document.getElementById('{botonTexto}').textContent = 'Ocultar detalles'");
+
+			}
+
+		}
+
+		catch (Exception ex)
+
+		{
+
+			Console.WriteLine($"Error toggling detalles: {ex.Message}");
+
+		}
+
+	}
+
+
+
+	private void MostrarCambiarEstado(PedidoDto pedido)
+
+	{
+
+		pedidoSeleccionado = pedido;
+
+		nuevoEstado = pedido.Estado;
+
+		notasEstado = "";
+
+		mostrarModalEstado = true;
+
+	}
+
+
+
+	private void CerrarModalEstado()
+
+	{
+
+		if (procesandoEstado) return;
+
+
+
+		mostrarModalEstado = false;
+
+		pedidoSeleccionado = null;
+
+		notasEstado = "";
+
+	}
+
+
+
+	private async Task CambiarEstadoPedido()
+
+	{
+
+		if (procesandoEstado || pedidoSeleccionado == null) return;
+
+
+
+		try
+
+		{
+
+			procesandoEstado = true;
+
+
+
+			var pedido = await context.Pedidos.FindAsync(pedidoSeleccionado.Id);
+
+			if (pedido == null)
+
+			{
+
+				MostrarToast("Pedido no encontrado", "error");
+
+				return;
+
+			}
+
+
+
+			var estadoAnterior = pedido.Estado;
+
+			pedido.Estado = nuevoEstado;
+
+
+			if (nuevoEstado == EstadoPedido.Enviado && estadoAnterior != EstadoPedido.Enviado)
+
+			{
+
+				pedido.FechaEnviado = DateTime.UtcNow;
+
+			}
+
+			else if (nuevoEstado == EstadoPedido.Entregado && estadoAnterior != EstadoPedido.Entregado)
+
+			{
+
+				pedido.FechaEntregado = DateTime.UtcNow;
+
+				if (pedido.FechaEnviado == null)
+
+				{
+
+					pedido.FechaEnviado = DateTime.UtcNow.AddDays(-1); 
+
+				}
+
+			}
+
+
+
+			if (!string.IsNullOrWhiteSpace(notasEstado))
+
+			{
+
+				var notaCompleta = $"[{DateTime.Now:dd/MM/yyyy HH:mm}] Estado cambiado a {nuevoEstado}: {notasEstado}";
+
+				pedido.Notas = string.IsNullOrEmpty(pedido.Notas)
+
+						? notaCompleta
+
+						: $"{pedido.Notas}\n{notaCompleta}";
+
+			}
+
+
+
+			context.Pedidos.Update(pedido);
+
+			await context.SaveChangesAsync();
+
+
+			pedidoSeleccionado.Estado = nuevoEstado;
+
+			var pedidoEnLista = pedidos.FirstOrDefault(p => p.Id == pedidoSeleccionado.Id);
+
+			if (pedidoEnLista != null)
+
+			{
+
+				pedidoEnLista.Estado = nuevoEstado;
+
+			}
+
+
+
+			MostrarToast($"Estado del pedido actualizado a {nuevoEstado}", "success");
+
+			CerrarModalEstado();
+
+			FiltrarPedidos();
+
+		}
+
+		catch (DbUpdateConcurrencyException concurrencyEx)
+
+		{
+
+			Console.WriteLine($"Error de concurrencia: {concurrencyEx.Message}");
+
+			MostrarToast("El pedido fue modificado por otro usuario. Por favor, recarga la página.", "error");
+
+		}
+
+		catch (DbUpdateException dbEx)
+
+		{
+
+			var innerMessage = dbEx.InnerException?.Message ?? dbEx.Message;
+
+			Console.WriteLine($"Error de BD: {dbEx}");
+
+			MostrarToast($"Error de base de datos: {innerMessage}", "error");
+
+		}
+
+		catch (Exception ex)
+
+		{
+
+			Console.WriteLine($"Error cambiando estado: {ex.Message}");
+
+			MostrarToast("Error al cambiar el estado del pedido", "error");
+
+		}
+
+		finally
+
+		{
+
+			procesandoEstado = false;
+
+			StateHasChanged();
+
+		}
+
+	}
+
+
+
+	private void MostrarToast(string mensaje, string tipo)
+
+	{
+
+		mensajeToast = mensaje;
+
+		tipoToast = tipo;
+
+		mostrarToast = true;
+
+
+
+		_ = Task.Delay(4000).ContinueWith(_ => InvokeAsync(() =>
+
+		{
+
+			mostrarToast = false;
+
+			StateHasChanged();
+
+		}));
+
+	}
+
+
+
+
+	private void OnFiltroEstadoChanged(ChangeEventArgs e)
+
+	{
+
+		filtroEstado = e.Value?.ToString() ?? "";
+
+		FiltrarPedidos();
+
+	}
+
+
+
+	private void OnFiltroMetodoPagoChanged(ChangeEventArgs e)
+
+	{
+
+		filtroMetodoPago = e.Value?.ToString() ?? "";
+
+		FiltrarPedidos();
+
+	}
+
+
+
+	private void OnTextoBusquedaChanged(ChangeEventArgs e)
+
+	{
+
+		textoBusqueda = e.Value?.ToString() ?? "";
+
+		FiltrarPedidos();
+
+	}
+
+}

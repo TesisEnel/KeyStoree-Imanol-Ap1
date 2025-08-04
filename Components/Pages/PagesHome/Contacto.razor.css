@@ -1,9 +1,4 @@
-﻿/* ========================================
-   CONTACTO PAGE - ESTILOS ESPECÍFICOS (SCOPED)
-   ======================================== */
-
-/* Contenedor principal de la página Contacto */
-.contacto-page-container {
+﻿.contacto-page-container {
     background: #000000;
     min-height: 100vh;
     color: #ffffff;
@@ -11,9 +6,6 @@
     margin: 0;
 }
 
-/* ========================================
-   HERO SECTION CONTACTO
-   ======================================== */
 
 .contacto-hero-section {
     padding: 80px 40px 100px;
@@ -89,9 +81,6 @@
     pointer-events: none;
 }
 
-/* ========================================
-   INFORMACIÓN DE CONTACTO
-   ======================================== */
 
 .contacto-info-section {
     padding: 100px 40px;
@@ -163,9 +152,6 @@
             text-decoration: underline;
         }
 
-/* ========================================
-   FORMULARIO DE CONTACTO
-   ======================================== */
 
 .contacto-form-section {
     padding: 100px 40px;
@@ -314,10 +300,6 @@
         transform: translateY(-2px);
     }
 
-/* ========================================
-   MAPA Y UBICACIÓN
-   ======================================== */
-
 .contacto-map-section {
     padding: 100px 40px;
 }
@@ -369,10 +351,6 @@
         color: #666666;
         margin: 0;
     }
-
-/* ========================================
-   CTA SECTION
-   ======================================== */
 
 .cta-section {
     padding: 100px 40px;
@@ -448,190 +426,7 @@
         box-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
     }
 
-/* ========================================
-   RESPONSIVE DESIGN
-   ======================================== */
 
-/* Tablets y pantallas medianas */
-@media (max-width: 1200px) {
-    .contacto-hero-content {
-        gap: 40px;
-    }
-
-    .contacto-info-container {
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 25px;
-    }
-}
-
-@media (max-width: 1024px) {
-    .contacto-hero-content {
-        grid-template-columns: 1fr;
-        text-align: center;
-        gap: 50px;
-    }
-
-    .form-row {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-
-    .contacto-info-container {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    }
-}
-
-/* Móviles */
-@media (max-width: 768px) {
-    .contacto-hero-section {
-        padding: 60px 20px 80px;
-    }
-
-    .contacto-hero-title {
-        font-size: 2.8rem;
-    }
-
-    .hero-subtitle-text {
-        font-size: 1.8rem;
-    }
-
-    .contacto-hero-description {
-        font-size: 1.1rem;
-    }
-
-    .contacto-hero-image {
-        height: 350px;
-    }
-
-    .hero-keystore-text {
-        font-size: 4rem;
-    }
-
-    .contacto-info-section,
-    .contacto-form-section,
-    .contacto-map-section,
-    .cta-section {
-        padding: 80px 20px;
-    }
-
-    .contacto-info-container {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-
-    .contacto-form {
-        padding: 30px;
-    }
-
-    .section-title {
-        font-size: 2.2rem;
-    }
-
-    .form-actions {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .submit-btn,
-    .reset-btn {
-        width: 100%;
-        max-width: 300px;
-    }
-
-    .cta-title {
-        font-size: 2rem;
-    }
-
-    .cta-buttons {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .cta-btn {
-        width: 100%;
-        max-width: 300px;
-        justify-content: center;
-    }
-}
-
-/* Móviles pequeños */
-@media (max-width: 480px) {
-    .contacto-hero-section {
-        padding: 40px 15px 60px;
-    }
-
-    .contacto-hero-title {
-        font-size: 2.2rem;
-    }
-
-    .hero-subtitle-text {
-        font-size: 1.4rem;
-    }
-
-    .contacto-hero-image {
-        height: 280px;
-    }
-
-    .hero-keystore-text {
-        font-size: 3rem;
-    }
-
-    .contacto-info-section,
-    .contacto-form-section,
-    .contacto-map-section,
-    .cta-section {
-        padding: 60px 15px;
-    }
-
-    .info-card,
-    .contacto-form {
-        padding: 25px;
-    }
-
-    .info-icon {
-        width: 60px;
-        height: 60px;
-    }
-
-        .info-icon i {
-            font-size: 1.5rem;
-        }
-
-    .info-title {
-        font-size: 1.2rem;
-    }
-
-    .section-title {
-        font-size: 1.8rem;
-    }
-
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        padding: 12px;
-    }
-
-    .submit-btn,
-    .reset-btn {
-        padding: 12px 25px;
-        font-size: 0.9rem;
-    }
-
-    .cta-title {
-        font-size: 1.6rem;
-    }
-
-    .cta-btn {
-        padding: 15px 30px;
-        font-size: 1rem;
-    }
-}
-
-/* ========================================
-   ANIMACIONES
-   ======================================== */
-
-/* Animación sutil para elementos al hacer scroll */
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -649,16 +444,10 @@
     animation: fadeInUp 0.6s ease-out;
 }
 
-/* Animación para el texto KEYSTORE */
 .hero-keystore-text {
     animation: fadeInUp 0.8s ease-out;
 }
 
-/* ========================================
-   UTILIDADES
-   ======================================== */
-
-/* Focus visible para accesibilidad */
 .submit-btn:focus-visible,
 .reset-btn:focus-visible,
 .cta-btn:focus-visible {

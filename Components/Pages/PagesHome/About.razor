@@ -1,8 +1,8 @@
 ﻿@page "/about"
-@inject IDbContextFactory<Contexto> DbContextFactory
+@inject IDbContextFactory<ApplicationDbContext> DbContextFactory
 @inject IJSRuntime JSRuntime
 @using Microsoft.EntityFrameworkCore
-@using KeyStore.DAL
+@using KeyStore.Data
 @using KeyStore.Models
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer

@@ -1,0 +1,1666 @@
+﻿/* ========================================
+   PEDIDOS - ESTILOS PRINCIPALES
+   ======================================== */
+
+/* Contenedor principal de pedidos */
+.pedidos-container {
+    background: #000000;
+    min-height: 100vh;
+    padding: 100px 20px 40px;
+    color: #ffffff;
+    position: relative;
+}
+
+/* ========================================
+   HEADER DE PEDIDOS
+   ======================================== */
+
+.pedidos-header {
+    background: rgba(15, 15, 15, 0.8);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    border-radius: 16px;
+    padding: 40px;
+    margin-bottom: 40px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 0 30px rgba(138, 43, 226, 0.2);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
+    gap: 30px;
+}
+
+.header-info {
+    flex: 1;
+}
+
+.page-title {
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: #ffffff;
+    margin: 0 0 10px 0;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+    .page-title i {
+        color: #8a2be2;
+        font-size: 2.2rem;
+    }
+
+.page-subtitle {
+    font-size: 1.2rem;
+    color: #888888;
+    margin: 0;
+    font-weight: 300;
+}
+
+/* ========================================
+   ESTADÍSTICAS DE ADMIN
+   ======================================== */
+
+.admin-stats {
+    display: flex;
+    gap: 20px;
+}
+
+.stat-card {
+    background: rgba(25, 25, 25, 0.8);
+    border: 1px solid rgba(138, 43, 226, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    min-width: 140px;
+}
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        border-color: rgba(138, 43, 226, 0.4);
+    }
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+    .stat-icon.procesando {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+        border: 1px solid rgba(255, 193, 7, 0.3);
+    }
+
+    .stat-icon.enviado {
+        background: rgba(13, 202, 240, 0.2);
+        color: #0dcaf0;
+        border: 1px solid rgba(13, 202, 240, 0.3);
+    }
+
+    .stat-icon.entregado {
+        background: rgba(25, 135, 84, 0.2);
+        color: #198754;
+        border: 1px solid rgba(25, 135, 84, 0.3);
+    }
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-number {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: white;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #888888;
+    font-weight: 500;
+}
+
+/* ========================================
+   FILTROS DE ADMIN
+   ======================================== */
+
+.admin-filters {
+    background: rgba(15, 15, 15, 0.5);
+    border: 1px solid rgba(138, 43, 226, 0.2);
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+    display: flex;
+    gap: 30px;
+    align-items: end;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 200px;
+}
+
+.filter-label {
+    font-weight: 600;
+    color: #8a2be2;
+    font-size: 0.95rem;
+}
+
+.filter-select,
+.filter-input {
+    padding: 12px 16px;
+    background: rgba(25, 25, 25, 0.8);
+    border: 1px solid rgba(138, 43, 226, 0.2);
+    border-radius: 10px;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+    .filter-select:focus,
+    .filter-input:focus {
+        outline: none;
+        border-color: #8a2be2;
+        box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.2);
+        background: rgba(25, 25, 25, 0.9);
+    }
+
+    .filter-select option {
+        background: #1a1a1a;
+        color: white;
+    }
+
+    .filter-input::placeholder {
+        color: #666666;
+    }
+
+/* ========================================
+   CONTENIDO DE PEDIDOS
+   ======================================== */
+
+.pedidos-content {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.pedidos-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+/* ========================================
+   TARJETAS DE PEDIDOS
+   ======================================== */
+
+.pedido-card {
+    background: rgba(15, 15, 15, 0.5);
+    border: 1px solid rgba(138, 43, 226, 0.2);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+    .pedido-card:hover {
+        border-color: rgba(138, 43, 226, 0.4);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        transform: translateY(-3px);
+    }
+
+.pedido-header {
+    background: rgba(138, 43, 226, 0.1);
+    padding: 25px 30px;
+    border-bottom: 1px solid rgba(138, 43, 226, 0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.pedido-info {
+    flex: 1;
+}
+
+.pedido-numero {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: white;
+    margin: 0 0 8px 0;
+}
+
+.pedido-fecha {
+    color: #888888;
+    font-size: 0.95rem;
+    margin: 0 0 8px 0;
+}
+
+.pedido-cliente {
+    color: #8a2be2;
+    font-size: 0.95rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pedido-estado {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.estado-badge {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.estado-procesando {
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.estado-enviado {
+    background: rgba(13, 202, 240, 0.2);
+    color: #0dcaf0;
+    border: 1px solid rgba(13, 202, 240, 0.3);
+}
+
+.estado-entregado {
+    background: rgba(25, 135, 84, 0.2);
+    color: #198754;
+    border: 1px solid rgba(25, 135, 84, 0.3);
+}
+
+.estado-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-estado {
+    width: 35px;
+    height: 35px;
+    border: none;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(138, 43, 226, 0.15);
+    color: #8a2be2;
+    border: 1px solid rgba(138, 43, 226, 0.3);
+}
+
+    .btn-estado:hover {
+        background: #8a2be2;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
+    }
+
+    .btn-estado:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none !important;
+    }
+
+/* ========================================
+   RESUMEN DEL PEDIDO
+   ======================================== */
+
+.pedido-resumen {
+    padding: 20px 30px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    border-bottom: 1px solid rgba(138, 43, 226, 0.1);
+}
+
+.resumen-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: rgba(25, 25, 25, 0.5);
+    border-radius: 10px;
+    border: 1px solid rgba(138, 43, 226, 0.1);
+    transition: all 0.3s ease;
+}
+
+    .resumen-item:hover {
+        background: rgba(138, 43, 226, 0.1);
+        border-color: rgba(138, 43, 226, 0.3);
+    }
+
+.resumen-label {
+    font-weight: 600;
+    color: #8a2be2;
+    font-size: 0.9rem;
+}
+
+.resumen-value {
+    color: white;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+    .resumen-value.total {
+        color: #8a2be2;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+/* ========================================
+   DIRECCIÓN DEL PEDIDO
+   ======================================== */
+
+.pedido-direccion {
+    padding: 20px 30px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #888888;
+    font-size: 0.95rem;
+    border-bottom: 1px solid rgba(138, 43, 226, 0.1);
+    line-height: 1.5;
+}
+
+    .pedido-direccion i {
+        color: #8a2be2;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+/* ========================================
+   DETALLES DEL PEDIDO
+   ======================================== */
+
+.pedido-detalles {
+    padding: 30px;
+    background: rgba(5, 5, 5, 0.3);
+    border-top: 1px solid rgba(138, 43, 226, 0.1);
+}
+
+.detalles-header {
+    margin-bottom: 20px;
+}
+
+    .detalles-header h4 {
+        color: white;
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+.productos-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.producto-item {
+    background: rgba(25, 25, 25, 0.6);
+    border: 1px solid rgba(138, 43, 226, 0.15);
+    border-radius: 12px;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 80px 1fr auto auto;
+    gap: 20px;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+    .producto-item:hover {
+        background: rgba(138, 43, 226, 0.05);
+        border-color: rgba(138, 43, 226, 0.3);
+    }
+
+.producto-imagen {
+    width: 80px;
+    height: 80px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(138, 43, 226, 0.1);
+    border: 1px solid rgba(138, 43, 226, 0.2);
+}
+
+    .producto-imagen img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+.producto-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #8a2be2;
+    font-size: 2rem;
+}
+
+.producto-info {
+    flex: 1;
+}
+
+.producto-nombre {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 5px 0;
+    line-height: 1.3;
+}
+
+.producto-marca {
+    color: #888888;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.producto-cantidad {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 10px;
+    background: rgba(138, 43, 226, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(138, 43, 226, 0.2);
+}
+
+.cantidad-label {
+    font-size: 0.8rem;
+    color: #8a2be2;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.cantidad-value {
+    font-size: 1.2rem;
+    color: white;
+    font-weight: 700;
+}
+
+.producto-precios {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+}
+
+.precio-unitario {
+    color: #888888;
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+}
+
+.precio-total {
+    color: #8a2be2;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+/* ========================================
+   ACCIONES DEL PEDIDO
+   ======================================== */
+
+.pedido-actions {
+    padding: 20px 30px;
+    display: flex;
+    justify-content: center;
+}
+
+.btn-detalles {
+    background: rgba(138, 43, 226, 0.15);
+    color: #8a2be2;
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .btn-detalles:hover {
+        background: #8a2be2;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
+    }
+
+/* ========================================
+   MODAL DE CAMBIO DE ESTADO
+   ======================================== */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.modal-estado {
+    background: rgba(15, 15, 15, 0.95);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    border-radius: 16px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 0 50px rgba(138, 43, 226, 0.3);
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-header {
+    padding: 30px 30px 20px;
+    border-bottom: 1px solid rgba(138, 43, 226, 0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: white;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+    .modal-title i {
+        color: #8a2be2;
+    }
+
+.btn-close-modal {
+    background: transparent;
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    color: #888888;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+    .btn-close-modal:hover {
+        color: white;
+        border-color: #8a2be2;
+        background: rgba(138, 43, 226, 0.1);
+    }
+
+.modal-content {
+    padding: 30px;
+}
+
+.modal-footer {
+    padding: 20px 30px 30px;
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+    border-top: 1px solid rgba(138, 43, 226, 0.1);
+}
+
+.pedido-info-modal {
+    background: rgba(25, 25, 25, 0.8);
+    border: 1px solid rgba(138, 43, 226, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+    .pedido-info-modal h3 {
+        color: white;
+        font-size: 1.3rem;
+        margin: 0 0 10px 0;
+    }
+
+    .pedido-info-modal p {
+        color: #888888;
+        margin: 5px 0;
+        font-size: 0.95rem;
+    }
+
+.estado-options h4 {
+    color: white;
+    font-size: 1.2rem;
+    margin: 0 0 15px 0;
+}
+
+.estado-radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.estado-option {
+    display: flex;
+    align-items: center;
+}
+
+    .estado-option input[type="radio"] {
+        width: 20px;
+        height: 20px;
+        accent-color: #8a2be2;
+        margin-right: 15px;
+    }
+
+.estado-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 15px;
+    background: rgba(25, 25, 25, 0.6);
+    border: 1px solid rgba(138, 43, 226, 0.2);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    flex: 1;
+}
+
+    .estado-label:hover {
+        background: rgba(138, 43, 226, 0.1);
+        border-color: rgba(138, 43, 226, 0.4);
+    }
+
+.estado-option input[type="radio"]:checked + .estado-label {
+    background: rgba(138, 43, 226, 0.15);
+    border-color: #8a2be2;
+    box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.2);
+}
+
+.estado-label span {
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.estado-label small {
+    color: #888888;
+    font-size: 0.85rem;
+    display: block;
+    margin-top: 3px;
+}
+
+.estado-label i {
+    font-size: 1.5rem;
+}
+
+.notas-section {
+    margin-top: 25px;
+}
+
+.form-label {
+    display: block;
+    color: white;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(25, 25, 25, 0.8);
+    border: 1px solid rgba(138, 43, 226, 0.2);
+    border-radius: 10px;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    resize: vertical;
+}
+
+    .form-control:focus {
+        outline: none;
+        border-color: #8a2be2;
+        box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.2);
+        background: rgba(25, 25, 25, 0.9);
+    }
+
+    .form-control::placeholder {
+        color: #666666;
+    }
+
+/* ========================================
+   LOADING Y ESTADOS VACÍOS
+   ======================================== */
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+}
+
+.loading-spinner {
+    text-align: center;
+    color: #888888;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(138, 43, 226, 0.3);
+    border-top: 3px solid #8a2be2;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: #888888;
+}
+
+.empty-icon {
+    font-size: 5rem;
+    color: #8a2be2;
+    margin-bottom: 30px;
+    opacity: 0.7;
+}
+
+.empty-title {
+    color: white;
+    margin-bottom: 15px;
+    font-size: 1.8rem;
+    font-weight: 300;
+}
+
+.empty-description {
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ========================================
+   BOTONES
+   ======================================== */
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #8a2be2 0%, #9d4edd 100%);
+    color: white;
+    box-shadow: 0 0 20px rgba(138, 43, 226, 0.4);
+}
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 30px rgba(138, 43, 226, 0.6);
+    }
+
+.btn-secondary {
+    background: rgba(138, 43, 226, 0.1);
+    color: white;
+    border: 1px solid rgba(138, 43, 226, 0.3);
+}
+
+    .btn-secondary:hover {
+        background: rgba(138, 43, 226, 0.2);
+        transform: translateY(-2px);
+    }
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.spinner-border-sm {
+    width: 16px;
+    height: 16px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+}
+
+/* ========================================
+   TOAST NOTIFICATIONS
+   ======================================== */
+
+.toast-container {
+    z-index: 1100;
+}
+
+.toast {
+    background: rgba(15, 15, 15, 0.95);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    border-radius: 12px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    color: white;
+    min-width: 350px;
+}
+
+.toast-success {
+    border-color: rgba(25, 135, 84, 0.4);
+    box-shadow: 0 0 20px rgba(25, 135, 84, 0.2);
+}
+
+.toast-error {
+    border-color: rgba(220, 38, 127, 0.4);
+    box-shadow: 0 0 20px rgba(220, 38, 127, 0.2);
+}
+
+.toast-header {
+    background: rgba(138, 43, 226, 0.1);
+    border-bottom: 1px solid rgba(138, 43, 226, 0.2);
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+}
+
+.toast-body {
+    padding: 15px 20px;
+    color: #e0e0e0;
+}
+
+.btn-close {
+    background: transparent;
+    border: none;
+    color: #888888;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.3s ease;
+}
+
+    .btn-close:hover {
+        color: white;
+    }
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+@media (max-width: 768px) {
+    .pedidos-container {
+        padding: 80px 15px 20px;
+    }
+
+    .pedidos-header {
+        padding: 25px;
+    }
+
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .page-title {
+        font-size: 2rem;
+    }
+
+    .admin-stats {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .stat-card {
+        min-width: auto;
+        width: 100%;
+    }
+
+    .admin-filters {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .filter-group {
+        min-width: auto;
+        width: 100%;
+    }
+
+    .pedido-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .pedido-estado {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .pedido-resumen {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .producto-item {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .producto-imagen {
+        justify-self: center;
+    }
+
+    .producto-precios {
+        align-items: center;
+        text-align: center;
+    }
+
+    .modal-estado {
+        margin: 10px;
+        max-height: calc(100vh - 20px);
+    }
+
+    .modal-header,
+    .modal-content,
+    .modal-footer {
+        padding: 20px;
+    }
+
+    .modal-footer {
+        flex-direction: column;
+    }
+
+    .estado-radio-group {
+        gap: 10px;
+    }
+
+    .estado-label {
+        padding: 12px;
+        font-size: 0.9rem;
+    }
+
+        .estado-label span {
+            font-size: 0.95rem;
+        }
+
+        .estado-label small {
+            font-size: 0.8rem;
+        }
+
+    .btn {
+        font-size: 0.9rem;
+        padding: 10px 20px;
+    }
+
+    .btn-detalles {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .pedido-direccion {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        text-align: left;
+    }
+
+        .pedido-direccion i {
+            align-self: flex-start;
+        }
+}
+
+@media (max-width: 480px) {
+    .pedidos-container {
+        padding: 70px 10px 20px;
+    }
+
+    .page-title {
+        font-size: 1.8rem;
+    }
+
+        .page-title i {
+            font-size: 1.6rem;
+        }
+
+    .page-subtitle {
+        font-size: 1rem;
+    }
+
+    .pedidos-header {
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .admin-filters {
+        padding: 20px;
+        margin-bottom: 20px;
+        gap: 15px;
+    }
+
+    .filter-select,
+    .filter-input {
+        padding: 10px 14px;
+        font-size: 0.9rem;
+    }
+
+    .pedido-card {
+        border-radius: 12px;
+    }
+
+    .pedido-header {
+        padding: 20px;
+    }
+
+    .pedido-numero {
+        font-size: 1.2rem;
+    }
+
+    .pedido-fecha,
+    .pedido-cliente {
+        font-size: 0.85rem;
+    }
+
+    .estado-badge {
+        font-size: 0.75rem;
+        padding: 6px 12px;
+    }
+
+    .pedido-resumen {
+        padding: 15px 20px;
+        gap: 10px;
+    }
+
+    .resumen-item {
+        padding: 10px 12px;
+    }
+
+    .resumen-label,
+    .resumen-value {
+        font-size: 0.85rem;
+    }
+
+    .pedido-direccion {
+        padding: 15px 20px;
+        font-size: 0.85rem;
+    }
+
+    .pedido-detalles {
+        padding: 20px;
+    }
+
+    .detalles-header h4 {
+        font-size: 1.1rem;
+    }
+
+    .producto-item {
+        padding: 15px;
+        grid-template-columns: 60px 1fr;
+        gap: 12px;
+    }
+
+    .producto-imagen {
+        width: 60px;
+        height: 60px;
+    }
+
+    .producto-placeholder {
+        font-size: 1.5rem;
+    }
+
+    .producto-nombre {
+        font-size: 1rem;
+    }
+
+    .producto-marca {
+        font-size: 0.8rem;
+    }
+
+    .cantidad-label {
+        font-size: 0.75rem;
+    }
+
+    .cantidad-value {
+        font-size: 1rem;
+    }
+
+    .precio-unitario {
+        font-size: 0.8rem;
+    }
+
+    .precio-total {
+        font-size: 1rem;
+    }
+
+    .pedido-actions {
+        padding: 15px 20px;
+    }
+
+    .btn-detalles {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+
+    .modal-estado {
+        margin: 5px;
+        max-height: calc(100vh - 10px);
+        border-radius: 12px;
+    }
+
+    .modal-header {
+        padding: 20px 20px 15px;
+    }
+
+    .modal-title {
+        font-size: 1.5rem;
+    }
+
+    .modal-content {
+        padding: 20px;
+    }
+
+    .modal-footer {
+        padding: 15px 20px 20px;
+        gap: 10px;
+    }
+
+    .btn {
+        padding: 10px 16px;
+        font-size: 0.85rem;
+    }
+
+    .toast {
+        min-width: 280px;
+        margin: 10px;
+    }
+
+    .toast-header,
+    .toast-body {
+        padding: 12px 15px;
+        font-size: 0.85rem;
+    }
+
+    .empty-state {
+        padding: 40px 15px;
+    }
+
+    .empty-icon {
+        font-size: 3.5rem;
+        margin-bottom: 20px;
+    }
+
+    .empty-title {
+        font-size: 1.4rem;
+        margin-bottom: 10px;
+    }
+
+    .empty-description {
+        font-size: 0.95rem;
+        margin-bottom: 20px;
+    }
+}
+
+/* ========================================
+   ANIMACIONES ADICIONALES
+   ======================================== */
+
+.pedido-card {
+    animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.estado-badge {
+    animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.loading-spinner .spinner {
+    animation: spin 1s linear infinite, pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+    from {
+        border-top-color: #8a2be2;
+    }
+
+    to {
+        border-top-color: #9d4edd;
+    }
+}
+
+/* ========================================
+   MEJORAS ADICIONALES DE ACCESIBILIDAD
+   ======================================== */
+
+.btn-estado:focus,
+.btn-detalles:focus,
+.btn:focus {
+    outline: 2px solid #8a2be2;
+    outline-offset: 2px;
+}
+
+.filter-select:focus,
+.filter-input:focus,
+.form-control:focus {
+    outline: none;
+    border-color: #8a2be2;
+    box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.2);
+}
+
+/* ========================================
+   ESTADOS DE CARGA MEJORADOS
+   ======================================== */
+
+.btn:disabled {
+    position: relative;
+    overflow: hidden;
+}
+
+    .btn:disabled::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        animation: shimmer 1.5s infinite;
+    }
+
+@keyframes shimmer {
+    0% {
+        left: -100%;
+    }
+
+    100% {
+        left: 100%;
+    }
+}
+
+/* ========================================
+   TOOLTIPS PARA ESTADOS
+   ======================================== */
+
+.estado-badge {
+    position: relative;
+    cursor: help;
+}
+
+    .estado-badge::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        z-index: 1000;
+    }
+
+    .estado-badge:hover::after {
+        opacity: 1;
+    }
+
+.estado-procesando::after {
+    content: "El pedido está siendo preparado";
+}
+
+.estado-enviado::after {
+    content: "El pedido ha sido despachado";
+}
+
+.estado-entregado::after {
+    content: "El pedido ha sido entregado exitosamente";
+}
+
+/* ========================================
+   MEJORAS PARA IMPRESIÓN
+   ======================================== */
+
+@media print {
+    .pedidos-container {
+        background: white !important;
+        color: black !important;
+        padding: 20px !important;
+    }
+
+    .pedido-card {
+        background: white !important;
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+        page-break-inside: avoid;
+        margin-bottom: 20px;
+    }
+
+    .modal-overlay,
+    .toast-container,
+    .btn-estado,
+    .admin-filters {
+        display: none !important;
+    }
+
+    .estado-badge {
+        background: #f8f9fa !important;
+        color: black !important;
+        border: 1px solid #ddd !important;
+    }
+
+    .pedido-header,
+    .card-header {
+        background: #f8f9fa !important;
+        border-bottom: 1px solid #ddd !important;
+    }
+
+    .pedido-actions {
+        display: none !important;
+    }
+
+    .pedido-detalles {
+        display: block !important;
+        background: white !important;
+    }
+}
+
+/* ========================================
+   TEMA CLARO (OPCIONAL)
+   ======================================== */
+
+@media (prefers-color-scheme: light) {
+    .pedidos-container {
+        /* Mantener tema oscuro por defecto */
+        /* Descomenta las siguientes líneas para tema claro automático */
+        /*
+        background: #ffffff;
+        color: #000000;
+        */
+    }
+}
+
+/* ========================================
+   MEJORAS DE RENDIMIENTO
+   ======================================== */
+
+.pedido-card,
+.modal-estado,
+.toast {
+    will-change: transform, opacity;
+}
+
+.spinner {
+    will-change: transform;
+}
+
+/* Optimización para dispositivos de alta densidad */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .producto-imagen img {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* ========================================
+   UTILIDADES ADICIONALES
+   ======================================== */
+
+.text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.position-relative {
+    position: relative;
+}
+
+.d-none {
+    display: none !important;
+}
+
+.d-block {
+    display: block !important;
+}
+
+.d-flex {
+    display: flex !important;
+}
+
+.justify-content-between {
+    justify-content: space-between !important;
+}
+
+.align-items-center {
+    align-items: center !important;
+}
+
+.w-100 {
+    width: 100% !important;
+}
+
+.h-100 {
+    height: 100% !important;
+}
+
+.mb-0 {
+    margin-bottom: 0 !important;
+}
+
+.mt-3 {
+    margin-top: 1rem !important;
+}
+
+.p-0 {
+    padding: 0 !important;
+}
+.pedidos-filters {
+    background: rgba(15, 15, 15, 0.5);
+    border: 1px solid rgba(138, 43, 226, 0.2);
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+    display: flex;
+    gap: 20px;
+    align-items: end;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1 1 180px;
+}
+
+.filter-label {
+    font-weight: 600;
+    color: #8a2be2;
+    font-size: 0.95rem;
+}
+
+.filter-select,
+.filter-input {
+    padding: 12px 16px;
+    background: rgba(25, 25, 25, 0.8);
+    border: 1px solid rgba(138, 43, 226, 0.2);
+    border-radius: 10px;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+    .filter-select:focus,
+    .filter-input:focus {
+        outline: none;
+        border-color: #8a2be2;
+        box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.2);
+        background: rgba(25, 25, 25, 0.9);
+    }
+
+    .filter-select option {
+        background: #1a1a1a;
+        color: white;
+    }
+
+    .filter-input::placeholder {
+        color: #666666;
+    }
+
+    .filter-input[type="date"] {
+        color-scheme: dark;
+        position: relative;
+    }
+
+        .filter-input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1) opacity(0.7);
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+            .filter-input[type="date"]::-webkit-calendar-picker-indicator:hover {
+                opacity: 1;
+            }
+
+.filter-actions {
+    display: flex;
+    align-items: end;
+}
+
+.btn-limpiar-filtros {
+    padding: 12px 20px;
+    background-color: transparent;
+    border: 1px solid #ff4d4d;
+    color: #ff4d4d;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .btn-limpiar-filtros:hover {
+        background-color: rgba(255, 77, 77, 0.1);
+        color: white;
+        border-color: #ff6666;
+    }
+    /* ========================================
+   FIN DEL CSS DE PEDIDOS
+   ======================================== */

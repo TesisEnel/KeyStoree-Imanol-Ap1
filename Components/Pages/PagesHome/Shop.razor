@@ -1,9 +1,9 @@
 ﻿@page "/shop"
-@inject IDbContextFactory<Contexto> DbContextFactory
+@inject ApplicationDbContext context
 @inject KeyStore.Services.ICartService CartService
 @inject IJSRuntime JSRuntime
 @using Microsoft.EntityFrameworkCore
-@using KeyStore.DAL
+@using KeyStore.Data
 @using KeyStore.Models
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
@@ -85,9 +85,8 @@
                 <div class="product-card-shop">
                     @if (producto.EsDestacado)
                     {
-                        <div class="product-badge featured">
+                        <div class="product-badge featured static">
                             <i class="bi bi-star-fill"></i>
-                            Destacado
                         </div>
                     }
                     @if (producto.Stock <= 0)
@@ -125,7 +124,11 @@
                                 <i class="bi bi-eye"></i>
                             </button>
                             <button class="btn-add-cart @(producto.Stock <= 0 ? "disabled" : "")"
-                                    @onclick="() => AgregarAlCarrito(producto.Id)"
+                                    @onclick="() => AgregarAlCarrito
+                                    
+                                    
+                                    
+                                    (producto.Id)"
                                     disabled="@(procesandoCarrito || producto.Stock <= 0)"
                                     title="@(producto.Stock <= 0 ? "Sin stock" : "Agregar al carrito")">
                                 <i class="bi bi-cart-plus"></i>
@@ -262,7 +265,7 @@
                     </div>
 
                     <div class="detail-info-section">
-                        <div class="detail-category">@ObtenerNombreCategoria(productoSeleccionado.CategoriaId)</div>
+                        <div class="detail-category">@ObtenerNombreCategoriaModal(productoSeleccionado.CategoriaId)</div>
 
                         @if (!string.IsNullOrEmpty(productoSeleccionado.Descripcion))
                         {
@@ -294,7 +297,11 @@
                                     <strong>Color:</strong> @productoSeleccionado.ColorPrincipal
                                 </div>
                             }
-                            @if (productoSeleccionado.TipoConexion != TipoConexion.USB_C || productoSeleccionado.TipoSwitch != TipoSwitch.Rojo_Linear)
+                            @{
+                                var nombreCategoria = ObtenerNombreCategoriaModal(productoSeleccionado.CategoriaId).ToLower();
+                                var esTeclado = nombreCategoria.Contains("teclado");
+                            }
+                            @if (esTeclado)
                             {
                                 <div class="spec-item">
                                     <strong>Conexión:</strong> @productoSeleccionado.TipoConexion.ToString().Replace("_", " ")
@@ -414,15 +421,13 @@
     {
         try
         {
-            await using var contexto = await DbContextFactory.CreateDbContextAsync();
-
-            todosLosProductos = await contexto.Productos
+            todosLosProductos = await context.Productos
                 .OrderBy(p => p.Nombre)
                 .ToListAsync();
 
             totalProductos = todosLosProductos.Count;
 
-            categorias = await contexto.Categorias
+            categorias = await context.Categorias
                 .Where(c => c.EsActiva)
                 .OrderBy(c => c.Orden)
                 .ThenBy(c => c.Nombre)
@@ -529,6 +534,11 @@
         return categorias.FirstOrDefault(c => c.Id == categoriaId)?.Nombre ?? "Sin categoría";
     }
 
+    private string ObtenerNombreCategoriaModal(int categoriaId)
+    {
+        return categorias.FirstOrDefault(c => c.Id == categoriaId)?.Nombre ?? "Sin categoría";
+    }
+
     private void MostrarDetalleRapido(Producto producto)
     {
         productoSeleccionado = producto;
@@ -549,8 +559,7 @@
         {
             procesandoCarrito = true;
 
-            await using var contexto = await DbContextFactory.CreateDbContextAsync();
-            var producto = await contexto.Productos
+            var producto = await context.Productos
                 .FirstOrDefaultAsync(p => p.Id == productoId);
 
             if (producto != null && producto.Stock > 0)

@@ -1,0 +1,639 @@
+﻿@page "/perfil"
+@inject ApplicationDbContext context
+@inject IJSRuntime JSRuntime
+@using Microsoft.EntityFrameworkCore
+@using KeyStore.Models
+@using KeyStore.Data
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<ApplicationUser> UserManager
+@attribute [Authorize]
+
+<PageTitle>Mi Perfil - KeyStore</PageTitle>
+
+<div class="perfil-container">
+    <div class="perfil-header">
+        <div class="perfil-header-content">
+            <div class="perfil-avatar">
+                <i class="bi bi-person-circle"></i>
+            </div>
+            <div class="perfil-info">
+                <h1 class="perfil-title">Mi Perfil</h1>
+                @if (usuario != null)
+                {
+                    <p class="perfil-subtitle">¡Hola @usuario.NombreCompleto!</p>
+                    <small class="perfil-email">@usuario.Email</small>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="perfil-content">
+
+        <div class="perfil-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-person-fill"></i>
+                    Información Personal
+                </h3>
+            </div>
+            <div class="card-content">
+                @if (usuario != null)
+                {
+                    <div class="info-row">
+                        <span class="info-label">Nombre Completo:</span>
+                        <span class="info-value">@usuario.NombreCompleto</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">@usuario.Email</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Teléfono:</span>
+                        <span class="info-value">@(usuario.PhoneNumber ?? "No especificado")</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Fecha de Registro:</span>
+                        <span class="info-value">@usuario.FechaRegistro.ToString("dd/MM/yyyy")</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="perfil-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    Direcciones de Envío
+                </h3>
+                <button class="btn btn-primary" @onclick="AbrirModalDireccion">
+                    <i class="bi bi-plus-circle"></i>
+                    Agregar Nueva
+                </button>
+            </div>
+            <div class="card-content">
+                @if (direcciones != null && direcciones.Any())
+                {
+                    <div class="direcciones-grid">
+                        @foreach (var direccion in direcciones)
+                        {
+                            <div class="direccion-card @(direccion.EsPrincipal ? "principal" : "")">
+                                @if (direccion.EsPrincipal)
+                                {
+                                    <div class="direccion-badge">
+                                        <i class="bi bi-star-fill"></i>
+                                        Principal
+                                    </div>
+                                }
+
+                                <div class="direccion-info">
+                                    <h4 class="direccion-nombre">@direccion.NombreCompleto</h4>
+                                    <p class="direccion-text">@direccion.Direccion</p>
+                                    @if (!string.IsNullOrEmpty(direccion.Direccion2))
+                                    {
+                                        <p class="direccion-text">@direccion.Direccion2</p>
+                                    }
+                                    <p class="direccion-text">@direccion.Ciudad, @direccion.Provincia @direccion.CodigoPostal</p>
+                                    <p class="direccion-text">@direccion.Pais</p>
+                                    @if (!string.IsNullOrEmpty(direccion.Telefono))
+                                    {
+                                        <p class="direccion-telefono">
+                                            <i class="bi bi-phone"></i>
+                                            @direccion.Telefono
+                                        </p>
+                                    }
+                                </div>
+
+                                <div class="direccion-actions">
+                                    @if (!direccion.EsPrincipal)
+                                    {
+                                        <button class="btn-action btn-principal"
+                                                @onclick="() => EstablecerPrincipal(direccion.Id)"
+                                                disabled="@procesandoDireccion"
+                                                title="Establecer como principal">
+                                            <i class="bi bi-star"></i>
+                                        </button>
+                                    }
+                                    <button class="btn-action btn-editar"
+                                            @onclick="() => EditarDireccion(direccion)"
+                                            disabled="@procesandoDireccion"
+                                            title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn-action btn-eliminar"
+                                            @onclick="() => EliminarDireccion(direccion.Id)"
+                                            disabled="@procesandoDireccion"
+                                            title="Eliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <i class="bi bi-geo-alt"></i>
+                        <h4>No tienes direcciones de envío</h4>
+                        <p>Agrega tu primera dirección para facilitar tus compras</p>
+                        <button class="btn btn-primary" @onclick="AbrirModalDireccion">
+                            <i class="bi bi-plus-circle"></i>
+                            Agregar Primera Dirección
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para agregar/editar dirección -->
+@if (mostrarModalDireccion)
+{
+    <div class="modal-overlay" @onclick="CerrarModalDireccion">
+        <div class="modal-direccion" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    @(direccionEditando?.Id > 0 ? "Editar Dirección" : "Nueva Dirección")
+                </h2>
+                <button class="btn-close-modal" @onclick="CerrarModalDireccion">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <EditForm Model="nuevaDireccion" OnValidSubmit="GuardarDireccion">
+                <DataAnnotationsValidator />
+
+                <div class="modal-content">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nombre">Nombre *</label>
+                            <InputText id="nombre" class="form-control" @bind-Value="nuevaDireccion.Nombre" />
+                            <ValidationMessage For="() => nuevaDireccion.Nombre" />
+                        </div>
+                        <div class="form-group">
+                            <label for="apellidos">Apellidos *</label>
+                            <InputText id="apellidos" class="form-control" @bind-Value="nuevaDireccion.Apellidos" />
+                            <ValidationMessage For="() => nuevaDireccion.Apellidos" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="direccion">Dirección *</label>
+                        <InputText id="direccion" class="form-control" @bind-Value="nuevaDireccion.Direccion" placeholder="Calle, número, edificio..." />
+                        <ValidationMessage For="() => nuevaDireccion.Direccion" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="direccion2">Dirección 2 (Opcional)</label>
+                        <InputText id="direccion2" class="form-control" @bind-Value="nuevaDireccion.Direccion2" placeholder="Apartamento, suite, piso..." />
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ciudad">Ciudad *</label>
+                            <InputText id="ciudad" class="form-control" @bind-Value="nuevaDireccion.Ciudad" />
+                            <ValidationMessage For="() => nuevaDireccion.Ciudad" />
+                        </div>
+                        <div class="form-group">
+                            <label for="provincia">Provincia *</label>
+                            <InputText id="provincia" class="form-control" @bind-Value="nuevaDireccion.Provincia" />
+                            <ValidationMessage For="() => nuevaDireccion.Provincia" />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="codigoPostal">Código Postal *</label>
+                            <InputText id="codigoPostal" class="form-control" @bind-Value="nuevaDireccion.CodigoPostal" />
+                            <ValidationMessage For="() => nuevaDireccion.CodigoPostal" />
+                        </div>
+                        <div class="form-group">
+                            <label for="pais">País *</label>
+                            <InputSelect id="pais" class="form-control" @bind-Value="nuevaDireccion.Pais">
+                                <option value="">Seleccionar país</option>
+                                <option value="República Dominicana">República Dominicana</option>
+                                <option value="Estados Unidos">Estados Unidos</option>
+                                <option value="España">España</option>
+                                <option value="México">México</option>
+                                <option value="Colombia">Colombia</option>
+                                <option value="Otro">Otro</option>
+                            </InputSelect>
+                            <ValidationMessage For="() => nuevaDireccion.Pais" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telefono">Teléfono (Opcional)</label>
+                        <InputText id="telefono" class="form-control" @bind-Value="nuevaDireccion.Telefono" placeholder="+1 (809) 123-4567" />
+                    </div>
+
+                    <div class="form-check">
+                        <InputCheckbox id="esPrincipal" class="form-check-input" @bind-Value="nuevaDireccion.EsPrincipal" />
+                        <label for="esPrincipal" class="form-check-label">
+                            Establecer como dirección principal
+                        </label>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CerrarModalDireccion" disabled="@procesandoDireccion">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary" disabled="@procesandoDireccion">
+                        @if (procesandoDireccion)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                            <span>Guardando...</span>
+                        }
+                        else
+                        {
+                            <i class="bi bi-check-circle"></i>
+                            <span>@(direccionEditando?.Id > 0 ? "Actualizar" : "Guardar")</span>
+                        }
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<!-- Toast de notificaciones -->
+@if (mostrarToast)
+{
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div class="toast show @(tipoToast == "success" ? "toast-success" : "toast-error")" role="alert">
+            <div class="toast-header">
+                <i class="bi @(tipoToast == "success" ? "bi-check-circle-fill text-success" : "bi-exclamation-triangle-fill text-danger") me-2"></i>
+                <strong class="me-auto">@(tipoToast == "success" ? "Éxito" : "Error")</strong>
+                <button type="button" class="btn-close" @onclick="() => mostrarToast = false"></button>
+            </div>
+            <div class="toast-body">
+                @mensajeToast
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private ApplicationUser? usuario;
+    private List<DireccionEnvio> direcciones = new();
+    private DireccionEnvio nuevaDireccion = new();
+    private DireccionEnvio? direccionEditando;
+    private bool mostrarModalDireccion = false;
+    private bool procesandoDireccion = false;
+    private bool mostrarToast = false;
+    private string mensajeToast = "";
+    private string tipoToast = "success"; 
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarUsuario();
+        await CargarDirecciones();
+    }
+
+    private async Task CargarUsuario()
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            if (authState.User?.Identity?.IsAuthenticated == true)
+            {
+                usuario = await UserManager.GetUserAsync(authState.User);
+                if (usuario == null)
+                {
+                    NavigationManager.NavigateTo("/auth");
+                }
+            }
+            else
+            {
+                NavigationManager.NavigateTo("/auth");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando usuario: {ex.Message}");
+            NavigationManager.NavigateTo("/auth");
+        }
+    }
+
+    private async Task CargarDirecciones()
+    {
+        if (usuario == null) return;
+
+        try
+        {
+            direcciones = await context.DireccionesEnvio
+                .Where(d => d.UserId == usuario.Id && d.Activa)
+                .OrderByDescending(d => d.EsPrincipal)
+                .ThenByDescending(d => d.FechaCreacion)
+                .ToListAsync();
+
+            Console.WriteLine($"Direcciones cargadas: {direcciones.Count}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando direcciones: {ex.Message}");
+            MostrarToast("Error cargando direcciones", "error");
+            direcciones = new List<DireccionEnvio>();
+        }
+    }
+
+    private void AbrirModalDireccion()
+    {
+
+        nuevaDireccion = new DireccionEnvio
+            {
+                UserId = usuario?.Id ?? string.Empty,
+                Nombre = string.Empty,
+                Apellidos = string.Empty,
+                Direccion = string.Empty,
+                Direccion2 = string.Empty,
+                Ciudad = string.Empty,
+                Provincia = string.Empty,
+                CodigoPostal = string.Empty,
+                Pais = "República Dominicana",
+                Telefono = string.Empty,
+                EsPrincipal = false,
+                Activa = true
+            };
+        direccionEditando = null;
+        mostrarModalDireccion = true;
+    }
+
+    private void EditarDireccion(DireccionEnvio direccion)
+    {
+        direccionEditando = direccion;
+        nuevaDireccion = new DireccionEnvio
+            {
+                Id = direccion.Id,
+                UserId = direccion.UserId,
+                Nombre = direccion.Nombre ?? string.Empty,
+                Apellidos = direccion.Apellidos ?? string.Empty,
+                Direccion = direccion.Direccion ?? string.Empty,
+                Direccion2 = direccion.Direccion2 ?? string.Empty,
+                Ciudad = direccion.Ciudad ?? string.Empty,
+                Provincia = direccion.Provincia ?? string.Empty,
+                CodigoPostal = direccion.CodigoPostal ?? string.Empty,
+                Pais = direccion.Pais ?? string.Empty,
+                Telefono = direccion.Telefono ?? string.Empty,
+                EsPrincipal = direccion.EsPrincipal,
+                Activa = direccion.Activa
+            };
+        mostrarModalDireccion = true;
+    }
+
+    private void CerrarModalDireccion()
+    {
+        if (procesandoDireccion) return;
+
+        mostrarModalDireccion = false;
+        nuevaDireccion = new DireccionEnvio();
+        direccionEditando = null;
+    }
+
+    private async Task GuardarDireccion()
+    {
+        if (procesandoDireccion) return;
+
+        try
+        {
+            procesandoDireccion = true;
+            Console.WriteLine("🔄 Iniciando GuardarDireccion...");
+
+            if (string.IsNullOrWhiteSpace(nuevaDireccion.UserId))
+            {
+                Console.WriteLine("❌ Error: UserId está vacío");
+                MostrarToast("Error: Usuario no identificado", "error");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(nuevaDireccion.Nombre))
+            {
+                Console.WriteLine("❌ Error: Nombre está vacío");
+                MostrarToast("Error: El nombre es requerido", "error");
+                return;
+            }
+
+            nuevaDireccion.Nombre = nuevaDireccion.Nombre?.Trim() ?? string.Empty;
+            nuevaDireccion.Apellidos = nuevaDireccion.Apellidos?.Trim() ?? string.Empty;
+            nuevaDireccion.Direccion = nuevaDireccion.Direccion?.Trim() ?? string.Empty;
+            nuevaDireccion.Ciudad = nuevaDireccion.Ciudad?.Trim() ?? string.Empty;
+            nuevaDireccion.Provincia = nuevaDireccion.Provincia?.Trim() ?? string.Empty;
+            nuevaDireccion.CodigoPostal = nuevaDireccion.CodigoPostal?.Trim() ?? string.Empty;
+            nuevaDireccion.Pais = nuevaDireccion.Pais?.Trim() ?? string.Empty;
+
+            nuevaDireccion.Direccion2 = nuevaDireccion.Direccion2?.Trim() ?? string.Empty;
+            nuevaDireccion.Telefono = nuevaDireccion.Telefono?.Trim() ?? string.Empty;
+
+            Console.WriteLine($"📋 Datos a guardar: {nuevaDireccion.Nombre} {nuevaDireccion.Apellidos}");
+            Console.WriteLine($"👤 UserId: {usuario?.Id}");
+
+
+            if (nuevaDireccion.EsPrincipal)
+            {
+                Console.WriteLine("⭐ Estableciendo como principal...");
+                var direccionesPrincipales = await context.DireccionesEnvio
+                    .Where(d => d.UserId == usuario!.Id && d.EsPrincipal && d.Id != nuevaDireccion.Id)
+                    .ToListAsync();
+
+                Console.WriteLine($"📊 Direcciones principales encontradas: {direccionesPrincipales.Count}");
+
+                foreach (var dir in direccionesPrincipales)
+                {
+                    dir.EsPrincipal = false;
+                    dir.FechaModificacion = DateTime.UtcNow;
+                }
+            }
+
+            if (direccionEditando?.Id > 0)
+            {
+                Console.WriteLine($"✏️ Editando dirección existente ID: {nuevaDireccion.Id}");
+                var direccionExistente = await context.DireccionesEnvio
+                    .FirstOrDefaultAsync(d => d.Id == nuevaDireccion.Id && d.UserId == usuario!.Id);
+
+                if (direccionExistente != null)
+                {
+                    Console.WriteLine("📝 Dirección encontrada, actualizando...");
+                    direccionExistente.Nombre = nuevaDireccion.Nombre;
+                    direccionExistente.Apellidos = nuevaDireccion.Apellidos;
+                    direccionExistente.Direccion = nuevaDireccion.Direccion;
+                    direccionExistente.Direccion2 = nuevaDireccion.Direccion2;
+                    direccionExistente.Ciudad = nuevaDireccion.Ciudad;
+                    direccionExistente.Provincia = nuevaDireccion.Provincia;
+                    direccionExistente.CodigoPostal = nuevaDireccion.CodigoPostal;
+                    direccionExistente.Pais = nuevaDireccion.Pais;
+                    direccionExistente.Telefono = nuevaDireccion.Telefono;
+                    direccionExistente.EsPrincipal = nuevaDireccion.EsPrincipal;
+                    direccionExistente.FechaModificacion = DateTime.UtcNow;
+
+                    context.DireccionesEnvio.Update(direccionExistente);
+                }
+                else
+                {
+                    Console.WriteLine("❌ No se encontró la dirección a editar");
+                    MostrarToast("No se encontró la dirección a editar", "error");
+                    return;
+                }
+            }
+            else
+            {
+                Console.WriteLine("➕ Creando nueva dirección...");
+
+                if (!direcciones.Any())
+                {
+                    Console.WriteLine("🏠 Primera dirección, estableciendo como principal");
+                    nuevaDireccion.EsPrincipal = true;
+                }
+
+                nuevaDireccion.FechaCreacion = DateTime.UtcNow;
+                nuevaDireccion.FechaModificacion = null;
+
+                Console.WriteLine($"💾 Agregando al contexto: {nuevaDireccion.NombreCompleto}");
+                context.DireccionesEnvio.Add(nuevaDireccion);
+            }
+
+            Console.WriteLine("💾 Guardando cambios...");
+            var result = await context.SaveChangesAsync();
+            Console.WriteLine($"✅ Cambios guardados: {result} registros afectados");
+
+            if (result > 0)
+            {
+                MostrarToast(
+                    direccionEditando?.Id > 0 ? "Dirección actualizada correctamente" : "Dirección agregada correctamente",
+                    "success"
+                );
+
+                CerrarModalDireccion();
+                await CargarDirecciones();
+            }
+            else
+            {
+                Console.WriteLine("⚠️ No se guardaron cambios - 0 registros afectados");
+                MostrarToast("No se pudieron guardar los cambios", "error");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Error completo: {ex}");
+            Console.WriteLine($"❌ StackTrace: {ex.StackTrace}");
+
+            var innerEx = ex.InnerException;
+            while (innerEx != null)
+            {
+                Console.WriteLine($"🔍 Inner Exception: {innerEx.Message}");
+                Console.WriteLine($"🔍 Inner StackTrace: {innerEx.StackTrace}");
+                innerEx = innerEx.InnerException;
+            }
+
+            if (ex is Microsoft.EntityFrameworkCore.DbUpdateException dbEx)
+            {
+                Console.WriteLine($"🗄️ Database Error: {dbEx.Message}");
+                foreach (var entry in dbEx.Entries)
+                {
+                    Console.WriteLine($"🗄️ Entity: {entry.Entity.GetType().Name}");
+                    Console.WriteLine($"🗄️ State: {entry.State}");
+                }
+            }
+
+            MostrarToast($"Error al guardar la dirección: {ex.Message}", "error");
+        }
+        finally
+        {
+            procesandoDireccion = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task EstablecerPrincipal(int direccionId)
+    {
+        if (procesandoDireccion) return;
+
+        try
+        {
+            procesandoDireccion = true;
+
+            var todasDirecciones = await context.DireccionesEnvio
+                .Where(d => d.UserId == usuario!.Id)
+                .ToListAsync();
+
+            foreach (var dir in todasDirecciones)
+            {
+                dir.EsPrincipal = dir.Id == direccionId;
+                if (dir.Id == direccionId)
+                {
+                    dir.FechaModificacion = DateTime.UtcNow;
+                }
+            }
+
+            await context.SaveChangesAsync();
+
+            MostrarToast("Dirección principal actualizada", "success");
+            await CargarDirecciones();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error estableciendo dirección principal: {ex.Message}");
+            MostrarToast("Error al establecer dirección principal", "error");
+        }
+        finally
+        {
+            procesandoDireccion = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task EliminarDireccion(int direccionId)
+    {
+        if (procesandoDireccion) return;
+
+        var confirmar = await JSRuntime.InvokeAsync<bool>("confirm", "¿Estás seguro de que deseas eliminar esta dirección?");
+        if (!confirmar) return;
+
+        try
+        {
+            procesandoDireccion = true;
+
+            var direccion = await context.DireccionesEnvio
+                .FirstOrDefaultAsync(d => d.Id == direccionId && d.UserId == usuario!.Id);
+
+            if (direccion != null)
+            {
+                context.DireccionesEnvio.Remove(direccion);
+                await context.SaveChangesAsync();
+
+                MostrarToast("Dirección eliminada correctamente", "success");
+                await CargarDirecciones();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error eliminando dirección: {ex.Message}");
+            MostrarToast("Error al eliminar la dirección", "error");
+        }
+        finally
+        {
+            procesandoDireccion = false;
+            StateHasChanged();
+        }
+    }
+
+    private void MostrarToast(string mensaje, string tipo)
+    {
+        mensajeToast = mensaje;
+        tipoToast = tipo;
+        mostrarToast = true;
+
+        _ = Task.Delay(4000).ContinueWith(_ => InvokeAsync(() =>
+        {
+            mostrarToast = false;
+            StateHasChanged();
+        }));
+    }
+}

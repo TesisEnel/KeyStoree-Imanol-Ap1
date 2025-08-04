@@ -1,13 +1,12 @@
 ﻿@page "/"
-@inject IDbContextFactory<Contexto> DbContextFactory
+@inject ApplicationDbContext context
 @inject KeyStore.Services.ICartService CartService
 @inject IJSRuntime JSRuntime
 @using Microsoft.EntityFrameworkCore
-@using KeyStore.DAL
+@using KeyStore.Data
 @using KeyStore.Models
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
-
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Identity
 @using KeyStore.Data
@@ -21,7 +20,7 @@
                 <h1 class="brand-title">KEYSTORE</h1>
                 <div class="brand-subtitle">Experiencia Premium</div>
                 <div class="hero-buttons">
-                    <button class="btn btn-primary">Comprar Ahora</button>
+                    <button class="btn btn-primary" @onclick="ScrollToFeatured">Comprar Ahora</button>
                     <a href="/Shop" class="btn btn-secondary">Explorar</a>
                 </div>
             </div>
@@ -60,8 +59,9 @@
                                                 }
                                                 <button class="btn btn-primary hero-carousel-btn"
                                                         @onclick="() => AgregarAlCarrito(producto.Id)"
-                                                        disabled="@procesandoCarrito">
-                                                    <i class="bi bi-cart-plus"></i> Agregar al Carrito
+                                                        disabled="@(procesandoCarrito || producto.Stock <= 0)">
+                                                    <i class="bi bi-cart-plus"></i>
+                                                    @(producto.Stock <= 0 ? "Sin stock" : "Agregar al Carrito")
                                                 </button>
                                             </div>
                                         </div>
@@ -113,18 +113,32 @@
 
     <section class="categories-section">
         <h2 class="section-title">Productos</h2>
-
-
-        <div style="color: white; text-align: center; margin-bottom: 20px;">
-            <small>Debug: @(productos?.Count ?? 0) productos cargados</small>
-        </div>
-
         <div class="categories-grid">
             @if (productos != null && productos.Any())
             {
-                foreach (var producto in productos)
+                foreach (var producto in productos.Take(10))
                 {
                     <div class="category-card">
+                        @* Badges para la sección de productos *@
+                        @if (producto.EsDestacado)
+                        {
+                            <div class="product-badge featured static">
+                                <i class="bi bi-star-fill"></i>
+                            </div>
+                        }
+                        @if (producto.Stock <= 0)
+                        {
+                            <div class="product-badge out-of-stock">
+                                Sin Stock
+                            </div>
+                        }
+                        else if (producto.Stock <= 5)
+                        {
+                            <div class="product-badge low-stock">
+                                Pocas Unidades
+                            </div>
+                        }
+
                         <div class="category-image">
                             @if (!string.IsNullOrEmpty(producto.ImagenUrl))
                             {
@@ -135,8 +149,16 @@
                                 <span class="image-ref">[Sin imagen]</span>
                             }
                             <div class="category-overlay">
-                                <button class="add-btn-new" @onclick="() => AgregarAlCarrito(producto.Id)" disabled="@procesandoCarrito">
-                                    <i class="bi bi-plus"></i>
+                                <button class="btn-quick-view"
+                                        @onclick="() => MostrarDetalleRapido(producto)"
+                                        title="Vista rápida">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn-add-cart @(procesandoCarrito || producto.Stock <= 0 ? "disabled" : "")"
+                                        @onclick="() => AgregarAlCarrito(producto.Id)"
+                                        disabled="@(procesandoCarrito || producto.Stock <= 0)"
+                                        title="@(producto.Stock <= 0 ? "Sin stock" : "Agregar al carrito")">
+                                    <i class="bi bi-cart-plus"></i>
                                 </button>
                             </div>
                         </div>
@@ -171,23 +193,44 @@
                 </div>
             }
         </div>
+
+        @if (productos != null && productos.Count >= 10)
+        {
+            <div class="text-center mt-4">
+                <a href="/Shop" class="btn btn-primary">Ver todos</a>
+            </div>
+        }
     </section>
 
-    <section class="featured-section">
+    <section class="featured-section" id="featured-section">
         <h2 class="section-title">Productos Destacados</h2>
         <p class="featured-subtitle">Eleva tu experiencia con nuestros productos más populares</p>
-
-        @* Debug info - Remover después de solucionar *@
-        <div style="color: white; text-align: center; margin-bottom: 20px;">
-            <small>Debug: @(productosDestacados?.Count ?? 0) productos destacados cargados</small>
-        </div>
-
         <div class="products-grid">
             @if (productosDestacados != null && productosDestacados.Any())
             {
                 foreach (var producto in productosDestacados.Take(3))
                 {
                     <div class="product-card">
+                        @* Badges para productos destacados *@
+                        @if (producto.EsDestacado)
+                        {
+                            <div class="product-badge featured static">
+                                <i class="bi bi-star-fill"></i>
+                            </div>
+                        }
+                        @if (producto.Stock <= 0)
+                        {
+                            <div class="product-badge out-of-stock">
+                                Sin Stock
+                            </div>
+                        }
+                        else if (producto.Stock <= 5)
+                        {
+                            <div class="product-badge low-stock">
+                                Pocas Unidades
+                            </div>
+                        }
+
                         <div class="product-image">
                             @if (!string.IsNullOrEmpty(producto.ImagenUrl))
                             {
@@ -201,7 +244,15 @@
                                 <span class="image-ref">[IMAGEN: @producto.Nombre]</span>
                             }
                             <div class="product-overlay">
-                                <button class="add-btn-featured" @onclick="() => AgregarAlCarrito(producto.Id)" disabled="@procesandoCarrito">
+                                <button class="btn-quick-view"
+                                        @onclick="() => MostrarDetalleRapido(producto)"
+                                        title="Vista rápida">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn-add-cart @(procesandoCarrito || producto.Stock <= 0 ? "disabled" : "")"
+                                        @onclick="() => AgregarAlCarrito(producto.Id)"
+                                        disabled="@(procesandoCarrito || producto.Stock <= 0)"
+                                        title="@(producto.Stock <= 0 ? "Sin stock" : "Agregar al carrito")">
                                     <i class="bi bi-cart-plus"></i>
                                 </button>
                             </div>
@@ -234,10 +285,22 @@
                             <span class="image-ref">[IMAGEN: Producto 1 - product-1.jpg]</span>
                         }
                         <div class="product-overlay">
-                            <button class="add-btn-featured" @onclick="() => AgregarProductoDestacado(1)" disabled="@procesandoCarrito">
+                            <button class="btn-quick-view"
+                                    @onclick='() => MostrarDetalleProductoEstatico(1, "Teclado RGB Gaming Pro")'
+                                    title="Vista rápida">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn-add-cart @(procesandoCarrito ? "disabled" : "")"
+                                    @onclick="() => AgregarProductoDestacado(1)"
+                                    disabled="@procesandoCarrito"
+                                    title="Agregar al carrito">
                                 <i class="bi bi-cart-plus"></i>
                             </button>
                         </div>
+                    </div>
+                    <div class="product-info">
+                        <h5>Teclado RGB Gaming Pro</h5>
+                        <p class="price">$89.99</p>
                     </div>
                 </div>
                 <div class="product-card">
@@ -258,10 +321,22 @@
                             <span class="image-ref">[IMAGEN: Producto 2 - product-2.jpg]</span>
                         }
                         <div class="product-overlay">
-                            <button class="add-btn-featured" @onclick="() => AgregarProductoDestacado(2)" disabled="@procesandoCarrito">
+                            <button class="btn-quick-view"
+                                    @onclick='() => MostrarDetalleProductoEstatico(2, "Tema Cyberpunk 2077")'
+                                    title="Vista rápida">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn-add-cart @(procesandoCarrito ? "disabled" : "")"
+                                    @onclick="() => AgregarProductoDestacado(2)"
+                                    disabled="@procesandoCarrito"
+                                    title="Agregar al carrito">
                                 <i class="bi bi-cart-plus"></i>
                             </button>
                         </div>
+                    </div>
+                    <div class="product-info">
+                        <h5>Tema Cyberpunk 2077</h5>
+                        <p class="price">$29.99</p>
                     </div>
                 </div>
                 <div class="product-card">
@@ -282,10 +357,22 @@
                             <span class="image-ref">[IMAGEN: Producto 3 - product-3.jpg]</span>
                         }
                         <div class="product-overlay">
-                            <button class="add-btn-featured" @onclick="() => AgregarProductoDestacado(3)" disabled="@procesandoCarrito">
+                            <button class="btn-quick-view"
+                                    @onclick='() => MostrarDetalleProductoEstatico(3, "Teclado Mecánico Elite")'
+                                    title="Vista rápida">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn-add-cart @(procesandoCarrito ? "disabled" : "")"
+                                    @onclick="() => AgregarProductoDestacado(3)"
+                                    disabled="@procesandoCarrito"
+                                    title="Agregar al carrito">
                                 <i class="bi bi-cart-plus"></i>
                             </button>
                         </div>
+                    </div>
+                    <div class="product-info">
+                        <h5>Teclado Mecánico Elite</h5>
+                        <p class="price">$129.99</p>
                     </div>
                 </div>
             }
@@ -323,14 +410,159 @@
 
     <footer class="footer">
         <div class="footer-links">
-            <a href="#" class="footer-link">About Us</a>
-            <a href="#" class="footer-link">Contact Us</a>
-            <a href="#" class="footer-link">Services</a>
-            <a href="#" class="footer-link">Privacy Policy</a>
+            <a href="/Shop" class="footer-link">Comprar</a>
+            <a href="/About" class="footer-link">Sobre nosotros</a>
+            <a href="/contacto" class="footer-link">Contacto</a>
             <a href="#" class="footer-link">Terms and Conditions</a>
         </div>
     </footer>
 </div>
+
+@* Modal de detalles del producto *@
+@if (productoSeleccionado != null && mostrarModalDetalle)
+{
+    <div class="modal-overlay-shop" @onclick="CerrarModalDetalle">
+        <div class="modal-container-detail" @onclick:stopPropagation="true">
+            <div class="modal-header-detail">
+                <h2 class="modal-title-detail">@productoSeleccionado.Nombre</h2>
+                <button class="btn-close-modal" @onclick="CerrarModalDetalle">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <div class="modal-content-detail">
+                <div class="detail-layout">
+                    <div class="detail-image-section">
+                        @if (!string.IsNullOrEmpty(productoSeleccionado.ImagenUrl))
+                        {
+                            <img src="@productoSeleccionado.ImagenUrl"
+                                 alt="@productoSeleccionado.Nombre"
+                                 class="detail-image" />
+                        }
+                        else
+                        {
+                            <div class="detail-placeholder">
+                                <i class="bi bi-image"></i>
+                                <span>Sin imagen disponible</span>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="detail-info-section">
+                        <div class="detail-category">@ObtenerNombreCategoriaModal(productoSeleccionado.CategoriaId)</div>
+
+                        @if (!string.IsNullOrEmpty(productoSeleccionado.Descripcion))
+                        {
+                            <p class="detail-description">@productoSeleccionado.Descripcion</p>
+                        }
+
+                        <div class="detail-specs">
+                            @if (!string.IsNullOrEmpty(productoSeleccionado.Marca))
+                            {
+                                <div class="spec-item">
+                                    <strong>Marca:</strong> @productoSeleccionado.Marca
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(productoSeleccionado.Modelo))
+                            {
+                                <div class="spec-item">
+                                    <strong>Modelo:</strong> @productoSeleccionado.Modelo
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(productoSeleccionado.Layout))
+                            {
+                                <div class="spec-item">
+                                    <strong>Layout:</strong> @productoSeleccionado.Layout
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(productoSeleccionado.ColorPrincipal))
+                            {
+                                <div class="spec-item">
+                                    <strong>Color:</strong> @productoSeleccionado.ColorPrincipal
+                                </div>
+                            }
+                            @{
+                                var nombreCategoria = ObtenerNombreCategoriaModal(productoSeleccionado.CategoriaId).ToLower();
+                                var esTeclado = nombreCategoria.Contains("teclado");
+                            }
+                            @if (esTeclado)
+                            {
+                                <div class="spec-item">
+                                    <strong>Conexión:</strong> @productoSeleccionado.TipoConexion.ToString().Replace("_", " ")
+                                </div>
+                                <div class="spec-item">
+                                    <strong>Switch:</strong> @productoSeleccionado.TipoSwitch.ToString().Replace("_", " ")
+                                </div>
+                            }
+                        </div>
+
+                        <div class="detail-features">
+                            @if (productoSeleccionado.EsIluminado)
+                            {
+                                <span class="detail-feature rgb">
+                                    <i class="bi bi-lightbulb-fill"></i>
+                                    Iluminación RGB
+                                </span>
+                            }
+                            @if (productoSeleccionado.EsInalámbrico)
+                            {
+                                <span class="detail-feature wireless">
+                                    <i class="bi bi-wifi"></i>
+                                    Conexión Inalámbrica
+                                </span>
+                            }
+                            @if (productoSeleccionado.EsMecánico)
+                            {
+                                <span class="detail-feature mechanical">
+                                    <i class="bi bi-gear-fill"></i>
+                                    Switches Mecánicos
+                                </span>
+                            }
+                            @if (productoSeleccionado.EsTemaPersonalizado && !string.IsNullOrEmpty(productoSeleccionado.NombreTema))
+                            {
+                                <span class="detail-feature theme">
+                                    <i class="bi bi-palette-fill"></i>
+                                    Tema: @productoSeleccionado.NombreTema
+                                </span>
+                            }
+                        </div>
+
+                        <div class="detail-actions">
+                            <div class="detail-pricing">
+                                <span class="detail-price">$@productoSeleccionado.Precio.ToString("F2")</span>
+                                <div class="detail-stock">
+                                    @if (productoSeleccionado.Stock > 0)
+                                    {
+                                        <span class="stock-available">
+                                            <i class="bi bi-check-circle-fill"></i>
+                                            @productoSeleccionado.Stock disponibles
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="stock-unavailable">
+                                            <i class="bi bi-x-circle-fill"></i>
+                                            Sin stock
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="detail-buttons">
+                                <button class="btn-add-cart-detail @(productoSeleccionado.Stock <= 0 ? "disabled" : "")"
+                                        @onclick="() => AgregarAlCarrito(productoSeleccionado.Id)"
+                                        disabled="@(procesandoCarrito || productoSeleccionado.Stock <= 0)">
+                                    <i class="bi bi-cart-plus"></i>
+                                    @(productoSeleccionado.Stock <= 0 ? "Sin stock" : "Agregar al carrito")
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 @if (mostrarToast)
 {
@@ -348,14 +580,35 @@
     </div>
 }
 
+<script>
+
+    window.scrollToElement = function(elementId) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start',
+                inline: 'nearest'
+            });
+            return true;
+        }
+        console.warn(`Elemento con ID '${elementId}' no encontrado`);
+        return false;
+    };
+</script>
+
 @code {
     private List<Producto> productos = new();
     private List<Producto> productosDestacados = new();
     private List<Producto> productosCarousel = new();
+    private List<Categoria> categorias = new();
     private Dictionary<string, ImagenSitio> imagenesSitio = new();
     private bool procesandoCarrito = false;
     private bool mostrarToast = false;
     private string mensajeToast = "";
+
+    private bool mostrarModalDetalle = false;
+    private Producto? productoSeleccionado = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -365,6 +618,7 @@
         await CargarProductosDestacados();
         await CargarProductosCarousel();
         await CargarImagenesSitio();
+        await CargarCategorias();
 
         Console.WriteLine("Finalizando OnInitializedAsync...");
     }
@@ -375,19 +629,15 @@
         {
             Console.WriteLine("Primer render completado");
 
-
             await Task.Delay(300);
 
             try
             {
-
                 var result = await JSRuntime.InvokeAsync<bool>("initializeHeroCarousel");
 
                 if (result)
                 {
                     Console.WriteLine("Carousel inicializado exitosamente");
-
-
                     await JSRuntime.InvokeVoidAsync("observeCarouselChanges");
                 }
                 else
@@ -398,7 +648,6 @@
             catch (Exception ex)
             {
                 Console.WriteLine($"Error inicializando carousel: {ex.Message}");
-
 
                 await Task.Delay(1000);
                 try
@@ -419,13 +668,11 @@
         try
         {
             Console.WriteLine("Iniciando carga de productos...");
-            await using var contexto = await DbContextFactory.CreateDbContextAsync();
-            Console.WriteLine("Contexto creado exitosamente");
 
-            var todosLosProductos = await contexto.Productos.ToListAsync();
+            var todosLosProductos = await context.Productos.ToListAsync();
             Console.WriteLine($"Total de productos en BD: {todosLosProductos.Count}");
 
-            productos = await contexto.Productos
+            productos = await context.Productos
                 .Where(p => p.Stock > 0)
                 .OrderBy(p => p.Nombre)
                 .ToListAsync();
@@ -449,15 +696,80 @@
     {
         try
         {
-            Console.WriteLine("Cargando productos destacados...");
-            await using var contexto = await DbContextFactory.CreateDbContextAsync();
-            productosDestacados = await contexto.Productos
-                .Where(p => p.EsDestacado && p.Stock > 0)
-                .OrderBy(p => p.Nombre)
-                .Take(6)
+            Console.WriteLine("Cargando productos destacados por categoría...");
+
+            var categoriasActivas = await context.Categorias
+                .Where(c => c.EsActiva)
                 .ToListAsync();
 
+            var categoriaTeclado = categoriasActivas.FirstOrDefault(c => c.Nombre.ToLower().Contains("teclado"));
+            var categoriaMouse = categoriasActivas.FirstOrDefault(c => c.Nombre.ToLower().Contains("mouse") || c.Nombre.ToLower().Contains("ratón"));
+            var categoriaAudifonos = categoriasActivas.FirstOrDefault(c => c.Nombre.ToLower().Contains("audífono") || c.Nombre.ToLower().Contains("headset") || c.Nombre.ToLower().Contains("auricular"));
+
+            productosDestacados = new List<Producto>();
+
+            if (categoriaTeclado != null)
+            {
+                var productoTeclado = await context.Productos
+                    .Where(p => p.EsDestacado && p.Stock > 0 && p.CategoriaId == categoriaTeclado.Id)
+                    .OrderBy(p => p.Nombre)
+                    .FirstOrDefaultAsync();
+
+                if (productoTeclado != null)
+                {
+                    productosDestacados.Add(productoTeclado);
+                    Console.WriteLine($"Producto destacado teclado: {productoTeclado.Nombre}");
+                }
+            }
+
+            if (categoriaMouse != null)
+            {
+                var productoMouse = await context.Productos
+                    .Where(p => p.EsDestacado && p.Stock > 0 && p.CategoriaId == categoriaMouse.Id)
+                    .OrderBy(p => p.Nombre)
+                    .FirstOrDefaultAsync();
+
+                if (productoMouse != null)
+                {
+                    productosDestacados.Add(productoMouse);
+                    Console.WriteLine($"Producto destacado mouse: {productoMouse.Nombre}");
+                }
+            }
+
+            if (categoriaAudifonos != null)
+            {
+                var productoAudifonos = await context.Productos
+                    .Where(p => p.EsDestacado && p.Stock > 0 && p.CategoriaId == categoriaAudifonos.Id)
+                    .OrderBy(p => p.Nombre)
+                    .FirstOrDefaultAsync();
+
+                if (productoAudifonos != null)
+                {
+                    productosDestacados.Add(productoAudifonos);
+                    Console.WriteLine($"Producto destacado audífonos: {productoAudifonos.Nombre}");
+                }
+            }
+
+
+            var faltantes = 3 - productosDestacados.Count;
+            if (faltantes > 0)
+            {
+                var idsExistentes = productosDestacados.Select(p => p.Id).ToList();
+                var productosAdicionales = await context.Productos
+                    .Where(p => p.EsDestacado && p.Stock > 0 && !idsExistentes.Contains(p.Id))
+                    .OrderBy(p => p.Nombre)
+                    .Take(faltantes)
+                    .ToListAsync();
+
+                productosDestacados.AddRange(productosAdicionales);
+            }
+
             Console.WriteLine($"Productos destacados cargados: {productosDestacados.Count}");
+            foreach (var producto in productosDestacados)
+            {
+                var categoria = categoriasActivas.FirstOrDefault(c => c.Id == producto.CategoriaId);
+                Console.WriteLine($"  - {producto.Nombre} (Categoría: {categoria?.Nombre ?? "N/A"})");
+            }
         }
         catch (Exception ex)
         {
@@ -471,8 +783,7 @@
         try
         {
             Console.WriteLine("Cargando productos del carousel...");
-            await using var contexto = await DbContextFactory.CreateDbContextAsync();
-            productosCarousel = await contexto.Productos
+            productosCarousel = await context.Productos
                 .Where(p => p.Stock > 0 && !string.IsNullOrEmpty(p.ImagenUrl))
                 .OrderByDescending(p => p.EsDestacado)
                 .ThenBy(p => p.Id)
@@ -510,8 +821,7 @@
     {
         try
         {
-            await using var contexto = await DbContextFactory.CreateDbContextAsync();
-            var imagenes = await contexto.ImagenesSitio
+            var imagenes = await context.ImagenesSitio
                 .Where(i => i.Activa && i.ImagenData != null)
                 .ToListAsync();
 
@@ -522,6 +832,25 @@
         {
             Console.WriteLine($"Error cargando imágenes del sitio: {ex.Message}");
             imagenesSitio = new Dictionary<string, ImagenSitio>();
+        }
+    }
+
+    private async Task CargarCategorias()
+    {
+        try
+        {
+            categorias = await context.Categorias
+                .Where(c => c.EsActiva)
+                .OrderBy(c => c.Orden)
+                .ThenBy(c => c.Nombre)
+                .ToListAsync();
+
+            Console.WriteLine($"Categorías cargadas: {categorias.Count}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando categorías: {ex.Message}");
+            categorias = new List<Categoria>();
         }
     }
 
@@ -545,6 +874,73 @@
         return null;
     }
 
+    private string ObtenerNombreCategoriaModal(int categoriaId)
+    {
+        return categorias.FirstOrDefault(c => c.Id == categoriaId)?.Nombre ?? "Sin categoría";
+    }
+
+    private async Task ScrollToFeatured()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("scrollToElement", "featured-section");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error en scroll: {ex.Message}");
+        }
+    }
+
+    private void MostrarDetalleRapido(Producto producto)
+    {
+        productoSeleccionado = producto;
+        mostrarModalDetalle = true;
+    }
+
+    private void MostrarDetalleProductoEstatico(int productoId, string nombreProducto)
+    {
+
+        productoSeleccionado = new Producto
+            {
+                Id = productoId,
+                Nombre = nombreProducto,
+                Precio = productoId switch
+                {
+                    1 => 89.99m,
+                    2 => 29.99m,
+                    3 => 129.99m,
+                    _ => 0m
+                },
+                Descripcion = productoId switch
+                {
+                    1 => "Teclado gaming mecánico con iluminación RGB personalizable y switches de alta calidad.",
+                    2 => "Tema visual personalizado inspirado en Cyberpunk 2077 para tu setup gaming.",
+                    3 => "Teclado mecánico premium con switches Cherry MX y construcción de aluminio.",
+                    _ => "Producto destacado de alta calidad."
+                },
+                Stock = 10,
+                CategoriaId = 1, 
+                Marca = productoId switch
+                {
+                    1 => "KeyStore Gaming",
+                    2 => "KeyStore Themes",
+                    3 => "KeyStore Elite",
+                    _ => "KeyStore"
+                },
+                EsIluminado = productoId == 1 || productoId == 3,
+                EsMecánico = productoId == 1 || productoId == 3,
+                EsInalámbrico = productoId == 3,
+                ImagenUrl = ObtenerImagenSitio($"product-{productoId}")
+            };
+        mostrarModalDetalle = true;
+    }
+
+    private void CerrarModalDetalle()
+    {
+        mostrarModalDetalle = false;
+        productoSeleccionado = null;
+    }
+
     private async Task AgregarAlCarrito(int productoId)
     {
         if (procesandoCarrito) return;
@@ -553,11 +949,10 @@
         {
             procesandoCarrito = true;
 
-            await using var contexto = await DbContextFactory.CreateDbContextAsync();
-            var producto = await contexto.Productos
+            var producto = await context.Productos
                 .FirstOrDefaultAsync(p => p.Id == productoId);
 
-            if (producto != null)
+            if (producto != null && producto.Stock > 0)
             {
                 await CartService.AddToCartAsync(producto.Id, 1);
 
@@ -569,10 +964,15 @@
                     mostrarToast = false;
                     StateHasChanged();
                 }));
+
+                if (mostrarModalDetalle)
+                {
+                    CerrarModalDetalle();
+                }
             }
             else
             {
-                mensajeToast = "Producto no encontrado";
+                mensajeToast = producto == null ? "Producto no encontrado" : "Producto sin stock disponible";
                 mostrarToast = true;
             }
         }
@@ -618,6 +1018,11 @@
                 mostrarToast = false;
                 StateHasChanged();
             }));
+
+            if (mostrarModalDetalle)
+            {
+                CerrarModalDetalle();
+            }
         }
         catch (Exception ex)
         {
