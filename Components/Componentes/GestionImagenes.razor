@@ -1,8 +1,8 @@
 ﻿@page "/admin/imagenes"
 @using Microsoft.EntityFrameworkCore
-@using KeyStore.DAL
+@using KeyStore.Data
 @using KeyStore.Models
-@inject IDbContextFactory<Contexto> DbContextFactory
+@inject ApplicationDbContext context
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 
@@ -335,7 +335,7 @@ else
     private List<ImagenSitio> imagenes = new();
     private ImagenSitio imagenActual = new();
     private ImagenSitio? imagenAEliminar = null;
-    private int dropdownAbierto = 0; 
+    private int dropdownAbierto = 0;
     private bool isLoading = true;
     private bool guardando = false;
     private bool eliminando = false;
@@ -344,7 +344,7 @@ else
     private string mensaje = string.Empty;
     private string mensajeImagen = string.Empty;
     private bool esError = false;
-    private const long MaxFileSize = 5 * 1024 * 1024; 
+    private const long MaxFileSize = 5 * 1024 * 1024;
 
     protected override async Task OnInitializedAsync()
     {
@@ -356,8 +356,7 @@ else
     {
         try
         {
-            await using var contexto = await DbContextFactory.CreateDbContextAsync();
-            imagenes = await contexto.ImagenesSitio
+            imagenes = await context.ImagenesSitio
                 .OrderBy(i => i.Clave)
                 .ToListAsync();
         }
@@ -486,11 +485,9 @@ else
                 return;
             }
 
-            await using var contexto = await DbContextFactory.CreateDbContextAsync();
-
             if (imagenActual.Id == 0)
             {
-                var existeImagen = await contexto.ImagenesSitio
+                var existeImagen = await context.ImagenesSitio
                     .AnyAsync(i => i.Clave == imagenActual.Clave);
 
                 if (existeImagen)
@@ -500,15 +497,15 @@ else
                     return;
                 }
 
-                contexto.ImagenesSitio.Add(imagenActual);
+                context.ImagenesSitio.Add(imagenActual);
             }
             else
             {
                 imagenActual.FechaModificacion = DateTime.UtcNow;
-                contexto.ImagenesSitio.Update(imagenActual);
+                context.ImagenesSitio.Update(imagenActual);
             }
 
-            await contexto.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             mensaje = imagenActual.Id == 0 ? "Imagen creada exitosamente." : "Imagen actualizada exitosamente.";
             esError = false;
@@ -537,13 +534,12 @@ else
             eliminando = true;
             StateHasChanged();
 
-            await using var contexto = await DbContextFactory.CreateDbContextAsync();
-            var imagen = await contexto.ImagenesSitio.FindAsync(imagenAEliminar.Id);
+            var imagen = await context.ImagenesSitio.FindAsync(imagenAEliminar.Id);
 
             if (imagen != null)
             {
-                contexto.ImagenesSitio.Remove(imagen);
-                await contexto.SaveChangesAsync();
+                context.ImagenesSitio.Remove(imagen);
+                await context.SaveChangesAsync();
 
                 mensaje = $"Imagen '{imagen.Nombre}' eliminada exitosamente.";
                 esError = false;
