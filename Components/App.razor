@@ -197,6 +197,103 @@
                 console.log('✅ Todos los componentes inicializados correctamente');
             }
         }, 10000);
+
+        window.scrollToTop = function() {
+            window.scrollTo({
+                top: 0,
+                left: 0,
+                behavior: 'smooth'
+            });
+        };
+
+        window.isRealNavigation = false;
+        window.currentUrl = window.location.href;
+
+        window.addEventListener('DOMContentLoaded', function() {
+
+            window.scrollTo(0, 0);
+
+            setTimeout(function() {
+                window.scrollTo({
+                    top: 0,
+                    left: 0,
+                    behavior: 'smooth'
+                });
+            }, 100);
+        });
+
+
+        window.blazorNavigationHandlerImproved = function() {
+
+            document.addEventListener('click', function(e) {
+                const target = e.target.closest('a[href]');
+                if (target && target.href && !target.href.includes('#') && !target.href.includes('javascript:')) {
+                    const targetUrl = new URL(target.href, window.location.origin);
+                    const currentUrl = new URL(window.location.href);
+
+                    if (targetUrl.pathname !== currentUrl.pathname) {
+                        console.log('🔄 Navegación por enlace detectada:', targetUrl.pathname);
+                        window.isRealNavigation = true;
+
+                        setTimeout(() => {
+                            if (window.isRealNavigation) {
+                                window.scrollTo({
+                                    top: 0,
+                                    left: 0,
+                                    behavior: 'smooth'
+                                });
+                                window.isRealNavigation = false;
+                            }
+                        }, 200);
+                    }
+                }
+            });
+
+            const originalPushState = history.pushState;
+            const originalReplaceState = history.replaceState;
+
+            history.pushState = function() {
+                console.log('🔄 Navegación programática (pushState) detectada');
+                window.isRealNavigation = true;
+                originalPushState.apply(history, arguments);
+                setTimeout(() => {
+                    if (window.isRealNavigation) {
+                        window.scrollTo({
+                            top: 0,
+                            left: 0,
+                            behavior: 'smooth'
+                        });
+                        window.isRealNavigation = false;
+                    }
+                }, 200);
+            };
+
+            history.replaceState = function() {
+                console.log('🔄 Navegación programática (replaceState) detectada');
+                originalReplaceState.apply(history, arguments);
+            };
+
+            window.addEventListener('popstate', function() {
+                console.log('🔄 Navegación con botón atrás/adelante detectada');
+                window.isRealNavigation = true;
+                setTimeout(() => {
+                    window.scrollTo({
+                        top: 0,
+                        left: 0,
+                        behavior: 'smooth'
+                    });
+                    window.isRealNavigation = false;
+                }, 50);
+            });
+        };
+
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', window.blazorNavigationHandlerImproved);
+        } else {
+            window.blazorNavigationHandlerImproved();
+        }
+
     </script>
 </body>
 </html>
