@@ -1,7 +1,7 @@
 ﻿using Microsoft.JSInterop;
 using System.Text.Json;
 using KeyStore.Models;
-using KeyStore.DAL;
+using KeyStore.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
@@ -24,7 +24,7 @@ namespace KeyStore.Services
     public class CartService : ICartService
     {
         private readonly IJSRuntime _jsRuntime;
-        private readonly IDbContextFactory<Contexto> _dbContextFactory;
+        private readonly ApplicationDbContext _context;
         private readonly AuthenticationStateProvider _authStateProvider;
         private const string CART_KEY = "keystore_cart";
 
@@ -32,11 +32,11 @@ namespace KeyStore.Services
 
         public CartService(
             IJSRuntime jsRuntime,
-            IDbContextFactory<Contexto> dbContextFactory,
+            ApplicationDbContext context,
             AuthenticationStateProvider authStateProvider)
         {
             _jsRuntime = jsRuntime;
-            _dbContextFactory = dbContextFactory;
+            _context = context;
             _authStateProvider = authStateProvider;
         }
 
@@ -74,8 +74,7 @@ namespace KeyStore.Services
                 if (!cartData.Any())
                     return new List<CartItem>();
 
-                await using var context = await _dbContextFactory.CreateDbContextAsync();
-                var productos = await context.Productos
+                var productos = await _context.Productos
                     .Where(p => cartData.Keys.Contains(p.Id))
                     .ToListAsync();
 
@@ -97,8 +96,7 @@ namespace KeyStore.Services
         {
             try
             {
-                await using var context = await _dbContextFactory.CreateDbContextAsync();
-                var producto = await context.Productos.FindAsync(productId);
+                var producto = await _context.Productos.FindAsync(productId);
 
                 if (producto == null || producto.Stock <= 0)
                 {
@@ -189,8 +187,7 @@ namespace KeyStore.Services
                     return;
                 }
 
-                await using var context = await _dbContextFactory.CreateDbContextAsync();
-                var producto = await context.Productos.FindAsync(productId);
+                var producto = await _context.Productos.FindAsync(productId);
 
                 if (producto == null)
                 {
@@ -271,10 +268,10 @@ namespace KeyStore.Services
             try
             {
                 var userId = await GetCurrentUserIdAsync();
-                if (userId == null) return; 
+                if (userId == null) return;
 
                 var anonymousCartJson = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", CART_KEY);
-                if (string.IsNullOrEmpty(anonymousCartJson)) return; 
+                if (string.IsNullOrEmpty(anonymousCartJson)) return;
 
                 var anonymousCartData = JsonSerializer.Deserialize<Dictionary<int, int>>(anonymousCartJson) ?? new();
                 if (!anonymousCartData.Any()) return;
@@ -288,11 +285,9 @@ namespace KeyStore.Services
                     userCartData = JsonSerializer.Deserialize<Dictionary<int, int>>(userCartJson) ?? new();
                 }
 
-                await using var context = await _dbContextFactory.CreateDbContextAsync();
-
                 foreach (var item in anonymousCartData)
                 {
-                    var producto = await context.Productos.FindAsync(item.Key);
+                    var producto = await _context.Productos.FindAsync(item.Key);
                     if (producto == null || producto.Stock <= 0) continue;
 
                     if (userCartData.ContainsKey(item.Key))

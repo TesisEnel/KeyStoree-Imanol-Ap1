@@ -14,7 +14,7 @@ namespace KeyStore.Services
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ILogger<ImagenService> _logger;
-        private const long MaxFileSize = 5 * 1024 * 1024; // 5MB
+        private const long MaxFileSize = 5 * 1024 * 1024;
         private readonly string[] FormatosPermitidos = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
 
         public ImagenService(IWebHostEnvironment webHostEnvironment, ILogger<ImagenService> logger)
