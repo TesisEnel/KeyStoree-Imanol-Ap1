@@ -233,10 +233,6 @@
                                     <i class="bi bi-person-fill"></i>
                                     Iniciar sesión para continuar
                                 </button>
-                                <div class="login-notice">
-                                    <i class="bi bi-info-circle-fill"></i>
-                                    <small>Debes iniciar sesión para proceder con tu compra</small>
-                                </div>
                             </NotAuthorized>
                         </AuthorizeView>
 
@@ -860,6 +856,7 @@
     {
         await VerificarAutenticacion();
         await CargarCarrito();
+
         if (usuarioAutenticado)
         {
             await CargarTarjetasGuardadas();
@@ -961,7 +958,10 @@
                 .ThenByDescending(d => d.FechaCreacion)
                 .ToListAsync();
 
-            direccionSeleccionada = direccionesGuardadas.FirstOrDefault(d => d.EsPrincipal) ?? direccionesGuardadas.FirstOrDefault();
+            direccionSeleccionada = direccionesGuardadas.FirstOrDefault(d => d.EsPrincipal)
+                ?? direccionesGuardadas.FirstOrDefault();
+
+            Logger.LogInformation($"Direcciones cargadas: {direccionesGuardadas.Count}");
         }
         catch (Exception ex)
         {
@@ -982,10 +982,13 @@
             }
 
             var carritoJson = await JSRuntime.InvokeAsync<string>("localStorage.getItem", cartKey);
+            Console.WriteLine($"Cargando carrito con clave: {cartKey}");
+            Console.WriteLine($"JSON del carrito: {carritoJson}");
 
             if (!string.IsNullOrEmpty(carritoJson))
             {
                 var productosIds = JsonSerializer.Deserialize<Dictionary<int, int>>(carritoJson) ?? new();
+                Console.WriteLine($"Productos deserializados: {productosIds.Count}");
 
                 if (productosIds.Any())
                 {
@@ -994,18 +997,36 @@
                         .Where(p => productosIds.Keys.Contains(p.Id))
                         .ToListAsync();
 
-                    itemsCarrito = productosIds.Select(kvp => new ItemCarrito
+                    Console.WriteLine($"Productos encontrados en BD: {productos.Count}");
+
+                    itemsCarrito = productosIds.Select(kvp =>
+                    {
+                        var producto = productos.FirstOrDefault(p => p.Id == kvp.Key);
+                        if (producto != null)
                         {
-                            ProductoId = kvp.Key,
-                            Cantidad = kvp.Value,
-                            Producto = productos.First(p => p.Id == kvp.Key)
-                        }).ToList();
+                            Console.WriteLine($"Creando item carrito: {producto.Nombre} x {kvp.Value}");
+                            return new ItemCarrito
+                                {
+                                    ProductoId = kvp.Key,
+                                    Cantidad = kvp.Value,
+                                    Producto = producto
+                                };
+                        }
+                        return null;
+                    }).Where(item => item != null).ToList()!;
+
+                    Console.WriteLine($"Items carrito final: {itemsCarrito.Count}");
                 }
+            }
+            else
+            {
+                Console.WriteLine("No hay datos en localStorage para el carrito");
             }
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error cargando carrito");
+            Console.WriteLine($"Error cargando carrito: {ex.Message}");
             itemsCarrito = new List<ItemCarrito>();
         }
     }
@@ -1148,12 +1169,23 @@
     {
         mostrarNuevaDireccion = true;
         direccionSeleccionada = null;
-        nuevaDireccionEntrega = new()
+
+        nuevaDireccionEntrega = new DireccionEnvio
             {
                 UserId = usuarioId,
+                Nombre = string.Empty,
+                Apellidos = string.Empty,
+                Direccion = string.Empty,
+                Direccion2 = string.Empty,
+                Ciudad = string.Empty,
+                Provincia = string.Empty,
+                CodigoPostal = string.Empty,
                 Pais = "República Dominicana",
+                Telefono = string.Empty,
+                EsPrincipal = false,
                 Activa = true
             };
+
         StateHasChanged();
     }
 
@@ -1349,26 +1381,79 @@
         {
             using var contexto = await DbContextFactory.CreateDbContextAsync();
 
-            if (!direccionesGuardadas.Any())
+            if (string.IsNullOrWhiteSpace(nuevaDireccionEntrega.Nombre) ||
+                string.IsNullOrWhiteSpace(nuevaDireccionEntrega.Apellidos) ||
+                string.IsNullOrWhiteSpace(nuevaDireccionEntrega.Direccion) ||
+                string.IsNullOrWhiteSpace(nuevaDireccionEntrega.Ciudad) ||
+                string.IsNullOrWhiteSpace(nuevaDireccionEntrega.Provincia) ||
+                string.IsNullOrWhiteSpace(nuevaDireccionEntrega.CodigoPostal) ||
+                string.IsNullOrWhiteSpace(nuevaDireccionEntrega.Pais))
+            {
+                Logger.LogWarning("Campos requeridos faltantes para nueva dirección");
+                return false;
+            }
+
+            nuevaDireccionEntrega.Nombre = nuevaDireccionEntrega.Nombre?.Trim() ?? string.Empty;
+            nuevaDireccionEntrega.Apellidos = nuevaDireccionEntrega.Apellidos?.Trim() ?? string.Empty;
+            nuevaDireccionEntrega.Direccion = nuevaDireccionEntrega.Direccion?.Trim() ?? string.Empty;
+            nuevaDireccionEntrega.Ciudad = nuevaDireccionEntrega.Ciudad?.Trim() ?? string.Empty;
+            nuevaDireccionEntrega.Provincia = nuevaDireccionEntrega.Provincia?.Trim() ?? string.Empty;
+            nuevaDireccionEntrega.CodigoPostal = nuevaDireccionEntrega.CodigoPostal?.Trim() ?? string.Empty;
+            nuevaDireccionEntrega.Pais = nuevaDireccionEntrega.Pais?.Trim() ?? string.Empty;
+            nuevaDireccionEntrega.Direccion2 = nuevaDireccionEntrega.Direccion2?.Trim() ?? string.Empty;
+            nuevaDireccionEntrega.Telefono = nuevaDireccionEntrega.Telefono?.Trim() ?? string.Empty;
+
+            var direccionesExistentes = await contexto.DireccionesEnvio
+                .Where(d => d.UserId == usuarioId && d.Activa)
+                .CountAsync();
+
+            if (direccionesExistentes == 0)
             {
                 nuevaDireccionEntrega.EsPrincipal = true;
             }
 
+            if (nuevaDireccionEntrega.EsPrincipal)
+            {
+                var direccionesPrincipales = await contexto.DireccionesEnvio
+                    .Where(d => d.UserId == usuarioId && d.EsPrincipal && d.Activa)
+                    .ToListAsync();
+
+                foreach (var dir in direccionesPrincipales)
+                {
+                    dir.EsPrincipal = false;
+                    dir.FechaModificacion = DateTime.UtcNow;
+                }
+            }
+
+
             nuevaDireccionEntrega.UserId = usuarioId;
             nuevaDireccionEntrega.FechaCreacion = DateTime.UtcNow;
             nuevaDireccionEntrega.Activa = true;
-            nuevaDireccionEntrega.Nombre = $"{nuevaDireccionEntrega.Nombre} {nuevaDireccionEntrega.Apellidos}".Trim();
+
 
             contexto.DireccionesEnvio.Add(nuevaDireccionEntrega);
-            await contexto.SaveChangesAsync();
+            var resultado = await contexto.SaveChangesAsync();
 
-            await CargarDireccionesGuardadas();
+            if (resultado > 0)
+            {
+                Logger.LogInformation($"Dirección guardada exitosamente para usuario {usuarioId}");
 
-            return true;
+
+                await CargarDireccionesGuardadas();
+
+                direccionSeleccionada = direccionesGuardadas.FirstOrDefault(d =>
+                    d.Nombre == nuevaDireccionEntrega.Nombre &&
+                    d.Apellidos == nuevaDireccionEntrega.Apellidos &&
+                    d.Direccion == nuevaDireccionEntrega.Direccion);
+
+                return true;
+            }
+
+            return false;
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error guardando dirección");
+            Logger.LogError(ex, "Error guardando nueva dirección: {Error}", ex.Message);
             return false;
         }
     }
@@ -1537,8 +1622,7 @@
         {
             direccionTexto += ", " + direccion.Direccion2.Trim();
         }
-
-        var nombreCompleto = $"{direccion.Nombre?.Trim() ?? ""} {direccion.Apellidos?.Trim() ?? ""}".Trim();
+        var nombreCompleto = direccion.NombreCompleto;
 
         pedido.DireccionEnvio = TruncateString(direccionTexto, 200);
         pedido.NombreDestinatario = TruncateString(string.IsNullOrEmpty(nombreCompleto) ? "No especificado" : nombreCompleto, 200);

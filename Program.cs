@@ -1,7 +1,6 @@
 ﻿using KeyStore.Components;
 using KeyStore.Components.Account;
 using KeyStore.Data;
-using KeyStore.DAL;
 using KeyStore.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -20,11 +19,16 @@ builder.Services.AddScoped<IdentityRedirectManager>();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+// Registrar DbContextFactory (esto automáticamente registra también el DbContext)
+builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-builder.Services.AddDbContextFactory<Contexto>(options =>
-    options.UseSqlServer(connectionString));
+// Registrar DbContext como Scoped usando el Factory
+builder.Services.AddScoped<ApplicationDbContext>(provider =>
+{
+    var factory = provider.GetRequiredService<IDbContextFactory<ApplicationDbContext>>();
+    return factory.CreateDbContext();
+});
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -44,7 +48,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 
 builder.Services.Configure<SecurityStampValidatorOptions>(options =>
 {
-    options.ValidationInterval = TimeSpan.FromSeconds(10); 
+    options.ValidationInterval = TimeSpan.FromSeconds(10);
     options.OnRefreshingPrincipal = context =>
     {
         return Task.CompletedTask;
@@ -87,7 +91,7 @@ builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSe
 builder.Services.AddScoped<IProductosService, ProductosServiceMock>();
 builder.Services.AddHttpClient<ProductosService>();
 builder.Services.AddCartService();
-
+builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IImagenService, ImagenService>();
 
 builder.Services.AddScoped<AuthService>();
@@ -115,12 +119,9 @@ if (app.Environment.IsDevelopment())
 
     using var scope = app.Services.CreateScope();
 
-    var identityContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    identityContext.Database.Migrate();
-
-    var contextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<Contexto>>();
-    using var appContext = contextFactory.CreateDbContext();
-    appContext.Database.Migrate();
+    // Migrar ApplicationDbContext
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    context.Database.Migrate();
 
     var seedData = scope.ServiceProvider.GetRequiredService<SeedData>();
     await seedData.Initialize();
