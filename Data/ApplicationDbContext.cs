@@ -22,7 +22,7 @@ namespace KeyStore.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder); 
+            base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Producto>(entity =>
             {
@@ -59,9 +59,6 @@ namespace KeyStore.Data
 
                 entity.Property(e => e.ColorPrincipal)
                     .HasMaxLength(50);
-
-                entity.Property(e => e.NombreTema)
-                    .HasMaxLength(100);
 
                 entity.Property(e => e.ImagenesSecundarias)
                     .HasConversion(
@@ -137,6 +134,11 @@ namespace KeyStore.Data
             modelBuilder.Entity<ImagenSitio>(entity =>
             {
                 entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Id)
+                    .ValueGeneratedOnAdd()
+                    .UseIdentityColumn(1, 1);
+
                 entity.Property(e => e.Clave).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.Nombre).IsRequired().HasMaxLength(200);
                 entity.Property(e => e.Descripcion).HasMaxLength(500);
@@ -159,7 +161,7 @@ namespace KeyStore.Data
 
                 entity.Property(e => e.UserId)
                     .IsRequired()
-                    .HasMaxLength(450); // Tamaño estándar para UserId de Identity
+                    .HasMaxLength(450);
 
                 entity.Property(e => e.UltimosDigitos)
                     .IsRequired()
