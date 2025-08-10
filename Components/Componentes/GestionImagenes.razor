@@ -501,8 +501,26 @@ else
             }
             else
             {
-                imagenActual.FechaModificacion = DateTime.UtcNow;
-                context.ImagenesSitio.Update(imagenActual);
+                var imagenExistente = await context.ImagenesSitio.FindAsync(imagenActual.Id);
+
+                if (imagenExistente == null)
+                {
+                    mensaje = "Error: La imagen no fue encontrada.";
+                    esError = true;
+                    return;
+                }
+
+                imagenExistente.Nombre = imagenActual.Nombre;
+                imagenExistente.Descripcion = imagenActual.Descripcion;
+                imagenExistente.ImagenData = imagenActual.ImagenData;
+                imagenExistente.TipoImagen = imagenActual.TipoImagen;
+                imagenExistente.NombreArchivo = imagenActual.NombreArchivo;
+                imagenExistente.Activa = imagenActual.Activa;
+                imagenExistente.Ancho = imagenActual.Ancho;
+                imagenExistente.Alto = imagenActual.Alto;
+                imagenExistente.ObjectFit = imagenActual.ObjectFit;
+                imagenExistente.OcultarFondo = imagenActual.OcultarFondo;
+                imagenExistente.FechaModificacion = DateTime.UtcNow;
             }
 
             await context.SaveChangesAsync();
