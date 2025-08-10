@@ -30,12 +30,11 @@ namespace KeyStore.Models
         public string Marca { get; set; } = string.Empty;
         public string Modelo { get; set; } = string.Empty;
         public string Layout { get; set; } = string.Empty;
+        public string Size { get; set; } = string.Empty;
         public bool EsIluminado { get; set; }
         public bool EsInalámbrico { get; set; }
         public bool EsMecánico { get; set; }
         public string ColorPrincipal { get; set; } = string.Empty;
-        public bool EsTemaPersonalizado { get; set; }
-        public string NombreTema { get; set; } = string.Empty;
         public bool EsDestacado { get; set; }
         public TipoConexion TipoConexion { get; set; }
         public TipoSwitch TipoSwitch { get; set; }
@@ -56,12 +55,11 @@ namespace KeyStore.Models
         public string Marca { get; set; } = string.Empty;
         public string Modelo { get; set; } = string.Empty;
         public string Layout { get; set; } = string.Empty;
+        public string Size { get; set; } = string.Empty;
         public bool EsIluminado { get; set; }
         public bool EsInalámbrico { get; set; }
         public bool EsMecánico { get; set; }
         public string ColorPrincipal { get; set; } = string.Empty;
-        public bool EsTemaPersonalizado { get; set; }
-        public string NombreTema { get; set; } = string.Empty;
         public bool EsDestacado { get; set; }
         public string TipoConexion { get; set; } = string.Empty;
         public string TipoSwitch { get; set; } = string.Empty;

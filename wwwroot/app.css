@@ -1,5 +1,4 @@
-﻿
-* {
+﻿* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -22,7 +21,7 @@ html {
 
 .main-content {
     padding-top: 80px;
-    background: #000000; 
+    background: #000000;
 }
 
 
@@ -40,9 +39,9 @@ html {
 
 
 .navbar {
-    background: rgba(10, 10, 10, 0.85) !important; 
-    backdrop-filter: blur(25px) saturate(180%); 
-    -webkit-backdrop-filter: blur(25px) saturate(180%); 
+    background: rgba(10, 10, 10, 0.85) !important;
+    backdrop-filter: blur(25px) saturate(180%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
     border-bottom: 1px solid rgba(138, 43, 226, 0.4);
     box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
 }
@@ -84,10 +83,10 @@ html {
 
 .hero-content {
     display: grid;
-    grid-template-columns: 1fr 1.5fr; 
-    gap: 60px; 
+    grid-template-columns: 1fr 1.5fr;
+    gap: 60px;
     align-items: center;
-    max-width: 1600px; 
+    max-width: 1600px;
     margin: 0 auto;
 }
 
@@ -98,10 +97,10 @@ html {
 }
 
 .brand-title {
-    font-size: 4.1rem; 
-    font-weight: 600; 
+    font-size: 4.1rem;
+    font-weight: 600;
     color: #ffffff;
-    letter-spacing: -0.01em; 
+    letter-spacing: -0.01em;
     margin-bottom: 15px;
 }
 
@@ -123,10 +122,10 @@ html {
 }
 
     .hero-buttons .btn {
-        padding: 18px 40px; 
+        padding: 18px 40px;
         font-size: 1.1rem;
         font-weight: 600;
-        border-radius: 50px; 
+        border-radius: 50px;
         text-transform: uppercase;
         letter-spacing: 0.05em;
         transition: all 0.3s ease;
@@ -135,15 +134,15 @@ html {
     }
 
     .hero-buttons .btn-primary {
-        background: linear-gradient(135deg, #8a2be2 0%, #9d4edd 100%); 
+        background: linear-gradient(135deg, #8a2be2 0%, #9d4edd 100%);
         color: white;
         box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
-        border-radius: 50px; 
+        border-radius: 50px;
     }
 
         .hero-buttons .btn-primary:hover {
             box-shadow: 0 0 30px rgba(138, 43, 226, 0.8), 0 0 40px rgba(138, 43, 226, 0.6), 0 0 50px rgba(138, 43, 226, 0.4);
-            transform: translateY(-3px); 
+            transform: translateY(-3px);
             background: linear-gradient(135deg, #9d4edd 0%, #8a2be2 100%);
         }
 
@@ -151,27 +150,27 @@ html {
         background: transparent;
         color: white;
         border: 2px solid #8a2be2;
-        border-radius: 50px; 
+        border-radius: 50px;
     }
 
         .hero-buttons .btn-secondary:hover {
             background: rgba(138, 43, 226, 0.1);
-            transform: translateY(-3px); 
+            transform: translateY(-3px);
             box-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
         }
 
 
 .hero-image {
     display: flex;
-    justify-content: flex-start; 
+    justify-content: flex-start;
     align-items: center;
     position: relative;
-    width: 100%; 
+    width: 100%;
 }
 
 .hero-carousel {
-    width: 100%; 
-    max-width: 1100px; 
+    width: 100%;
+    max-width: 1100px;
     margin: 0;
     position: relative;
     overflow: hidden;
@@ -186,20 +185,22 @@ html {
 
 
     .hero-carousel .carousel-item {
-        height: 700px; 
+        height: 700px;
         display: flex;
         align-items: center;
         justify-content: center;
         position: relative;
-
-        opacity: 0;
-        transition: opacity 0.6s ease-in-out;
-        background: #000000; 
+        background: #000000;
     }
 
+    .hero-carousel.carousel-fade .carousel-item {
+        transition-duration: 0.5s; 
+    }
 
-        .hero-carousel .carousel-item.active {
-            opacity: 1;
+        .hero-carousel.carousel-fade .carousel-item-next,
+        .hero-carousel.carousel-fade .carousel-item-prev,
+        .hero-carousel.carousel-fade .carousel-item.active {
+            transform: none;
         }
 
 .hero-carousel-card {
@@ -209,7 +210,7 @@ html {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #000000; 
+    background: #000000;
     border-radius: 16px;
     overflow: hidden;
 }
@@ -236,7 +237,7 @@ html {
     align-items: center;
     justify-content: center;
     color: #666666;
-    background: #000000; 
+    background: #000000;
 }
 
     .hero-carousel-placeholder i {
@@ -307,8 +308,8 @@ html {
 .hero-carousel-btn {
     background: linear-gradient(135deg, #8a2be2 0%, #9d4edd 100%);
     border: none;
-    padding: 16px 36px; 
-    border-radius: 50px; 
+    padding: 16px 36px;
+    border-radius: 50px;
     color: white;
     font-weight: 600;
     font-size: 0.95rem;
@@ -350,7 +351,7 @@ html {
 
 
 .hero-empty-carousel {
-    height: 700px; 
+    height: 700px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -398,11 +399,6 @@ html {
     margin-top: 40px;
 }
 
-/* ========================================
-   CARDS DE PRODUCTOS
-   ======================================== */
-
-/* Cards minimalistas */
 .category-card,
 .product-card {
     background: rgba(20, 20, 20, 0.8);
@@ -422,11 +418,6 @@ html {
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     }
 
-/* ========================================
-   IMÁGENES DE PRODUCTOS
-   ======================================== */
-
-/* Imágenes de productos */
 .category-image,
 .product-image {
     background: transparent;
@@ -458,11 +449,6 @@ html {
     font-size: 0.9rem;
 }
 
-/* ========================================
-   INFORMACIÓN DE PRODUCTOS
-   ======================================== */
-
-/* Información de productos */
 .category-info,
 .product-info {
     padding: 20px;
@@ -489,11 +475,6 @@ html {
     margin-top: 8px;
 }
 
-/* ========================================
-   OVERLAYS Y BOTONES DE PRODUCTOS
-   ======================================== */
-
-/* Botones de overlay originales */
 .category-overlay,
 .product-overlay {
     position: absolute;
@@ -534,11 +515,6 @@ html {
         box-shadow: 0 0 25px rgba(138, 43, 226, 0.8), 0 0 35px rgba(138, 43, 226, 0.6);
     }
 
-/* ========================================
-   SECCIÓN FEATURED
-   ======================================== */
-
-/* Featured section subtitle */
 .featured-subtitle {
     text-align: center;
     color: #888888;
@@ -547,11 +523,6 @@ html {
     font-weight: 300;
 }
 
-/* ========================================
-   SECCIÓN ABOUT
-   ======================================== */
-
-/* About section */
 .about-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -614,11 +585,6 @@ html {
         object-fit: contain;
     }
 
-/* ========================================
-   FOOTER
-   ======================================== */
-
-/* Footer minimalista */
 .footer {
     background: rgba(10, 10, 10, 0.8);
     color: white;
@@ -646,12 +612,6 @@ html {
     }
 
 
-
-/* ========================================
-   TOASTS Y NOTIFICACIONES
-   ======================================== */
-
-/* Toast minimalista */
 .toast-container {
     position: fixed;
     top: 20px;
@@ -672,11 +632,6 @@ html {
     color: white;
 }
 
-/* ========================================
-   ESTADOS VACÍOS
-   ======================================== */
-
-/* Estados vacíos */
 .empty-state {
     text-align: center;
     padding: 60px 40px;
@@ -694,12 +649,6 @@ html {
         margin-bottom: 15px;
     }
 
-
-/* ========================================
-   CARRITO DE COMPRAS - ESTILOS MODERNOS
-   ======================================== */
-
-/* Contenedor principal del carrito */
 .modern-cart-container {
     background: #000000;
     min-height: 100vh;
@@ -707,9 +656,6 @@ html {
     color: #ffffff;
 }
 
-/* ========================================
-   HEADER DEL CARRITO
-   ======================================== */
 
 .cart-header-modern {
     display: flex;
@@ -773,10 +719,6 @@ html {
         box-shadow: 0 5px 15px rgba(220, 38, 127, 0.3);
     }
 
-/* ========================================
-   ESTADO VACÍO
-   ======================================== */
-
 .empty-cart-modern {
     text-align: center;
     padding: 100px 40px;
@@ -833,10 +775,6 @@ html {
         background: linear-gradient(135deg, #9d4edd 0%, #8a2be2 100%);
     }
 
-/* ========================================
-   LAYOUT DEL CARRITO
-   ======================================== */
-
 .cart-layout-modern {
     display: grid;
     grid-template-columns: 1fr 400px;
@@ -846,17 +784,12 @@ html {
     padding: 0 20px;
 }
 
-/* ========================================
-   SECCIÓN DE PRODUCTOS
-   ======================================== */
-
 .cart-items-section {
     background: rgba(15, 15, 15, 0.5);
     border: 1px solid rgba(138, 43, 226, 0.2);
     border-radius: 16px;
     padding: 30px;
     backdrop-filter: blur(10px);
-
 }
 
 .section-header {
@@ -887,10 +820,6 @@ html {
     gap: 20px;
 }
 
-/* ========================================
-   ITEMS DEL CARRITO
-   ======================================== */
-
 .cart-item-modern {
     background: rgba(25, 25, 25, 0.8);
     border: 1px solid rgba(138, 43, 226, 0.15);
@@ -910,7 +839,6 @@ html {
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
     }
 
-/* Imagen del producto */
 .product-image-container {
     position: relative;
     width: 120px;
@@ -941,10 +869,6 @@ html {
     align-items: center;
     justify-content: center;
 }
-
-/* ========================================
-   INFORMACIÓN DEL PRODUCTO
-   ======================================== */
 
 .product-info-section {
     display: flex;
@@ -1016,9 +940,6 @@ html {
     align-items: center;
     gap: 6px;
 }
-/* ========================================
-   SECCIÓN DE DIRECCIONES GUARDADAS
-   ======================================== */
 
 .saved-addresses-section {
     margin-bottom: 30px;
@@ -1210,10 +1131,6 @@ html {
 
 
 
-/* ========================================
-   CONTROLES DEL PRODUCTO
-   ======================================== */
-
 .product-controls-section {
     display: flex;
     flex-direction: column;
@@ -1314,9 +1231,6 @@ html {
         transform: scale(1.1);
     }
 
-/* ========================================
-   RESUMEN DEL PEDIDO
-   ======================================== */
 
 .order-summary-section {
     display: flex;
@@ -1330,7 +1244,6 @@ html {
     border-radius: 16px;
     padding: 30px;
     backdrop-filter: blur(10px);
-
 }
 
 .summary-title {
@@ -1414,9 +1327,6 @@ html {
     font-size: 1.4rem;
 }
 
-/* ========================================
-   BOTONES DE CHECKOUT
-   ======================================== */
 
 .checkout-section {
     display: flex;
@@ -1483,9 +1393,6 @@ html {
         transform: translateY(-2px);
     }
 
-/* ========================================
-   BENEFICIOS DE COMPRA
-   ======================================== */
 .shipping-benefits {
     background: rgba(20, 20, 20, 0.6);
     border: 1px solid rgba(138, 43, 226, 0.15);
@@ -1524,9 +1431,6 @@ html {
         width: 16px;
     }
 
-/* ========================================
-   MODAL DE CHECKOUT
-   ======================================== */
 
 .modal-overlay-modern {
     position: fixed;
@@ -1556,10 +1460,6 @@ html {
     display: flex;
     flex-direction: column;
 }
-
-/* ========================================
-   HEADER DEL MODAL
-   ======================================== */
 
 .modal-header-checkout {
     display: flex;
@@ -1600,10 +1500,6 @@ html {
         background: rgba(255, 255, 255, 0.1);
     }
 
-/* ========================================
-   CONTENIDO DEL MODAL
-   ======================================== */
-
 .modal-content-checkout {
     flex: 1;
     overflow-y: auto;
@@ -1623,9 +1519,6 @@ html {
     gap: 10px;
 }
 
-/* ========================================
-   MÉTODOS DE PAGO
-   ======================================== */
 
 .payment-method-section {
     display: flex;
@@ -1696,9 +1589,6 @@ html {
     font-size: 1.3rem;
 }
 
-/* ========================================
-   FORMULARIO DE DIRECCIÓN
-   ======================================== */
 
 .delivery-form-section {
     display: flex;
@@ -1756,9 +1646,6 @@ html {
     resize: vertical;
     min-height: 80px;
 }
-/* ========================================
-   MODAL DE ÉXITO
-   ======================================== */
 
 .modal-container-success {
     background: rgba(15, 15, 15, 0.95);
@@ -1906,10 +1793,6 @@ html {
     }
 
 
-/* ========================================
-   INFORMACIÓN DE LA TIENDA
-   ======================================== */
-
 .store-info-section {
     display: flex;
     flex-direction: column;
@@ -1972,10 +1855,6 @@ html {
         margin: 0;
         line-height: 1.5;
     }
-
-/* ========================================
-   RESUMEN EN EL MODAL
-   ======================================== */
 
 .order-summary-modal {
     background: rgba(25, 25, 25, 0.6);
@@ -2055,10 +1934,6 @@ html {
         font-size: 1.2rem;
     }
 
-/* ========================================
-   FOOTER DEL MODAL
-   ======================================== */
-
 .modal-footer-checkout {
     display: flex;
     justify-content: flex-end;
@@ -2119,13 +1994,6 @@ html {
         transform: none;
     }
 
-
-
-/* ========================================
-   ANIMACIONES ADICIONALES
-   ======================================== */
-
-/* Animación de entrada para items del carrito */
 @keyframes slideInUp {
     from {
         opacity: 0;
@@ -2142,7 +2010,6 @@ html {
     animation: slideInUp 0.3s ease-out;
 }
 
-/* Animación de entrada para el modal */
 @keyframes modalFadeIn {
     from {
         opacity: 0;
@@ -2159,7 +2026,6 @@ html {
     animation: modalFadeIn 0.3s ease-out;
 }
 
-/* Animación para botones con hover */
 @keyframes pulse {
     0% {
         box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
@@ -2178,11 +2044,6 @@ html {
     animation: pulse 2s infinite;
 }
 
-/* ========================================
-   UTILIDADES
-   ======================================== */
-
-/* Scroll personalizado para el modal */
 .modal-content-checkout::-webkit-scrollbar {
     width: 6px;
 }
@@ -2201,7 +2062,6 @@ html {
         background: rgba(138, 43, 226, 0.7);
     }
 
-/* Estados de carga */
 .loading-shimmer {
     background: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 100%);
     background-size: 200% 100%;
@@ -2218,7 +2078,6 @@ html {
     }
 }
 
-/* Focus visible para accesibilidad */
 .btn-checkout-modern:focus-visible,
 .btn-continue-shopping:focus-visible,
 .btn-confirm-checkout:focus-visible,
@@ -2228,17 +2087,10 @@ html {
     outline-offset: 2px;
 }
 
-/* Transiciones suaves */
 * {
     transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
 
-
-/* ========================================
-   LOGIN - ESTILOS SIMPLIFICADOS
-   ======================================== */
-
-/* Wrapper principal del login */
 .login-wrapper {
     background: #000000;
     min-height: 100vh;
@@ -2250,7 +2102,7 @@ html {
     overflow: hidden;
 }
 
-    /* Fondo visual sutil */
+
     .login-wrapper::before {
         content: '';
         position: absolute;
@@ -2262,7 +2114,6 @@ html {
         z-index: 1;
     }
 
-/* Card principal del login */
 .login-card {
     background: rgba(15, 15, 15, 0.9);
     border: 1px solid rgba(138, 43, 226, 0.3);
@@ -2276,7 +2127,6 @@ html {
     z-index: 2;
 }
 
-    /* Borde decorativo (sin animación) */
     .login-card::before {
         content: '';
         position: absolute;
@@ -2289,7 +2139,6 @@ html {
         z-index: -1;
     }
 
-/* Header */
 .login-header {
     text-align: center;
     margin-bottom: 40px;
@@ -2332,7 +2181,6 @@ html {
     margin: 0;
 }
 
-/* Mensajes de error */
 .error-message {
     background: rgba(220, 38, 127, 0.1);
     border: 1px solid rgba(220, 38, 127, 0.3);
@@ -2354,7 +2202,6 @@ html {
         font-size: 1.2rem;
     }
 
-/* Formulario */
 .form-group {
     margin-bottom: 25px;
     position: relative;
@@ -2383,7 +2230,6 @@ html {
         background: rgba(35, 35, 35, 1);
     }
 
-    /* Validación */
     .form-input:valid {
         border-color: rgba(0, 212, 170, 0.5);
     }
@@ -2407,7 +2253,6 @@ html {
         font-size: 0.6rem;
     }
 
-/* Recordarme y link */
 .remember-section {
     display: flex;
     justify-content: space-between;
@@ -2463,7 +2308,6 @@ html {
     font-weight: 500;
 }
 
-/* Botón login */
 .login-button {
     width: 100%;
     background: linear-gradient(135deg, #8a2be2, #9d4edd);
@@ -2479,7 +2323,6 @@ html {
     margin-bottom: 30px;
 }
 
-/* Registro */
 .signup-section {
     text-align: center;
     padding: 25px 0;
@@ -2500,7 +2343,6 @@ html {
     font-size: 0.95rem;
 }
 
-/* Enlaces adicionales */
 .additional-links {
     text-align: center;
 }
@@ -2514,7 +2356,6 @@ html {
         border-radius: 20px;
     }
 
-/* Responsive: Tablets */
 @media (max-width: 768px) {
     .login-wrapper {
         padding: 20px 15px;
@@ -2546,22 +2387,12 @@ html {
     }
 }
 
-
-/* ========================================
-   SHOP - ESTILOS DE LA TIENDA
-   ======================================== */
-
-/* Contenedor principal de la tienda */
 .shop-container {
     background: #000000;
     min-height: 100vh;
     padding: 40px 20px;
     color: #ffffff;
 }
-
-/* ========================================
-   HEADER DE LA TIENDA
-   ======================================== */
 
 .shop-header {
     display: flex;
@@ -2617,9 +2448,6 @@ html {
     border: 1px solid rgba(138, 43, 226, 0.3);
 }
 
-/* ========================================
-   CONTROLES DE LA TIENDA
-   ======================================== */
 
 .shop-controls {
     max-width: 1600px;
@@ -2630,7 +2458,6 @@ html {
     gap: 25px;
 }
 
-/* Filtros de categoría */
 .category-filters {
     display: flex;
     gap: 15px;
@@ -2666,10 +2493,6 @@ html {
     color: #ffffff;
 }
 
-/* ========================================
-   GRID DE PRODUCTOS
-   ======================================== */
-
 .products-grid-shop {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -2679,9 +2502,6 @@ html {
     padding: 0 20px;
 }
 
-/* ========================================
-   CARDS DE PRODUCTOS
-   ======================================== */
 
 .product-card-shop {
     background: rgba(20, 20, 20, 0.8);
@@ -2699,7 +2519,6 @@ html {
         box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(138, 43, 226, 0.2);
     }
 
-/* Badges de estado */
 .product-badge {
     position: absolute;
     top: 15px;
@@ -2716,7 +2535,6 @@ html {
     gap: 5px;
 }
 
-    /* Badge destacado - Solo estrella - posición izquierda */
     .product-badge.featured {
         background: #ffb800;
         color: white;
@@ -2737,12 +2555,11 @@ html {
             margin: 0;
         }
 
-        /* Sin efectos hover para el badge destacado */
         .product-badge.featured:hover {
-            /* Sin cambios en hover */
+           
         }
 
-/* Animación sutil de pulso para llamar la atención */
+
 @keyframes starPulse {
     0%, 100% {
         transform: scale(1);
@@ -2759,26 +2576,24 @@ html {
     animation: starPulse 2s ease-in-out infinite;
 }
 
-/* Sin stock */
+
 .product-badge.out-of-stock {
     background: rgba(220, 38, 127, 0.9);
     color: white;
     box-shadow: 0 0 15px rgba(220, 38, 127, 0.4);
 }
 
-/* Poco stock */
 .product-badge.low-stock {
     background: rgba(255, 107, 0, 0.9);
     color: white;
     box-shadow: 0 0 15px rgba(255, 107, 0, 0.4);
 }
 
-/* Variante alternativa sin animación (opcional) */
 .product-badge.featured.static {
     animation: none;
 }
 
-/* Responsive para mobile */
+
 @media (max-width: 768px) {
     .product-badge {
         top: 10px;
@@ -2798,9 +2613,7 @@ html {
                 font-size: 0.9rem;
             }
 }
-/* ========================================
-   IMÁGENES DE PRODUCTOS
-   ======================================== */
+
 
 .product-image-shop {
     height: 280px;
@@ -2836,10 +2649,6 @@ html {
         font-size: 3rem;
         margin-bottom: 10px;
     }
-
-/* ========================================
-   OVERLAY DE ACCIONES
-   ======================================== */
 
 .product-overlay-shop {
     position: absolute;
@@ -2890,9 +2699,6 @@ html {
         opacity: 0.6;
     }
 
-/* ========================================
-   INFORMACIÓN DEL PRODUCTO
-   ======================================== */
 
 .product-info-shop {
     padding: 25px;
@@ -2921,9 +2727,6 @@ html {
     overflow: hidden;
 }
 
-/* ========================================
-   CARACTERÍSTICAS DEL PRODUCTO
-   ======================================== */
 
 .product-features {
     display: flex;
@@ -2972,9 +2775,6 @@ html {
             color: #ffb800;
         }
 
-/* ========================================
-   PRECIOS Y STOCK
-   ======================================== */
 
 .product-pricing {
     display: flex;
@@ -3019,9 +2819,6 @@ html {
     gap: 5px;
 }
 
-/* ========================================
-   ESTADOS DE CARGA Y VACÍO
-   ======================================== */
 
 .loading-state {
     text-align: center;
@@ -3081,9 +2878,6 @@ html {
     margin-bottom: 30px;
 }
 
-/* ========================================
-   MODAL DE DETALLE RÁPIDO
-   ======================================== */
 
 .modal-overlay-shop {
     position: fixed;
@@ -3114,9 +2908,6 @@ html {
     flex-direction: column;
 }
 
-/* ========================================
-   HEADER DEL MODAL
-   ======================================== */
 
 .modal-header-detail {
     display: flex;
@@ -3154,10 +2945,6 @@ html {
         background: rgba(255, 255, 255, 0.1);
     }
 
-/* ========================================
-   CONTENIDO DEL MODAL
-   ======================================== */
-
 .modal-content-detail {
     flex: 1;
     overflow-y: auto;
@@ -3171,9 +2958,6 @@ html {
     align-items: start;
 }
 
-/* ========================================
-   IMAGEN EN EL MODAL
-   ======================================== */
 
 .detail-image-section {
     position: relative;
@@ -3203,10 +2987,6 @@ html {
         margin-bottom: 15px;
     }
 
-/* ========================================
-   INFORMACIÓN EN EL MODAL
-   ======================================== */
-
 .detail-info-section {
     display: flex;
     flex-direction: column;
@@ -3227,10 +3007,6 @@ html {
     font-size: 1rem;
     margin: 0;
 }
-
-/* ========================================
-   ESPECIFICACIONES
-   ======================================== */
 
 .detail-specs {
     background: rgba(25, 25, 25, 0.6);
@@ -3255,9 +3031,6 @@ html {
         min-width: 80px;
     }
 
-/* ========================================
-   CARACTERÍSTICAS EN EL MODAL
-   ======================================== */
 
 .detail-features {
     display: flex;
@@ -3314,9 +3087,6 @@ html {
             color: #ff6b9d;
         }
 
-/* ========================================
-   ACCIONES EN EL MODAL
-   ======================================== */
 
 .detail-actions {
     background: rgba(25, 25, 25, 0.6);
@@ -3389,13 +3159,6 @@ html {
         transform: none;
     }
 
-
-
-/* ========================================
-   ANIMACIONES ADICIONALES
-   ======================================== */
-
-/* Animación de entrada para las cards */
 @keyframes slideInUp {
     from {
         opacity: 0;
@@ -3412,7 +3175,6 @@ html {
     animation: slideInUp 0.3s ease-out;
 }
 
-/* Animación de entrada para el modal */
 @keyframes modalFadeIn {
     from {
         opacity: 0;
@@ -3429,7 +3191,6 @@ html {
     animation: modalFadeIn 0.3s ease-out;
 }
 
-/* Animación para el overlay */
 @keyframes overlayFadeIn {
     from {
         opacity: 0;
@@ -3444,11 +3205,6 @@ html {
     animation: overlayFadeIn 0.2s ease-out;
 }
 
-/* ========================================
-   UTILIDADES
-   ======================================== */
-
-/* Scroll personalizado */
 .modal-content-detail::-webkit-scrollbar {
     width: 6px;
 }
@@ -3466,7 +3222,6 @@ html {
     .modal-content-detail::-webkit-scrollbar-thumb:hover {
         background: rgba(138, 43, 226, 0.7);
     }
-/* Focus visible para accesibilidad */
 .filter-btn:focus-visible,
 .search-input:focus-visible,
 .sort-select:focus-visible,
@@ -3477,7 +3232,6 @@ html {
     outline-offset: 2px;
 }
 
-/* Estilos base para botones de filtro */
 .filter-btn {
     transition: all 0.3s ease;
     display: flex;
@@ -3487,7 +3241,6 @@ html {
     letter-spacing: 0.5px;
 }
 
-    /* Estado hover */
     .filter-btn:hover {
         border-color: #8a2be2;
         color: #ffffff;
@@ -3495,7 +3248,6 @@ html {
         transform: translateY(-2px);
     }
 
-    /* Estado activo */
     .filter-btn.active {
         background: linear-gradient(135deg, #8a2be2, #9d4edd);
         border-color: #8a2be2;
@@ -3503,13 +3255,11 @@ html {
         box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
     }
 
-        /* Hover en estado activo */
         .filter-btn.active:hover {
             transform: translateY(-2px);
             box-shadow: 0 0 30px rgba(138, 43, 226, 0.7);
         }
 
-/* Controles de búsqueda y ordenamiento */
 .search-sort-controls {
     display: flex;
     gap: 20px;
@@ -3585,13 +3335,8 @@ html {
     outline: none;
     cursor: pointer;
 }
-    /* ========================================
-   ABOUT PAGE - ESTILOS ESPECÍFICOS
-   ======================================== */
-    /* Contenedor principal de la página About */
-    .about-page-container
 
-{
+.about-page-container {
     background: #000000;
     min-height: 100vh;
     color: #ffffff;
@@ -3599,9 +3344,6 @@ html {
     margin: 0;
 }
 
-/* ========================================
-   HERO SECTION ABOUT
-   ======================================== */
 .about-hero-section {
     padding: 80px 40px 100px;
     position: relative;
@@ -3650,10 +3392,6 @@ html {
     margin: 0;
     font-weight: 300;
 }
-
-/* ========================================
-   HERO IMAGE SECTION
-   ======================================== */
 
 .about-hero-image {
     position: relative;
@@ -3706,9 +3444,6 @@ html {
     pointer-events: none;
 }
 
-/* ========================================
-   FOUNDER SECTION
-   ======================================== */
 .founder-section {
     padding: 100px 40px;
     background: rgba(15, 15, 15, 0.5);
@@ -3770,9 +3505,6 @@ html {
         text-align: left;
     }
 
-/* ========================================
-   MISSION & VISION SECTION
-   ======================================== */
 
 .mission-vision-section {
     padding: 100px 40px;
@@ -3832,10 +3564,6 @@ html {
     line-height: 1.6;
     margin: 0;
 }
-
-/* ========================================
-   VALUES SECTION
-   ======================================== */
 
 .values-section {
     padding: 100px 40px;
@@ -3918,11 +3646,6 @@ html {
     line-height: 1.6;
     margin: 0;
 }
-
-/* ========================================
-   STATS SECTION
-   ======================================== */
-
 .stats-section {
     padding: 80px 40px;
     background: rgba(138, 43, 226, 0.05);
@@ -3959,9 +3682,6 @@ html {
     letter-spacing: 0.5px;
 }
 
-/* ========================================
-   CTA SECTION
-   ======================================== */
 
 .cta-section {
     padding: 100px 40px;
@@ -4036,11 +3756,6 @@ html {
         box-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
     }
 
-/* ========================================
-   RESPONSIVE DESIGN
-   ======================================== */
-
-/* Tablets y pantallas medianas */
 @media (max-width: 1200px) {
     .about-hero-content {
         gap: 40px;
@@ -4088,13 +3803,6 @@ html {
     }
 }
 
-
-
-/* ========================================
-   ANIMACIONES
-   ======================================== */
-
-/* Animación sutil para elementos al hacer scroll */
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -4113,16 +3821,10 @@ html {
     animation: fadeInUp 0.6s ease-out;
 }
 
-/* Animación para la imagen del fundador */
 .founder-image:hover {
     transform: scale(1.02);
 }
 
-/* ========================================
-   UTILIDADES
-   ======================================== */
-
-/* Focus visible para accesibilidad */
 .cta-btn:focus-visible {
     outline: 2px solid #8a2be2;
     outline-offset: 2px;
@@ -4141,12 +3843,6 @@ html {
     }
 }
 
-
-
-
-/* Estilos adicionales para el carrito con autenticación */
-
-/* Botón de login en carrito */
 .btn-checkout-modern[disabled] {
     opacity: 0.7;
     cursor: not-allowed;
@@ -4157,7 +3853,6 @@ html {
     box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
 }
 
-/* Aviso de login requerido */
 .login-notice {
     display: flex;
     align-items: center;
@@ -4179,9 +3874,6 @@ html {
         margin: 0;
     }
 
-
-
-/* Animación para productos que requieren autenticación */
 .product-auth-required {
     position: relative;
     overflow: hidden;
@@ -4208,7 +3900,6 @@ html {
     }
 }
 
-/* Indicador de estado de autenticación en carrito */
 .auth-status-indicator {
     display: flex;
     align-items: center;
@@ -4231,13 +3922,11 @@ html {
         color: #ffc107;
     }
 
-/* Mejora para botones de cantidad con autenticación */
 .qty-controls-modern .qty-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
-/* Estilo para productos sin stock para no administradores */
 .empty-state.non-admin {
     opacity: 0.8;
 }
@@ -4246,9 +3935,6 @@ html {
         color: rgba(255, 255, 255, 0.7);
     }
 
-
-
-/* Animación de carga para fusión de carritos */
 .cart-merging {
     position: relative;
 }
@@ -4279,7 +3965,6 @@ html {
         z-index: 11;
     }
 
-/* Estilo para items de carrito con stock bajo */
 .cart-item-modern.low-stock {
     border-left: 3px solid #ffc107;
 }
@@ -4315,10 +4000,6 @@ html {
     gap: 6px;
 }
 
-
-/* ========================================
-   SECCIÓN PRODUCTOS - BOTÓN VER TODOS
-   ======================================== */
 .categories-section .text-center {
     margin-top: 2rem;
     padding-top: 2rem;
@@ -4338,7 +4019,6 @@ html {
     display: inline-block;
 }
 
-/* Botón primario con efecto neón */
 .categories-section .btn-primary {
     background: linear-gradient(135deg, #8a2be2 0%, #9d4edd 100%);
     color: white;
@@ -4353,3 +4033,161 @@ html {
         color: white;
         text-decoration: none;
     }
+
+.btn-add-new-card,
+.btn-add-new-address {
+    background: transparent;
+    border: 2px solid rgba(138, 43, 226, 0.4);
+    color: #8a2be2;
+    padding: 15px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    margin-top: 15px;
+}
+
+    .btn-add-new-card:hover,
+    .btn-add-new-address:hover {
+        background: rgba(138, 43, 226, 0.1);
+        border-color: #8a2be2;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(138, 43, 226, 0.3);
+    }
+
+    .btn-add-new-card i,
+    .btn-add-new-address i {
+        font-size: 1.1rem;
+    }
+
+.btn-cancel-new-card,
+.btn-cancel-new-address {
+    background: transparent;
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    color: #8a2be2;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+    .btn-cancel-new-card:hover,
+    .btn-cancel-new-address:hover {
+        background: rgba(138, 43, 226, 0.05);
+        border-color: #8a2be2;
+    }
+
+
+
+
+
+
+.saved-cards-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.saved-card {
+    background: linear-gradient(135deg, rgba(25, 25, 25, 0.9) 0%, rgba(35, 35, 35, 0.8) 100%);
+    border: 1px solid rgba(138, 43, 226, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    backdrop-filter: blur(10px);
+}
+
+    .saved-card:hover {
+        border-color: rgba(138, 43, 226, 0.5);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(138, 43, 226, 0.2);
+    }
+
+    .saved-card.selected {
+        border-color: #8a2be2;
+        background: linear-gradient(135deg, rgba(138, 43, 226, 0.1) 0%, rgba(157, 78, 221, 0.1) 100%);
+        box-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
+    }
+
+.card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    border-radius: 8px;
+    background: rgba(138, 43, 226, 0.1);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+}
+
+    .card-icon i {
+        color: #8a2be2;
+        font-size: 1.3rem;
+    }
+
+.card-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.card-number {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #ffffff;
+    font-family: 'Courier New', monospace;
+}
+
+.card-details {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.card-type,
+.card-expiry {
+    font-size: 0.9rem;
+    color: #cccccc;
+    font-weight: 500;
+}
+
+.card-holder {
+    font-size: 0.85rem;
+    color: #888888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.card-radio {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .card-radio i {
+        font-size: 1.4rem;
+        color: #666666;
+        transition: all 0.3s ease;
+    }
+
+.saved-card.selected .card-radio i {
+    color: #8a2be2;
+}

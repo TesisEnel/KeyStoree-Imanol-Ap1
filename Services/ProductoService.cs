@@ -228,8 +228,6 @@ namespace KeyStore.Services
                 EsInalámbrico = producto.EsInalámbrico,
                 EsMecánico = producto.EsMecánico,
                 ColorPrincipal = producto.ColorPrincipal,
-                EsTemaPersonalizado = producto.EsTemaPersonalizado,
-                NombreTema = producto.NombreTema,
                 EsDestacado = producto.EsDestacado,
                 TipoConexion = producto.TipoConexion.ToString(),
                 TipoSwitch = producto.TipoSwitch.ToString(),
@@ -338,28 +336,7 @@ namespace KeyStore.Services
                     EstaEnStock = true,
                     EstadoStock = "Disponible"
                 },
-                new()
-                {
-                    Id = 2,
-                    Nombre = "Tema Cyberpunk 2077",
-                    Descripcion = "Set completo de keycaps inspirado en Cyberpunk",
-                    Precio = 45.99m,
-                    Stock = 8,
-                    CategoriaId = 3,
-                    CategoriaNombre = "Temas Personalizados",
-                    ImagenUrl = "/images/cyberpunk-theme.jpg",
-                    ImagenesSecundarias = new List<string>(),
-                    Marca = "KeyStore",
-                    Modelo = "THEME-CP77",
-                    EsTemaPersonalizado = true,
-                    NombreTema = "Cyberpunk",
-                    ColorPrincipal = "Amarillo/Negro",
-                    EsDestacado = true,
-                    Calificacion = 4.8,
-                    NumeroVentas = 156,
-                    EstaEnStock = true,
-                    EstadoStock = "Pocas unidades"
-                }
+               
             };
         }
 
@@ -444,8 +421,6 @@ namespace KeyStore.Services
                 EsInalámbrico = producto.EsInalámbrico,
                 EsMecánico = producto.EsMecánico,
                 ColorPrincipal = producto.ColorPrincipal,
-                EsTemaPersonalizado = producto.EsTemaPersonalizado,
-                NombreTema = producto.NombreTema,
                 EsDestacado = producto.EsDestacado,
                 TipoConexion = producto.TipoConexion.ToString(),
                 TipoSwitch = producto.TipoSwitch.ToString(),
@@ -483,8 +458,6 @@ namespace KeyStore.Services
             productoExistente.EsInalámbrico = producto.EsInalámbrico;
             productoExistente.EsMecánico = producto.EsMecánico;
             productoExistente.ColorPrincipal = producto.ColorPrincipal;
-            productoExistente.EsTemaPersonalizado = producto.EsTemaPersonalizado;
-            productoExistente.NombreTema = producto.NombreTema;
             productoExistente.EsDestacado = producto.EsDestacado;
             productoExistente.TipoConexion = producto.TipoConexion.ToString();
             productoExistente.TipoSwitch = producto.TipoSwitch.ToString();
