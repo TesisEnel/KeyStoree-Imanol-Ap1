@@ -245,16 +245,16 @@ else
 
 @if (mostrarModalEliminar)
 {
-    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal fade show d-block" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">
+                    <h5 class="modal-title text-dark">
                         <i class="bi bi-exclamation-triangle text-warning"></i>
                         Confirmar Eliminación
                     </h5>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body text-dark">
                     @if (productosParaEliminar.Count == 1)
                     {
                         <p>¿Estás seguro que deseas eliminar este producto?</p>

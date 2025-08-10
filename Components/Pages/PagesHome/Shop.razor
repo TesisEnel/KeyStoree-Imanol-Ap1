@@ -15,7 +15,7 @@
                 <i class="bi bi-shop"></i>
                 TIENDA
             </h1>
-            <p class="shop-subtitle">Descubre nuestra colección completa de productos</p>
+            <p class="shop-subtitle">Descubre nuestra colecci&oacute;n completa de productos</p>
         </div>
         <div class="shop-stats">
             <span class="product-count">@productosFiltrados.Count productos encontrados</span>
@@ -334,13 +334,7 @@
                                     Switches Mecánicos
                                 </span>
                             }
-                            @if (productoSeleccionado.EsTemaPersonalizado && !string.IsNullOrEmpty(productoSeleccionado.NombreTema))
-                            {
-                                <span class="detail-feature theme">
-                                    <i class="bi bi-palette-fill"></i>
-                                    Tema: @productoSeleccionado.NombreTema
-                                </span>
-                            }
+
                         </div>
 
                         <div class="detail-actions">

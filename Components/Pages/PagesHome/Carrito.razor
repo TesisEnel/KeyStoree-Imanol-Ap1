@@ -45,8 +45,8 @@
             </div>
             <h2 class="empty-cart-title">Tu carrito está vacío</h2>
             <p class="empty-cart-description">
-                Parece que aún no has agregado ningún producto.
-                <br>¡Explora nuestra increíble selección de teclados!
+                Parece que a&uacute;n no has agregado ning&uacute;n producto.
+                <br>¡Explora nuestra incre&iacute;ble selecci&oacute;n de teclados!
             </p>
             <button class="btn-continue-shopping-primary" @onclick='() => NavigationManager.NavigateTo("/")'>
                 <i class="bi bi-arrow-left-circle-fill"></i>
@@ -180,7 +180,7 @@
                         </div>
 
                         <div class="summary-row">
-                            <span class="summary-label">Envío</span>
+                            <span class="summary-label">Env&iacute;o</span>
                             <span class="summary-value shipping-value">
                                 @if (Subtotal >= 50)
                                 {
@@ -197,14 +197,14 @@
                         {
                             <div class="free-shipping-notice">
                                 <i class="bi bi-info-circle-fill"></i>
-                                <span>Agrega <strong>$@((50 - Subtotal).ToString("F2"))</strong> más para envío gratuito</span>
+                                <span>Agrega <strong>$@((50 - Subtotal).ToString("F2"))</strong> más para env&iacute;o gratuito</span>
                             </div>
                         }
                         else
                         {
                             <div class="free-shipping-achieved">
                                 <i class="bi bi-check-circle-fill"></i>
-                                <span>¡Felicidades! Has obtenido envío gratuito</span>
+                                <span>¡Felicidades! Has obtenido env&iacute;o gratuito</span>
                             </div>
                         }
 
@@ -256,7 +256,7 @@
                         </div>
                         <div class="benefit-item">
                             <i class="bi bi-truck"></i>
-                            <span>Envío gratis desde $50</span>
+                            <span>Env&iacute;o gratis desde $50</span>
                         </div>
                         <div class="benefit-item">
                             <i class="bi bi-clock"></i>
@@ -264,7 +264,7 @@
                         </div>
                         <div class="benefit-item">
                             <i class="bi bi-arrow-repeat"></i>
-                            <span>Devoluciones fáciles</span>
+                            <span>Devoluciones f&aacute;ciles</span>
                         </div>
                     </div>
                 </div>
@@ -304,7 +304,7 @@
                                     </div>
                                     <div class="payment-option-info">
                                         <h4>Pago con Tarjeta</h4>
-                                        <p>Débito o Crédito - Envío a domicilio</p>
+                                        <p>Débito o Crédito - Env&iacute;o a domicilio</p>
                                     </div>
                                     <div class="payment-option-radio">
                                         <i class="bi @(metodoPagoSeleccionado == "tarjeta" ? "bi-check-circle-fill" : "bi-circle")"></i>
@@ -377,7 +377,7 @@
 
                                     <div class="form-grid">
                                         <div class="form-group full-width">
-                                            <label class="form-label">Número de Tarjeta *</label>
+                                            <label class="form-label">N&uacute;mero de Tarjeta *</label>
                                             <input type="text" class="form-input-modern @(erroresValidacion.ContainsKey("NumeroTarjeta") ? "error" : "")"
                                                    @bind="nuevaTarjeta.NumeroTarjeta"
                                                    @oninput="FormatearNumeroTarjeta"
@@ -593,10 +593,7 @@
                                                     <option value="">Seleccionar país</option>
                                                     <option value="República Dominicana">República Dominicana</option>
                                                     <option value="Estados Unidos">Estados Unidos</option>
-                                                    <option value="España">España</option>
                                                     <option value="México">México</option>
-                                                    <option value="Colombia">Colombia</option>
-                                                    <option value="Otro">Otro</option>
                                                 </select>
                                             </div>
 
@@ -658,13 +655,6 @@
                                     </div>
                                 </div>
 
-                                <div class="pickup-notice">
-                                    <i class="bi bi-info-circle-fill"></i>
-                                    <p>
-                                        Tu pedido estará listo para recoger en <strong>2-3 días hábiles</strong>.
-                                        Te enviaremos una notificación cuando esté disponible.
-                                    </p>
-                                </div>
                             </div>
                         }
 
@@ -679,7 +669,6 @@
                                 {
                                     <div class="summary-item">
                                         <span class="item-name">@item.Producto.Nombre</span>
-                                        <span class="item-quantity">x@item.Cantidad</span>
                                         <span class="item-price">$@((item.Producto.Precio * item.Cantidad).ToString("F2"))</span>
                                     </div>
                                 }
@@ -687,7 +676,7 @@
                                 @if (itemsCarrito.Count > 3)
                                 {
                                     <div class="summary-item more-items">
-                                        <span>+@(itemsCarrito.Count - 3) productos más</span>
+                                        <span>+@(itemsCarrito.Count - 3) productos m&aacute;s</span>
                                     </div>
                                 }
                             </div>
@@ -698,7 +687,7 @@
                                     <span>$@Subtotal.ToString("F2")</span>
                                 </div>
                                 <div class="summary-row">
-                                    <span>Envío:</span>
+                                    <span>Env&iacute;o:</span>
                                     <span>@(metodoPagoSeleccionado == "local" ? "GRATIS" : (CostoEnvio == 0 ? "GRATIS" : "$" + CostoEnvio.ToString("F2")))</span>
                                 </div>
                                 <div class="summary-row total-row">
@@ -712,7 +701,7 @@
                         {
                             <div class="scroll-indicator">
                                 <i class="bi bi-arrow-down-circle"></i>
-                                <small>Desplázate hasta abajo para continuar</small>
+                                <small>Despl&aacute;zate hasta abajo para continuar</small>
                             </div>
                         }
                     </div>
@@ -749,24 +738,24 @@
                         <div class="success-icon">
                             <i class="bi bi-check-circle-fill"></i>
                         </div>
-                        <h2 class="modal-title-success">¡Compra Realizada con Éxito!</h2>
+                        <h2 class="modal-title-success">¡Compra Realizada con &Eacute;xito!</h2>
                     </div>
 
                     <div class="modal-content-success">
                         <div class="success-message">
-                            <p class="success-text">Tu pedido ha sido procesado correctamente y pronto recibirás un email de confirmación.</p>
+                            <p class="success-text">Tu pedido ha sido procesado correctamente y pronto recibirás un email de confirmaci&oacute;n.</p>
 
                             <div class="order-details">
                                 <div class="detail-item">
                                     <i class="bi bi-receipt"></i>
-                                    <span>Número de pedido: <strong>#@numeroOrden</strong></span>
+                                    <span>N&uacute;mero de pedido: <strong>#@numeroOrden</strong></span>
                                 </div>
 
                                 @if (metodoPagoSeleccionado == "tarjeta")
                                 {
                                     <div class="detail-item">
                                         <i class="bi bi-truck"></i>
-                                        <span>Método: Envío a domicilio</span>
+                                        <span>M&eacute;todo: Env&iacute;o a domicilio</span>
                                     </div>
                                     <div class="detail-item">
                                         <i class="bi bi-clock"></i>
@@ -777,11 +766,11 @@
                                 {
                                     <div class="detail-item">
                                         <i class="bi bi-shop"></i>
-                                        <span>Método: Retiro en tienda</span>
+                                        <span>M&eacute;todo: Retiro en tienda</span>
                                     </div>
                                     <div class="detail-item">
                                         <i class="bi bi-clock"></i>
-                                        <span>Estará listo en: 2-3 días hábiles</span>
+                                        <span>Estar&aacute; listo en: 2-3 d&iacute;as h&aacute;biles</span>
                                     </div>
                                 }
 

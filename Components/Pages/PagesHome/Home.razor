@@ -9,7 +9,6 @@
 @rendermode InteractiveServer
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Identity
-@using KeyStore.Data
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject UserManager<ApplicationUser> UserManager
 
@@ -26,7 +25,7 @@
             </div>
             <div class="hero-image">
 
-                <div id="heroCarousel" class="carousel slide hero-carousel" data-bs-ride="carousel" data-bs-interval="5000">
+                <div id="heroCarousel" class="carousel slide carousel-fade hero-carousel" data-bs-ride="carousel" data-bs-interval="5000">
                     @if (productosCarousel != null && productosCarousel.Any())
                     {
                         <div class="carousel-inner">
@@ -119,7 +118,6 @@
                 foreach (var producto in productos.Take(10))
                 {
                     <div class="category-card">
-                        @* Badges para la sección de productos *@
                         @if (producto.EsDestacado)
                         {
                             <div class="product-badge featured static">
@@ -211,7 +209,6 @@
                 foreach (var producto in productosDestacados.Take(3))
                 {
                     <div class="product-card">
-                        @* Badges para productos destacados *@
                         @if (producto.EsDestacado)
                         {
                             <div class="product-badge featured static">
@@ -384,7 +381,7 @@
             <div class="about-text">
                 <h3 class="about-title">Sobre Nosotros</h3>
                 <p class="about-description">
-                    Transformando la experiencia de escritura desde 2022, creando conexiones perfectas entre tecnología y creatividad.
+                    Transformando la experiencia de adquirir perifericos, creando conexiones perfectas entre tecnología y creatividad.
                 </p>
                 <a href="/about" class="learn-more">Saber mas</a>
             </div>
@@ -413,12 +410,10 @@
             <a href="/Shop" class="footer-link">Comprar</a>
             <a href="/About" class="footer-link">Sobre nosotros</a>
             <a href="/contacto" class="footer-link">Contacto</a>
-            <a href="#" class="footer-link">Terms and Conditions</a>
         </div>
     </footer>
 </div>
 
-@* Modal de detalles del producto *@
 @if (productoSeleccionado != null && mostrarModalDetalle)
 {
     <div class="modal-overlay-shop" @onclick="CerrarModalDetalle">
@@ -517,13 +512,7 @@
                                     <i class="bi bi-gear-fill"></i>
                                     Switches Mecánicos
                                 </span>
-                            }
-                            @if (productoSeleccionado.EsTemaPersonalizado && !string.IsNullOrEmpty(productoSeleccionado.NombreTema))
-                            {
-                                <span class="detail-feature theme">
-                                    <i class="bi bi-palette-fill"></i>
-                                    Tema: @productoSeleccionado.NombreTema
-                                </span>
+                            
                             }
                         </div>
 

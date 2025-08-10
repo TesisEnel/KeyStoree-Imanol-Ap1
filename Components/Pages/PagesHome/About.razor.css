@@ -1,9 +1,4 @@
-﻿/* ========================================
-   ABOUT PAGE - ESTILOS ESPECÍFICOS (SCOPED)
-   ======================================== */
-
-/* Contenedor principal de la página About */
-.about-page-container {
+﻿.about-page-container {
     background: #000000;
     min-height: 100vh;
     color: #ffffff;
@@ -11,9 +6,6 @@
     margin: 0;
 }
 
-/* ========================================
-   HERO SECTION ABOUT
-   ======================================== */
 
 .about-hero-section {
     padding: 80px 40px 100px;
@@ -58,9 +50,6 @@
     font-weight: 300;
 }
 
-/* ========================================
-   HERO IMAGE SECTION (AHORA CON TEXTO KEYSTORE)
-   ======================================== */
 
 .about-hero-image {
     position: relative;
@@ -93,9 +82,6 @@
     pointer-events: none;
 }
 
-/* ========================================
-   FOUNDER SECTION (SIN IMAGEN)
-   ======================================== */
 
 .founder-section {
     padding: 100px 40px;
@@ -155,11 +141,6 @@
         line-height: 1.7;
         margin: 0;
     }
-
-/* ========================================
-   MISSION & VISION SECTION
-   ======================================== */
-
 .mission-vision-section {
     padding: 100px 40px;
 }
@@ -219,9 +200,6 @@
     margin: 0;
 }
 
-/* ========================================
-   VALUES SECTION
-   ======================================== */
 
 .values-section {
     padding: 100px 40px;
@@ -305,9 +283,6 @@
     margin: 0;
 }
 
-/* ========================================
-   STATS SECTION
-   ======================================== */
 
 .stats-section {
     padding: 80px 40px;
@@ -344,10 +319,6 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
-
-/* ========================================
-   CTA SECTION
-   ======================================== */
 
 .cta-section {
     padding: 100px 40px;
@@ -422,11 +393,6 @@
         box-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
     }
 
-/* ========================================
-   RESPONSIVE DESIGN
-   ======================================== */
-
-/* Tablets y pantallas medianas */
 @media (max-width: 1200px) {
     .about-hero-content {
         gap: 40px;
@@ -458,8 +424,6 @@
         grid-template-columns: repeat(2, 1fr);
     }
 }
-
-/* Móviles */
 @media (max-width: 768px) {
     .about-hero-section {
         padding: 60px 20px 80px;
@@ -545,7 +509,6 @@
     }
 }
 
-/* Móviles pequeños */
 @media (max-width: 480px) {
     .about-hero-section {
         padding: 40px 15px 60px;
@@ -618,11 +581,6 @@
     }
 }
 
-/* ========================================
-   ANIMACIONES
-   ======================================== */
-
-/* Animación sutil para elementos al hacer scroll */
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -641,16 +599,10 @@
     animation: fadeInUp 0.6s ease-out;
 }
 
-/* Animación para el texto KEYSTORE */
 .hero-keystore-text {
     animation: fadeInUp 0.8s ease-out;
 }
 
-/* ========================================
-   UTILIDADES
-   ======================================== */
-
-/* Focus visible para accesibilidad */
 .cta-btn:focus-visible {
     outline: 2px solid #8a2be2;
     outline-offset: 2px;

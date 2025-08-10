@@ -1,19 +1,10 @@
-﻿/* ========================================
-   PEDIDOS - ESTILOS PRINCIPALES
-   ======================================== */
-
-/* Contenedor principal de pedidos */
-.pedidos-container {
+﻿.pedidos-container {
     background: #000000;
     min-height: 100vh;
     padding: 100px 20px 40px;
     color: #ffffff;
     position: relative;
 }
-
-/* ========================================
-   HEADER DE PEDIDOS
-   ======================================== */
 
 .pedidos-header {
     background: rgba(15, 15, 15, 0.8);
@@ -60,10 +51,6 @@
     margin: 0;
     font-weight: 300;
 }
-
-/* ========================================
-   ESTADÍSTICAS DE ADMIN
-   ======================================== */
 
 .admin-stats {
     display: flex;
@@ -135,10 +122,6 @@
     font-weight: 500;
 }
 
-/* ========================================
-   FILTROS DE ADMIN
-   ======================================== */
-
 .admin-filters {
     background: rgba(15, 15, 15, 0.5);
     border: 1px solid rgba(138, 43, 226, 0.2);
@@ -193,9 +176,6 @@
         color: #666666;
     }
 
-/* ========================================
-   CONTENIDO DE PEDIDOS
-   ======================================== */
 
 .pedidos-content {
     max-width: 1400px;
@@ -208,9 +188,6 @@
     gap: 25px;
 }
 
-/* ========================================
-   TARJETAS DE PEDIDOS
-   ======================================== */
 
 .pedido-card {
     background: rgba(15, 15, 15, 0.5);
@@ -335,10 +312,6 @@
         transform: none !important;
     }
 
-/* ========================================
-   RESUMEN DEL PEDIDO
-   ======================================== */
-
 .pedido-resumen {
     padding: 20px 30px;
     display: grid;
@@ -381,10 +354,6 @@
         font-size: 1.1rem;
     }
 
-/* ========================================
-   DIRECCIÓN DEL PEDIDO
-   ======================================== */
-
 .pedido-direccion {
     padding: 20px 30px;
     display: flex;
@@ -402,9 +371,6 @@
         flex-shrink: 0;
     }
 
-/* ========================================
-   DETALLES DEL PEDIDO
-   ======================================== */
 
 .pedido-detalles {
     padding: 30px;
@@ -535,9 +501,6 @@
     font-weight: 700;
 }
 
-/* ========================================
-   ACCIONES DEL PEDIDO
-   ======================================== */
 
 .pedido-actions {
     padding: 20px 30px;
@@ -567,9 +530,6 @@
         box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
     }
 
-/* ========================================
-   MODAL DE CAMBIO DE ESTADO
-   ======================================== */
 
 .modal-overlay {
     position: fixed;
@@ -787,9 +747,6 @@
         color: #666666;
     }
 
-/* ========================================
-   LOADING Y ESTADOS VACÍOS
-   ======================================== */
 
 .loading-container {
     display: flex;
@@ -852,10 +809,6 @@
     margin-right: auto;
 }
 
-/* ========================================
-   BOTONES
-   ======================================== */
-
 .btn {
     padding: 12px 24px;
     border: none;
@@ -906,10 +859,6 @@
     border-radius: 50%;
     animation: spin 0.75s linear infinite;
 }
-
-/* ========================================
-   TOAST NOTIFICATIONS
-   ======================================== */
 
 .toast-container {
     z-index: 1100;
@@ -968,9 +917,6 @@
         color: white;
     }
 
-/* ========================================
-   RESPONSIVE DESIGN
-   ======================================== */
 
 @media (max-width: 768px) {
     .pedidos-container {
@@ -1287,9 +1233,6 @@
     }
 }
 
-/* ========================================
-   ANIMACIONES ADICIONALES
-   ======================================== */
 
 .pedido-card {
     animation: fadeInUp 0.4s ease-out;
@@ -1337,9 +1280,6 @@
     }
 }
 
-/* ========================================
-   MEJORAS ADICIONALES DE ACCESIBILIDAD
-   ======================================== */
 
 .btn-estado:focus,
 .btn-detalles:focus,
@@ -1356,9 +1296,6 @@
     box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.2);
 }
 
-/* ========================================
-   ESTADOS DE CARGA MEJORADOS
-   ======================================== */
 
 .btn:disabled {
     position: relative;
@@ -1386,9 +1323,6 @@
     }
 }
 
-/* ========================================
-   TOOLTIPS PARA ESTADOS
-   ======================================== */
 
 .estado-badge {
     position: relative;
@@ -1429,9 +1363,7 @@
     content: "El pedido ha sido entregado exitosamente";
 }
 
-/* ========================================
-   MEJORAS PARA IMPRESIÓN
-   ======================================== */
+
 
 @media print {
     .pedidos-container {
@@ -1477,24 +1409,6 @@
     }
 }
 
-/* ========================================
-   TEMA CLARO (OPCIONAL)
-   ======================================== */
-
-@media (prefers-color-scheme: light) {
-    .pedidos-container {
-        /* Mantener tema oscuro por defecto */
-        /* Descomenta las siguientes líneas para tema claro automático */
-        /*
-        background: #ffffff;
-        color: #000000;
-        */
-    }
-}
-
-/* ========================================
-   MEJORAS DE RENDIMIENTO
-   ======================================== */
 
 .pedido-card,
 .modal-estado,
@@ -1506,7 +1420,7 @@
     will-change: transform;
 }
 
-/* Optimización para dispositivos de alta densidad */
+
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
     .producto-imagen img {
         image-rendering: -webkit-optimize-contrast;
@@ -1514,9 +1428,6 @@
     }
 }
 
-/* ========================================
-   UTILIDADES ADICIONALES
-   ======================================== */
 
 .text-truncate {
     overflow: hidden;
@@ -1661,6 +1572,63 @@
         color: white;
         border-color: #ff6666;
     }
-    /* ========================================
-   FIN DEL CSS DE PEDIDOS
-   ======================================== */
+
+.btn-eliminar {
+    background: rgba(220, 38, 127, 0.15);
+    color: #dc2679;
+    border: 1px solid rgba(220, 38, 127, 0.3);
+}
+
+    .btn-eliminar:hover {
+        background: #dc2679;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(220, 38, 127, 0.4);
+    }
+
+.modal-eliminar {
+    border-color: rgba(220, 38, 127, 0.3);
+    box-shadow: 0 0 50px rgba(220, 38, 127, 0.3);
+}
+
+.alert-eliminar {
+    background: rgba(220, 38, 127, 0.1);
+    border: 1px solid rgba(220, 38, 127, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+    margin-top: 20px;
+}
+
+    .alert-eliminar i {
+        color: #dc2679;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    .alert-eliminar strong {
+        color: white;
+        font-size: 1.1rem;
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    .alert-eliminar p {
+        color: #888888;
+        margin: 0;
+        line-height: 1.5;
+    }
+
+.btn-danger {
+    background: linear-gradient(135deg, #dc2679 0%, #e91e63 100%);
+    color: white;
+    box-shadow: 0 0 20px rgba(220, 38, 127, 0.4);
+}
+
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 30px rgba(220, 38, 127, 0.6);
+    }

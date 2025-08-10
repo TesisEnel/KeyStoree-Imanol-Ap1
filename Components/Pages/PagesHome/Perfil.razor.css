@@ -1,9 +1,4 @@
-﻿/* ========================================
-   PERFIL - ESTILOS PRINCIPALES
-   ======================================== */
-
-/* Contenedor principal del perfil */
-.perfil-container {
+﻿.perfil-container {
     background: #000000;
     min-height: 100vh;
     padding: 100px 20px 40px;
@@ -11,9 +6,6 @@
     position: relative;
 }
 
-/* ========================================
-   HEADER DEL PERFIL
-   ======================================== */
 
 .perfil-header {
     background: rgba(15, 15, 15, 0.8);
@@ -72,9 +64,6 @@
     font-weight: 300;
 }
 
-/* ========================================
-   CONTENIDO DEL PERFIL
-   ======================================== */
 
 .perfil-content {
     max-width: 1400px;
@@ -84,9 +73,6 @@
     gap: 30px;
 }
 
-/* ========================================
-   TARJETAS DEL PERFIL
-   ======================================== */
 
 .perfil-card {
     background: rgba(15, 15, 15, 0.5);
@@ -130,10 +116,6 @@
     padding: 30px;
 }
 
-/* ========================================
-   INFORMACIÓN PERSONAL
-   ======================================== */
-
 .info-row {
     display: flex;
     justify-content: space-between;
@@ -165,9 +147,6 @@
     font-weight: 500;
 }
 
-/* ========================================
-   DIRECCIONES
-   ======================================== */
 
 .direcciones-grid {
     display: grid;
@@ -247,10 +226,6 @@
     justify-content: flex-end;
 }
 
-/* ========================================
-   BOTONES DE ACCIÓN
-   ======================================== */
-
 .btn-action {
     width: 40px;
     height: 40px;
@@ -310,9 +285,6 @@
     transform: none !important;
 }
 
-/* ========================================
-   ESTADO VACÍO
-   ======================================== */
 
 .empty-state {
     text-align: center;
@@ -339,10 +311,6 @@
         font-size: 1.1rem;
         line-height: 1.6;
     }
-
-/* ========================================
-   MODAL
-   ======================================== */
 
 .modal-overlay {
     position: fixed;
@@ -439,9 +407,6 @@
     border-top: 1px solid rgba(138, 43, 226, 0.1);
 }
 
-/* ========================================
-   FORMULARIOS
-   ======================================== */
 
 .form-row {
     display: grid;
@@ -515,9 +480,7 @@
     display: block;
 }
 
-/* ========================================
-   BOTONES
-   ======================================== */
+
 
 .btn {
     padding: 12px 24px;
@@ -576,9 +539,6 @@
     }
 }
 
-/* ========================================
-   RESPONSIVE DESIGN
-   ======================================== */
 
 @media (max-width: 768px) {
     .perfil-container {
@@ -648,4 +608,197 @@
             margin: 0;
             padding: 15px 0;
         }
+}
+
+
+
+.tarjetas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 20px;
+}
+
+.tarjeta-card {
+    background: rgba(25, 25, 25, 0.8);
+    border: 1px solid rgba(138, 43, 226, 0.15);
+    border-radius: 12px;
+    padding: 25px;
+    position: relative;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+    .tarjeta-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        border-color: rgba(138, 43, 226, 0.4);
+    }
+
+    .tarjeta-card.principal {
+        border-color: #8a2be2;
+        background: rgba(138, 43, 226, 0.1);
+        box-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
+    }
+
+.tarjeta-badge {
+    position: absolute;
+    top: -1px;
+    right: 20px;
+    background: linear-gradient(135deg, #8a2be2 0%, #9d4edd 100%);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 0 0 12px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 3px 10px rgba(138, 43, 226, 0.4);
+}
+
+.tarjeta-visual {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+    min-height: 140px;
+}
+
+    .tarjeta-visual::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(135deg, #8a2be2 0%, #9d4edd 100%);
+    }
+
+.tarjeta-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.tarjeta-tipo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #8a2be2;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+    .tarjeta-tipo i {
+        font-size: 1.2rem;
+    }
+
+.tarjeta-chip {
+    width: 32px;
+    height: 26px;
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    border-radius: 4px;
+    position: relative;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+    .tarjeta-chip::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 22px;
+        height: 18px;
+        background: rgba(0, 0, 0, 0.15);
+        border-radius: 2px;
+    }
+
+.tarjeta-numero {
+    font-family: 'Courier New', monospace;
+    font-size: 1.4rem;
+    color: white;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.tarjeta-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.tarjeta-info {
+    flex: 1;
+}
+
+.tarjeta-titular {
+    font-size: 0.9rem;
+    color: #cccccc;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.tarjeta-vencimiento {
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    color: #888888;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .tarjeta-vencimiento span {
+        font-family: inherit;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+.tarjeta-logo {
+    font-size: 2.2rem;
+    color: #8a2be2;
+    opacity: 0.8;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.tarjeta-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+@media (max-width: 768px) {
+    .tarjetas-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tarjeta-visual {
+        min-height: 120px;
+        padding: 15px;
+    }
+
+    .tarjeta-numero {
+        font-size: 1.2rem;
+        letter-spacing: 2px;
+        margin-bottom: 15px;
+    }
+
+    .tarjeta-chip {
+        width: 28px;
+        height: 22px;
+    }
+
+    .tarjeta-logo {
+        font-size: 1.8rem;
+    }
 }

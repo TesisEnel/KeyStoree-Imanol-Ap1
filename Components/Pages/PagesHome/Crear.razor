@@ -22,7 +22,6 @@ else
 {
     <EditForm Model="producto" OnValidSubmit="GuardarProducto">
         <DataAnnotationsValidator />
-        <ValidationSummary />
 
         <div class="container mt-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -44,21 +43,21 @@ else
                 <div class="col-md-8">
                     <div class="card shadow-sm">
                         <div class="card-header bg-primary text-white">
-                            <strong><i class="bi bi-plus-circle"></i> Información del Producto</strong>
+                            <strong><i class="bi bi-plus-circle"></i> Informaci&oacute;n del Producto</strong>
                         </div>
                         <div class="card-body">
 
                             <div class="row">
                                 <div class="col-md-8">
                                     <div class="mb-3">
-                                        <label class="form-label">Nombre del Producto *</label>
+                                        <label class="form-label text-dark">Nombre del Producto *</label>
                                         <InputText class="form-control" @bind-Value="producto.Nombre" placeholder="Ej: Teclado Gaming RGB Pro" />
                                         <ValidationMessage For="@(() => producto.Nombre)" />
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label class="form-label">Categoría *</label>
+                                        <label class="form-label text-dark">Categor&iacute;a *</label>
                                         <InputSelect class="form-select" @bind-Value="producto.CategoriaId" @onchange="OnCategoriaChanged">
                                             <option value="0">-- Selecciona categoría --</option>
                                             <option value="1">Teclados</option>
@@ -71,7 +70,7 @@ else
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Descripción</label>
+                                <label class="form-label text-dark">Descripci&oacute;n</label>
                                 <InputTextArea class="form-control" rows="4" @bind-Value="producto.Descripcion"
                                                placeholder="Descripción detallada del producto..." />
                             </div>
@@ -79,21 +78,21 @@ else
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label class="form-label">Precio *</label>
+                                        <label class="form-label text-dark">Precio *</label>
                                         <InputNumber class="form-control" @bind-Value="producto.Precio" placeholder="0.00" step="0.01" />
                                         <ValidationMessage For="@(() => producto.Precio)" />
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label class="form-label">Stock *</label>
+                                        <label class="form-label text-dark">Stock *</label>
                                         <InputNumber class="form-control" @bind-Value="producto.Stock" placeholder="0" />
                                         <ValidationMessage For="@(() => producto.Stock)" />
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label class="form-label">Marca</label>
+                                        <label class="form-label text-dark">Marca</label>
                                         <InputText class="form-control" @bind-Value="producto.Marca" placeholder="Ej: Logitech, Razer" />
                                     </div>
                                 </div>
@@ -102,19 +101,19 @@ else
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label class="form-label">Modelo</label>
+                                        <label class="form-label text-dark">Modelo</label>
                                         <InputText class="form-control" @bind-Value="producto.Modelo" placeholder="Ej: G915, MX Master 3" />
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label class="form-label">Color Principal</label>
+                                        <label class="form-label text-dark">Color Principal</label>
                                         <InputText class="form-control" @bind-Value="producto.ColorPrincipal" placeholder="Ej: Negro, Blanco, RGB" />
                                     </div>
                                 </div>
                             </div>
 
-                            @if (producto.CategoriaId == 1) 
+                            @if (producto.CategoriaId == 1)
                             {
                                 <div class="card mt-3">
                                     <div class="card-header bg-light">
@@ -122,29 +121,40 @@ else
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
-                                            <div class="col-md-6">
+                                            <div class="col-md-4">
                                                 <div class="mb-3">
-                                                    <label class="form-label">Layout</label>
-                                                    <InputSelect class="form-select" @bind-Value="producto.Layout">
+                                                    <label class="form-label text-dark">Tamaño</label>
+                                                    <InputSelect class="form-select" @bind-Value="producto.Size">
                                                         <option value="">-- Seleccionar --</option>
-                                                        <option value="Español">Español</option>
-                                                        <option value="Internacional">Internacional</option>
-                                                        <option value="US">US</option>
-                                                        <option value="60%">60%</option>
-                                                        <option value="TKL">TKL (Sin Numpad)</option>
+                                                        <option value="100%">100% (Full Size)</option>
+                                                        <option value="80%">80% (TKL)</option>
+                                                        <option value="75%">75% (Compact)</option>
+                                                        <option value="65%">65% (Compact)</option>
+                                                        <option value="60%">60% (Mini)</option>
+                                                        <option value="40%">40% (Ultra Compact)</option>
                                                     </InputSelect>
                                                 </div>
                                             </div>
-                                            <div class="col-md-6">
+                                            <div class="col-md-4">
                                                 <div class="mb-3">
-                                                    <label class="form-label">Tipo de Switch</label>
+                                                    <label class="form-label text-dark">Layout</label>
+                                                    <InputSelect class="form-select" @bind-Value="producto.Layout">
+                                                        <option value="">-- Seleccionar --</option>
+                                                        <option value="Español">Español (ES)</option>
+                                                        <option value="US">US (Inglés)</option>
+                                                    </InputSelect>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="mb-3">
+                                                    <label class="form-label text-dark">Tipo de Switch</label>
                                                     <InputSelect class="form-select" @bind-Value="producto.TipoSwitch">
-                                                        <option value="@TipoSwitch.Rojo_Linear">Rojo Linear</option>
-                                                        <option value="@TipoSwitch.Azul_Tactil">Azul Tactil</option>
-                                                        <option value="@TipoSwitch.Marron_Tactil_Silencioso">Marrón Tactil Silencioso</option>
-                                                        <option value="@TipoSwitch.Negro_Linear_Pesado">Negro Linear Pesado</option>
-                                                        <option value="@TipoSwitch.Plata_Linear_Rapido">Plata Linear Rápido</option>
-                                                        <option value="@TipoSwitch.Verde_Tactil_Pesado">Verde Tactil Pesado</option>
+                                                        <option value="@TipoSwitch.Rojo_Linear">Red Switch (Linear)</option>
+                                                        <option value="@TipoSwitch.Azul_Tactil">Blue Switch (Tactil)</option>
+                                                        <option value="@TipoSwitch.Marron_Tactil_Silencioso">Brown Switch (Tactil Silencioso)</option>
+                                                        <option value="@TipoSwitch.Negro_Linear_Pesado">Black Switch (Linear Pesado)</option>
+                                                        <option value="@TipoSwitch.Plata_Linear_Rapido">Silver Switch (Linear Rápido)</option>
+                                                        <option value="@TipoSwitch.Verde_Tactil_Pesado">Green Switch (Tactil Pesado)</option>
                                                     </InputSelect>
                                                 </div>
                                             </div>
@@ -173,7 +183,7 @@ else
                                 </div>
                             }
 
-                            @if (producto.CategoriaId == 2) 
+                            @if (producto.CategoriaId == 2)
                             {
                                 <div class="card mt-3">
                                     <div class="card-header bg-light">
@@ -198,7 +208,7 @@ else
                                 </div>
                             }
 
-                            @if (producto.CategoriaId == 3) 
+                            @if (producto.CategoriaId == 3)
                             {
                                 <div class="card mt-3">
                                     <div class="card-header bg-light">
@@ -223,49 +233,47 @@ else
                                 </div>
                             }
 
-                            <div class="row mt-3">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Tipo de Conexión</label>
-                                        <InputSelect class="form-select" @bind-Value="producto.TipoConexion">
-                                            <option value="@TipoConexion.USB_C">USB-C</option>
-                                            <option value="@TipoConexion.USB_A">USB-A</option>
-                                            <option value="@TipoConexion.Inalambrico_2_4GHz">Inalámbrico 2.4GHz</option>
-                                            <option value="@TipoConexion.Bluetooth">Bluetooth</option>
-                                            <option value="@TipoConexion.Cable_Desmontable">Cable Desmontable</option>
-                                        </InputSelect>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <div class="form-check mt-4">
-                                            <InputCheckbox class="form-check-input" @bind-Value="producto.EsDestacado" id="esDestacado" />
-                                            <label class="form-check-label" for="esDestacado">Producto Destacado</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
                             <div class="card mt-3">
                                 <div class="card-header bg-light">
-                                    <strong>Tema Personalizado (Opcional)</strong>
+                                    <strong>Tipos de Conexión</strong>
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-check mb-3">
-                                                <InputCheckbox class="form-check-input" @bind-Value="producto.EsTemaPersonalizado" id="esTemaPersonalizado" />
-                                                <label class="form-check-label" for="esTemaPersonalizado">Tiene Tema Personalizado</label>
+                                        <div class="col-md-4">
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" @bind="tieneUSB_C" id="conexionUSB_C" />
+                                                <label class="form-check-label" for="conexionUSB_C">USB-C</label>
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
-                                            @if (producto.EsTemaPersonalizado)
-                                            {
-                                                <div class="mb-3">
-                                                    <label class="form-label">Nombre del Tema</label>
-                                                    <InputText class="form-control" @bind-Value="producto.NombreTema" placeholder="Ej: Cyberpunk, Dragon, Galaxy" />
-                                                </div>
-                                            }
+                                        <div class="col-md-4">
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" @bind="tieneUSB_A" id="conexionUSB_A" />
+                                                <label class="form-check-label" for="conexionUSB_A">USB-A</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" @bind="tieneBluetooth" id="conexionBluetooth" />
+                                                <label class="form-check-label" for="conexionBluetooth">Bluetooth</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" @bind="tiene24GHz" id="conexion24GHz" />
+                                                <label class="form-check-label" for="conexion24GHz">2.4GHz Inalámbrico</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" @bind="tieneCableDesmontable" id="conexionCable" />
+                                                <label class="form-check-label" for="conexionCable">Cable Desmontable</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check mb-2">
+                                                <InputCheckbox class="form-check-input" @bind-Value="producto.EsDestacado" id="esDestacado" />
+                                                <label class="form-check-label" for="esDestacado">Producto Destacado</label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -356,11 +364,13 @@ else
                         <div class="card-body">
                             <small>
                                 <strong>Categorías disponibles:</strong><br>
-                                • <strong>Teclados:</strong> Gaming, mecánicos, RGB<br>
+                                • <strong>Teclados:</strong> Gaming, mec&aacute;nicos, RGB<br>
                                 • <strong>Mouse:</strong> Gaming, inalámbricos, ergonómicos<br>
                                 • <strong>Audífonos:</strong> Gaming, inalámbricos, con micrófono<br><br>
                                 <strong>Campos obligatorios:</strong><br>
-                                • Nombre, Categoría, Precio y Stock
+                                • Nombre, Categoría, Precio y Stock<br><br>
+                                <strong>Conexiones:</strong><br>
+                                • Puedes seleccionar m&uacute;ltiples tipos de conexi&oacute;n
                             </small>
                         </div>
                     </div>
@@ -378,6 +388,12 @@ else
     private string mensajeImagen = string.Empty;
     private string mensaje = string.Empty;
     private bool esError = false;
+
+    private bool tieneUSB_C = false;
+    private bool tieneUSB_A = true;
+    private bool tieneBluetooth = false;
+    private bool tiene24GHz = false;
+    private bool tieneCableDesmontable = false;
 
     private const long MaxFileSize = 5 * 1024 * 1024;
 
@@ -401,6 +417,7 @@ else
         {
             producto.CategoriaId = categoriaId;
             producto.Layout = string.Empty;
+            producto.Size = string.Empty;
             producto.EsMecánico = false;
             producto.EsIluminado = false;
             producto.EsInalámbrico = false;
@@ -408,6 +425,19 @@ else
 
             StateHasChanged();
         }
+    }
+
+    private string ObtenerTiposConexion()
+    {
+        var conexiones = new List<string>();
+
+        if (tieneUSB_C) conexiones.Add("USB-C");
+        if (tieneUSB_A) conexiones.Add("USB-A");
+        if (tieneBluetooth) conexiones.Add("Bluetooth");
+        if (tiene24GHz) conexiones.Add("2.4GHz");
+        if (tieneCableDesmontable) conexiones.Add("Cable Desmontable");
+
+        return string.Join(", ", conexiones);
     }
 
     private async Task SubirImagen(InputFileChangeEventArgs e)
@@ -477,32 +507,10 @@ else
             mensaje = string.Empty;
             StateHasChanged();
 
-            if (string.IsNullOrWhiteSpace(producto.Nombre))
+            var tiposConexion = ObtenerTiposConexion();
+            if (!string.IsNullOrEmpty(tiposConexion))
             {
-                mensaje = "Error: El nombre del producto es requerido.";
-                esError = true;
-                return;
-            }
 
-            if (producto.CategoriaId == 0)
-            {
-                mensaje = "Error: Debe seleccionar una categoría.";
-                esError = true;
-                return;
-            }
-
-            if (producto.Precio <= 0)
-            {
-                mensaje = "Error: El precio debe ser mayor a 0.";
-                esError = true;
-                return;
-            }
-
-            if (producto.Stock < 0)
-            {
-                mensaje = "Error: El stock no puede ser negativo.";
-                esError = true;
-                return;
             }
 
             if (producto.Id == 0)
@@ -519,7 +527,6 @@ else
             await context.SaveChangesAsync();
             esError = false;
 
-
             await Task.Delay(1500);
 
             if (!esError)
@@ -531,7 +538,6 @@ else
         {
             mensaje = "Error: El producto fue modificado por otro usuario. Por favor, recarga la página e intenta de nuevo.";
             esError = true;
-
             Console.WriteLine($"Error de concurrencia: {concurrencyEx.Message}");
         }
         catch (DbUpdateException dbEx)
@@ -566,7 +572,6 @@ else
             StateHasChanged();
         }
     }
-    
 
     private void LimpiarFormulario()
     {
@@ -578,6 +583,14 @@ else
                 TipoConexion = TipoConexion.USB_A,
                 TipoSwitch = TipoSwitch.Rojo_Linear
             };
+
+
+        tieneUSB_C = false;
+        tieneUSB_A = true;
+        tieneBluetooth = false;
+        tiene24GHz = false;
+        tieneCableDesmontable = false;
+
         mensajeImagen = string.Empty;
         mensaje = string.Empty;
         StateHasChanged();
