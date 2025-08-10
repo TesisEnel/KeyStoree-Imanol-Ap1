@@ -1,9 +1,4 @@
-﻿/* ========================================
-   REGISTER - ESTILOS SIGUIENDO ESTÉTICA LOGIN
-   ======================================== */
-
-/* Wrapper principal del registro */
-.register-wrapper {
+﻿.register-wrapper {
     background: #000000;
     min-height: 100vh;
     display: flex;
@@ -14,7 +9,6 @@
     overflow: hidden;
 }
 
-    /* Fondo visual sutil */
     .register-wrapper::before {
         content: '';
         position: absolute;
@@ -26,7 +20,6 @@
         z-index: 1;
     }
 
-/* Card principal del registro */
 .register-card {
     background: rgba(15, 15, 15, 0.9);
     border: 1px solid rgba(138, 43, 226, 0.3);
@@ -40,7 +33,6 @@
     z-index: 2;
 }
 
-    /* Borde decorativo */
     .register-card::before {
         content: '';
         position: absolute;
@@ -53,7 +45,6 @@
         z-index: -1;
     }
 
-/* Header del registro */
 .register-header {
     text-align: center;
     margin-bottom: 40px;
@@ -75,7 +66,6 @@
         margin: 0;
     }
 
-/* Mensajes de estado/error */
 .text-danger {
     background: rgba(220, 38, 127, 0.1);
     border: 1px solid rgba(220, 38, 127, 0.3);
@@ -97,7 +87,6 @@
         font-size: 1.2rem;
     }
 
-/* Fila de formulario para nombre y apellido */
 .form-row {
     display: flex;
     gap: 15px;
@@ -108,13 +97,11 @@
         flex: 1;
     }
 
-/* Grupos de formulario */
 .form-group {
     margin-bottom: 25px;
     position: relative;
 }
 
-/* Campos de entrada */
 .form-control {
     width: 100%;
     background: rgba(35, 35, 35, 0.8);
@@ -140,7 +127,6 @@
         box-shadow: 0 0 20px rgba(138, 43, 226, 0.2);
     }
 
-    /* Estados de validación */
     .form-control:valid {
         border-color: rgba(0, 212, 170, 0.5);
     }
@@ -149,7 +135,6 @@
         border-color: rgba(220, 38, 127, 0.5);
     }
 
-/* Mensajes de validación individuales */
 .validation-message {
     color: #ff6b9d;
     font-size: 0.85rem;
@@ -165,7 +150,6 @@
         font-size: 0.6rem;
     }
 
-/* Botón de registro */
 .btn {
     width: 100%;
     background: linear-gradient(135deg, #8a2be2, #9d4edd);
@@ -193,7 +177,6 @@
         transform: translateY(0);
     }
 
-    /* Efecto de brillo en hover */
     .btn::before {
         content: '';
         position: absolute;
@@ -209,7 +192,6 @@
         left: 100%;
     }
 
-/* Sección de login */
 .login-section {
     text-align: center;
     padding: 25px 0;
@@ -235,7 +217,6 @@
         text-decoration: underline;
     }
 
-/* Responsividad */
 @media (max-width: 768px) {
     .register-card {
         padding: 40px 30px;
@@ -281,7 +262,6 @@
     }
 }
 
-/* Animaciones suaves */
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -298,7 +278,6 @@
     animation: fadeInUp 0.6s ease-out;
 }
 
-/* Estilos para el summary de validación global */
 .validation-summary {
     background: rgba(220, 38, 127, 0.1);
     border: 1px solid rgba(220, 38, 127, 0.3);
@@ -318,7 +297,6 @@
         margin-bottom: 5px;
     }
 
-/* Estados de carga del botón */
 .btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
