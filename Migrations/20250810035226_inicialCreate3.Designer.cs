@@ -4,6 +4,7 @@ using KeyStore.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KeyStore.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250810035226_inicialCreate3")]
+    partial class inicialCreate3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -141,32 +144,6 @@ namespace KeyStore.Migrations
                     b.HasIndex("Orden");
 
                     b.ToTable("Categorias");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Descripcion = "Teclados gaming, mecánicos y RGB",
-                            EsActiva = true,
-                            Nombre = "Teclados",
-                            Orden = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Descripcion = "Mouse gaming, inalámbricos y ergonómicos",
-                            EsActiva = true,
-                            Nombre = "Mouse",
-                            Orden = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Descripcion = "Audífonos gaming, inalámbricos y con micrófono",
-                            EsActiva = true,
-                            Nombre = "Audífonos",
-                            Orden = 3
-                        });
                 });
 
             modelBuilder.Entity("KeyStore.Models.DetallePedido", b =>
@@ -439,41 +416,6 @@ namespace KeyStore.Migrations
                         .IsUnique();
 
                     b.ToTable("ImagenesSitio");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Activa = true,
-                            Clave = "hero-keyboard",
-                            Descripcion = "Imagen principal del hero que aparece en la página de inicio",
-                            FechaCreacion = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Nombre = "Teclado Mecánico Principal - Hero",
-                            ObjectFit = "cover",
-                            OcultarFondo = true
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Activa = true,
-                            Clave = "about-image",
-                            Descripcion = "Imagen de setup gaming que aparece en la sección About Us",
-                            FechaCreacion = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Nombre = "Setup Gaming - About Us",
-                            ObjectFit = "cover",
-                            OcultarFondo = false
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Activa = true,
-                            Clave = "product-1",
-                            Descripcion = "Primera imagen de producto destacado en la sección featured",
-                            FechaCreacion = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Nombre = "Producto Destacado 1",
-                            ObjectFit = "cover",
-                            OcultarFondo = false
-                        });
                 });
 
             modelBuilder.Entity("KeyStore.Models.Pedido", b =>
