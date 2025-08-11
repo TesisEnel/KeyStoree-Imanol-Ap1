@@ -1,0 +1,216 @@
+﻿@page "/contacto"
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<div class="contacto-page-container">
+    <section class="contacto-hero-section">
+        <div class="contacto-hero-content">
+            <div class="contacto-hero-text">
+                <h1 class="contacto-hero-title">
+                    <span class="hero-subtitle-text">Cont&aacute;ctanos</span>
+                </h1>
+                <p class="contacto-hero-description">
+                    Estamos aqu&iacute; para ayudarte. Ponte en contacto con nuestro equipo
+                    y resolveremos todas tus dudas sobre nuestros productos premium.
+                </p>
+            </div>
+            <div class="contacto-hero-image">
+                <div class="hero-keystore-text">KEYSTORE</div>
+                <div class="hero-glow-contacto"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="contacto-info-section">
+        <div class="contacto-info-container">
+            <div class="info-card">
+                <div class="info-icon">
+                    <i class="bi bi-geo-alt-fill"></i>
+                </div>
+                <h3 class="info-title">Dirección</h3>
+                <p class="info-description">
+                    C. 27 de Febrero<br>
+                    Código Postal: 31000<br>
+                    San Francisco de Macor&iacute;s, Rep&uacute;blica Dominicana
+                </p>
+            </div>
+
+            <div class="info-card">
+                <div class="info-icon">
+                    <i class="bi bi-telephone-fill"></i>
+                </div>
+                <h3 class="info-title">Tel&eacute;fonos</h3>
+                <p class="info-description">
+                    <a>(555)-123-4567</a><br>
+                </p>
+            </div>
+
+            <div class="info-card">
+                <div class="info-icon">
+                    <i class="bi bi-printer-fill"></i>
+                </div>
+                <h3 class="info-title">Fax</h3>
+                <p class="info-description">
+                    (555)-123-4567
+                </p>
+            </div>
+
+            <div class="info-card">
+                <div class="info-icon">
+                    <i class="bi bi-envelope-fill"></i>
+                </div>
+                <h3 class="info-title">Email</h3>
+                <p class="info-description">
+                    <a>soporte@keystore.com</a><br>
+                </p>
+            </div>
+
+            <div class="info-card">
+                <div class="info-icon">
+                    <i class="bi bi-clock-fill"></i>
+                </div>
+                <h3 class="info-title">Horarios</h3>
+                <p class="info-description">
+                    <strong>Lunes a Viernes:</strong><br>
+                    8:00 a.m. - 6:00 p.m.<br><br>
+                    <strong>Sábados:</strong><br>
+                    8:00 a.m. - 5:00 p.m.<br><br>
+                    <strong>Domingos:</strong> Cerrado
+                </p>
+            </div>
+
+            <div class="info-card">
+                <div class="info-icon">
+                    <i class="bi bi-headset"></i>
+                </div>
+                <h3 class="info-title">Soporte 24/7</h3>
+                <p class="info-description">
+                    Soporte técnico disponible<br>
+                    las 24 horas del día,<br>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="contacto-form-section">
+        <div class="contacto-form-container">
+            <div class="form-header">
+                <h2 class="section-title">Env&iacute;anos un Mensaje</h2>
+                <p class="form-subtitle">
+                    ¿Tienes alguna pregunta? Completa el formulario y te responderemos lo antes posible.
+                </p>
+            </div>
+
+            <form class="contacto-form" @onsubmit="EnviarFormulario" @onsubmit:preventDefault="true">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nombre">Nombre Completo *</label>
+                        <input type="text" id="nombre" @bind="formulario.Nombre" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Correo Electr&oacute;nico *</label>
+                        <input type="email" id="email" @bind="formulario.Email" required />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="telefono">Tel&eacute;fono</label>
+                        <input type="tel" id="telefono" @bind="formulario.Telefono" />
+                    </div>
+                    <div class="form-group">
+                        <label for="asunto">Asunto *</label>
+                        <select id="asunto" @bind="formulario.Asunto" required>
+                            <option value="">Selecciona un asunto</option>
+                            <option value="consulta-producto">Consulta sobre Producto</option>
+                            <option value="soporte-tecnico">Soporte T&eacute;cnico</option>
+                            <option value="garantia">Garant&iacute;a</option>
+                            <option value="cotizacion">Cotizaci&oacute;n</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="mensaje">Mensaje *</label>
+                    <textarea id="mensaje" rows="6" @bind="formulario.Mensaje"
+                              placeholder="Cuéntanos en qué podemos ayudarte..." required></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary submit-btn" disabled="@enviando">
+                        @if (enviando)
+                        {
+                            <i class="bi bi-hourglass-split"></i>
+                            <span>Enviando...</span>
+                        }
+                        else
+                        {
+                            <i class="bi bi-send"></i>
+                            <span>Enviar Mensaje</span>
+                        }
+                    </button>
+                    <button type="button" class="btn btn-secondary reset-btn" @onclick="LimpiarFormulario">
+                        <i class="bi bi-arrow-clockwise"></i>
+                        Limpiar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+
+</div>
+
+@code {
+    private ContactoFormulario formulario = new();
+    private bool enviando = false;
+
+    private async Task EnviarFormulario()
+    {
+        if (string.IsNullOrWhiteSpace(formulario.Nombre) ||
+            string.IsNullOrWhiteSpace(formulario.Email) ||
+            string.IsNullOrWhiteSpace(formulario.Mensaje))
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Por favor completa todos los campos obligatorios.");
+            return;
+        }
+
+        enviando = true;
+        StateHasChanged();
+
+        try
+        {
+            await Task.Delay(2000);
+
+            await JSRuntime.InvokeVoidAsync("alert", "¡Mensaje enviado correctamente! Te responderemos pronto.");
+            LimpiarFormulario();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Error al enviar el mensaje. Por favor intenta nuevamente.");
+            Console.WriteLine($"Error enviando formulario: {ex.Message}");
+        }
+        finally
+        {
+            enviando = false;
+            StateHasChanged();
+        }
+    }
+
+    private void LimpiarFormulario()
+    {
+        formulario = new ContactoFormulario();
+        StateHasChanged();
+    }
+
+    private class ContactoFormulario
+    {
+        public string Nombre { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Telefono { get; set; } = string.Empty;
+        public string Asunto { get; set; } = string.Empty;
+        public string Mensaje { get; set; } = string.Empty;
+    }
+}

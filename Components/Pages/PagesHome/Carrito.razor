@@ -1,0 +1,1674 @@
+﻿@page "/cart"
+@inject ApplicationDbContext context
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@using Microsoft.EntityFrameworkCore
+@using KeyStore.Data
+@using KeyStore.Models
+@using System.Text.Json
+@rendermode InteractiveServer
+@using KeyStore.Extensions
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<ApplicationUser> UserManager
+@inject ILogger<Carrito> Logger
+<PageTitle>Carrito de Compras - KeyStore</PageTitle>
+
+<div class="modern-cart-container">
+    <div class="cart-header-modern">
+        <div class="cart-title-section">
+            <h1 class="cart-title-modern">
+                <i class="bi bi-bag-check-fill cart-icon"></i>
+                Mi Carrito
+            </h1>
+            @if (itemsCarrito.Count > 0)
+            {
+                <p class="cart-subtitle">@itemsCarrito.Count @(itemsCarrito.Count == 1 ? "producto" : "productos") en tu carrito</p>
+            }
+        </div>
+
+        @if (itemsCarrito.Count > 0)
+        {
+            <button class="btn-clear-cart" @onclick="LimpiarCarrito">
+                <i class="bi bi-trash3"></i>
+                Vaciar carrito
+            </button>
+        }
+    </div>
+
+    @if (itemsCarrito.Count == 0)
+    {
+        <div class="empty-cart-modern">
+            <div class="empty-cart-illustration">
+                <i class="bi bi-cart-x-fill"></i>
+            </div>
+            <h2 class="empty-cart-title">Tu carrito está vacío</h2>
+            <p class="empty-cart-description">
+                Parece que a&uacute;n no has agregado ning&uacute;n producto.
+                <br>¡Explora nuestra incre&iacute;ble selecci&oacute;n de teclados!
+            </p>
+            <button class="btn-continue-shopping-primary" @onclick='() => NavigationManager.NavigateTo("/")'>
+                <i class="bi bi-arrow-left-circle-fill"></i>
+                Explorar productos
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="cart-layout-modern">
+            <div class="cart-items-section">
+                <div class="section-header">
+                    <h3 class="section-title">Productos</h3>
+                    <span class="section-count">@itemsCarrito.Count @(itemsCarrito.Count == 1 ? "artículo" : "artículos")</span>
+                </div>
+
+                <div class="cart-items-grid">
+                    @foreach (var item in itemsCarrito)
+                    {
+                        <div class="cart-item-modern">
+                            <div class="product-image-container">
+                                @if (!string.IsNullOrEmpty(item.Producto.ImagenUrl))
+                                {
+                                    <img src="@item.Producto.ImagenUrl" alt="@item.Producto.Nombre" class="product-image" />
+                                }
+                                else
+                                {
+                                    <div class="product-image-placeholder">
+                                        <i class="bi bi-keyboard-fill"></i>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="product-info-section">
+                                <h4 class="product-name-modern">@item.Producto.Nombre</h4>
+
+                                <div class="product-features">
+                                    @if (!string.IsNullOrEmpty(item.Producto.Marca))
+                                    {
+                                        <span class="feature-tag brand-tag">
+                                            <i class="bi bi-award-fill"></i>
+                                            @item.Producto.Marca
+                                        </span>
+                                    }
+                                    @if (!string.IsNullOrEmpty(item.Producto.ColorPrincipal))
+                                    {
+                                        <span class="feature-tag color-tag">
+                                            <i class="bi bi-palette-fill"></i>
+                                            @item.Producto.ColorPrincipal
+                                        </span>
+                                    }
+                                    @if (item.Producto.EsMecánico)
+                                    {
+                                        <span class="feature-tag mechanical-tag">
+                                            <i class="bi bi-gear-wide-connected"></i>
+                                            Mecánico
+                                        </span>
+                                    }
+                                    @if (item.Producto.EsIluminado)
+                                    {
+                                        <span class="feature-tag rgb-tag">
+                                            <i class="bi bi-lightbulb-fill"></i>
+                                            RGB
+                                        </span>
+                                    }
+                                </div>
+
+                                <div class="stock-status">
+                                    @if (item.Producto.Stock > 0)
+                                    {
+                                        <span class="stock-available">
+                                            <i class="bi bi-check-circle-fill"></i>
+                                            Disponible (@item.Producto.Stock en stock)
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="stock-unavailable">
+                                            <i class="bi bi-exclamation-circle-fill"></i>
+                                            Sin stock
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="product-controls-section">
+                                <div class="quantity-section">
+                                    <label class="quantity-label">Cantidad</label>
+                                    <div class="quantity-controls-modern">
+                                        <button class="qty-btn qty-decrease"
+                                                @onclick="() => DisminuirCantidad(item.ProductoId)"
+                                                disabled="@(item.Cantidad <= 1)">
+                                            <i class="bi bi-dash"></i>
+                                        </button>
+                                        <span class="qty-display">@item.Cantidad</span>
+                                        <button class="qty-btn qty-increase"
+                                                @onclick="() => AumentarCantidad(item.ProductoId)"
+                                                disabled="@(item.Cantidad >= item.Producto.Stock)">
+                                            <i class="bi bi-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="price-section">
+                                    <div class="unit-price-modern">$@item.Producto.Precio.ToString("F2") c/u</div>
+                                    <div class="total-price-modern">$@((item.Producto.Precio * item.Cantidad).ToString("F2"))</div>
+                                </div>
+
+                                <button class="btn-remove-item"
+                                        @onclick="() => EliminarDelCarrito(item.ProductoId)"
+                                        title="Eliminar producto">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="order-summary-section">
+                <div class="summary-card">
+                    <h3 class="summary-title">
+                        <i class="bi bi-receipt"></i>
+                        Resumen del pedido
+                    </h3>
+
+                    <div class="summary-details">
+                        <div class="summary-row">
+                            <span class="summary-label">Subtotal (@itemsCarrito.Sum(i => i.Cantidad) productos)</span>
+                            <span class="summary-value">$@Subtotal.ToString("F2")</span>
+                        </div>
+
+                        <div class="summary-row">
+                            <span class="summary-label">Env&iacute;o</span>
+                            <span class="summary-value shipping-value">
+                                @if (Subtotal >= 50)
+                                {
+                                    <span class="free-shipping">GRATIS</span>
+                                }
+                                else
+                                {
+                                    <span>$5.99</span>
+                                }
+                            </span>
+                        </div>
+
+                        @if (Subtotal < 50)
+                        {
+                            <div class="free-shipping-notice">
+                                <i class="bi bi-info-circle-fill"></i>
+                                <span>Agrega <strong>$@((50 - Subtotal).ToString("F2"))</strong> más para env&iacute;o gratuito</span>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="free-shipping-achieved">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <span>¡Felicidades! Has obtenido env&iacute;o gratuito</span>
+                            </div>
+                        }
+
+                        <div class="summary-divider"></div>
+
+                        <div class="summary-row summary-total">
+                            <span class="summary-label">Total</span>
+                            <span class="summary-value total-amount">$@Total.ToString("F2")</span>
+                        </div>
+                    </div>
+
+                    <div class="checkout-section">
+                        <AuthorizeView>
+                            <Authorized>
+                                <button class="btn-checkout-modern"
+                                        @onclick="ProcederAlPago"
+                                        disabled="@(!itemsCarrito.Any(i => i.Producto.Stock > 0))">
+                                    <i class="bi bi-lock-fill"></i>
+                                    Proceder al pago
+                                </button>
+                            </Authorized>
+                            <NotAuthorized>
+                                <button class="btn-checkout-modern"
+                                        @onclick="RedirigirALogin"
+                                        disabled="@(!itemsCarrito.Any(i => i.Producto.Stock > 0))">
+                                    <i class="bi bi-person-fill"></i>
+                                    Iniciar sesión para continuar
+                                </button>
+                            </NotAuthorized>
+                        </AuthorizeView>
+
+                        <button class="btn-continue-shopping"
+                                @onclick='() => NavigationManager.NavigateTo("/")'>
+                            <i class="bi bi-arrow-left"></i>
+                            Seguir comprando
+                        </button>
+                    </div>
+                </div>
+
+                <div class="shipping-benefits">
+                    <h4 class="benefits-title">
+                        <i class="bi bi-truck"></i>
+                        Beneficios de compra
+                    </h4>
+                    <div class="benefits-list">
+                        <div class="benefit-item">
+                            <i class="bi bi-shield-check"></i>
+                            <span>Compra 100% segura</span>
+                        </div>
+                        <div class="benefit-item">
+                            <i class="bi bi-truck"></i>
+                            <span>Env&iacute;o gratis desde $50</span>
+                        </div>
+                        <div class="benefit-item">
+                            <i class="bi bi-clock"></i>
+                            <span>Entrega en 3-5 días</span>
+                        </div>
+                        <div class="benefit-item">
+                            <i class="bi bi-arrow-repeat"></i>
+                            <span>Devoluciones f&aacute;ciles</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<AuthorizeView>
+    <Authorized>
+        @if (mostrarModalPago)
+        {
+            <div class="modal-overlay-modern" @onclick="CerrarModalPago">
+                <div class="modal-container-checkout" @onclick:stopPropagation="true">
+                    <div class="modal-header-checkout">
+                        <h2 class="modal-title-checkout">
+                            <i class="bi bi-credit-card-2-front-fill"></i>
+                            Finalizar Compra
+                        </h2>
+                        <button class="btn-close-modal" @onclick="CerrarModalPago">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+
+                    <div class="modal-content-checkout" @onscroll="OnScrollModal">
+                        <div class="payment-method-section">
+                            <h3 class="section-title-checkout">
+                                <i class="bi bi-wallet2"></i>
+                                Método de Pago
+                            </h3>
+
+                            <div class="payment-options">
+                                <div class="payment-option @(metodoPagoSeleccionado == "tarjeta" ? "selected" : "")"
+                                     @onclick='() => SeleccionarMetodoPago("tarjeta")'>
+                                    <div class="payment-option-icon">
+                                        <i class="bi bi-credit-card-fill"></i>
+                                    </div>
+                                    <div class="payment-option-info">
+                                        <h4>Pago con Tarjeta</h4>
+                                        <p>Débito o Crédito - Env&iacute;o a domicilio</p>
+                                    </div>
+                                    <div class="payment-option-radio">
+                                        <i class="bi @(metodoPagoSeleccionado == "tarjeta" ? "bi-check-circle-fill" : "bi-circle")"></i>
+                                    </div>
+                                </div>
+
+                                <div class="payment-option @(metodoPagoSeleccionado == "local" ? "selected" : "")"
+                                     @onclick='() => SeleccionarMetodoPago("local")'>
+                                    <div class="payment-option-icon">
+                                        <i class="bi bi-shop"></i>
+                                    </div>
+                                    <div class="payment-option-info">
+                                        <h4>Pago en Local</h4>
+                                        <p>Efectivo o Transferencia - Retiro en tienda</p>
+                                    </div>
+                                    <div class="payment-option-radio">
+                                        <i class="bi @(metodoPagoSeleccionado == "local" ? "bi-check-circle-fill" : "bi-circle")"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (metodoPagoSeleccionado == "tarjeta")
+                        {
+                            @if (tarjetasGuardadas.Any())
+                            {
+                                <div class="saved-cards-section">
+                                    <h3 class="section-title-checkout">
+                                        <i class="bi bi-credit-card-2-back-fill"></i>
+                                        Tarjetas Guardadas
+                                    </h3>
+
+                                    <div class="saved-cards-grid">
+                                        @foreach (var tarjeta in tarjetasGuardadas)
+                                        {
+                                            <div class="saved-card @(tarjetaSeleccionada?.Id == tarjeta.Id ? "selected" : "")"
+                                                 @onclick="() => SeleccionarTarjeta(tarjeta)">
+                                                <div class="card-icon">
+                                                    <i class="bi bi-credit-card-fill"></i>
+                                                </div>
+                                                <div class="card-info">
+                                                    <div class="card-number">@tarjeta.NumeroEnmascarado</div>
+                                                    <div class="card-details">
+                                                        <span class="card-type">@tarjeta.TipoTarjeta</span>
+                                                        <span class="card-expiry">@tarjeta.FechaVencimiento</span>
+                                                    </div>
+                                                    <div class="card-holder">@tarjeta.NombreTitular</div>
+                                                </div>
+                                                <div class="card-radio">
+                                                    <i class="bi @(tarjetaSeleccionada?.Id == tarjeta.Id ? "bi-check-circle-fill" : "bi-circle")"></i>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <button class="btn-add-new-card" @onclick="MostrarFormularioNuevaTarjeta">
+                                        <i class="bi bi-plus-circle"></i>
+                                        Agregar nueva tarjeta
+                                    </button>
+                                </div>
+                            }
+
+                            @if (!tarjetasGuardadas.Any() || mostrarNuevaTarjeta)
+                            {
+                                <div class="payment-form-section">
+                                    <h3 class="section-title-checkout">
+                                        <i class="bi bi-credit-card-fill"></i>
+                                        @(tarjetasGuardadas.Any() ? "Nueva Tarjeta" : "Información de Pago")
+                                    </h3>
+
+                                    <div class="form-grid">
+                                        <div class="form-group full-width">
+                                            <label class="form-label">N&uacute;mero de Tarjeta *</label>
+                                            <input type="text" class="form-input-modern @(erroresValidacion.ContainsKey("NumeroTarjeta") ? "error" : "")"
+                                                   @bind="nuevaTarjeta.NumeroTarjeta"
+                                                   @oninput="FormatearNumeroTarjeta"
+                                                   placeholder="1234 5678 9012 3456"
+                                                   maxlength="19" />
+                                            @if (erroresValidacion.ContainsKey("NumeroTarjeta"))
+                                            {
+                                                <span class="error-message">@erroresValidacion["NumeroTarjeta"]</span>
+                                            }
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label">Fecha de Vencimiento *</label>
+                                            <input type="text" class="form-input-modern @(erroresValidacion.ContainsKey("FechaVencimiento") ? "error" : "")"
+                                                   @bind="nuevaTarjeta.FechaVencimiento"
+                                                   @oninput="FormatearFechaVencimiento"
+                                                   placeholder="MM/AA"
+                                                   maxlength="5" />
+                                            @if (erroresValidacion.ContainsKey("FechaVencimiento"))
+                                            {
+                                                <span class="error-message">@erroresValidacion["FechaVencimiento"]</span>
+                                            }
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label">CVV *</label>
+                                            <input type="password" class="form-input-modern @(erroresValidacion.ContainsKey("CVV") ? "error" : "")"
+                                                   @bind="nuevaTarjeta.CVV"
+                                                   @bind:event="oninput"
+                                                   @onkeyup="StateHasChanged"
+                                                   placeholder="123"
+                                                   maxlength="4" />
+                                            @if (erroresValidacion.ContainsKey("CVV"))
+                                            {
+                                                <span class="error-message">@erroresValidacion["CVV"]</span>
+                                            }
+                                        </div>
+
+                                        <div class="form-group full-width">
+                                            <label class="form-label">Nombre en la Tarjeta *</label>
+                                            <input type="text" class="form-input-modern @(erroresValidacion.ContainsKey("NombreTitular") ? "error" : "")"
+                                                   @bind="nuevaTarjeta.NombreTitular"
+                                                   @bind:event="oninput"
+                                                   @onkeyup="StateHasChanged"
+                                                   placeholder="Como aparece en la tarjeta" />
+                                            @if (erroresValidacion.ContainsKey("NombreTitular"))
+                                            {
+                                                <span class="error-message">@erroresValidacion["NombreTitular"]</span>
+                                            }
+                                        </div>
+
+                                        <div class="form-group full-width">
+                                            <div class="checkbox-group">
+                                                <input type="checkbox" id="guardarTarjeta" @bind="guardarTarjeta" />
+                                                <label for="guardarTarjeta">Guardar esta tarjeta para futuras compras</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @if (tarjetasGuardadas.Any())
+                                    {
+                                        <button class="btn-cancel-new-card" @onclick="OcultarFormularioNuevaTarjeta">
+                                            <i class="bi bi-arrow-left"></i>
+                                            Usar tarjeta guardada
+                                        </button>
+                                    }
+                                </div>
+                            }
+
+                            <div class="delivery-form-section">
+                                <h3 class="section-title-checkout">
+                                    <i class="bi bi-geo-alt-fill"></i>
+                                    Dirección de Entrega
+                                </h3>
+
+                                @if (direccionesGuardadas.Any())
+                                {
+                                    <div class="saved-addresses-section">
+                                        <h4 class="subsection-title">
+                                            <i class="bi bi-bookmark-check-fill"></i>
+                                            Direcciones Guardadas
+                                        </h4>
+
+                                        <div class="saved-addresses-grid">
+                                            @foreach (var direccion in direccionesGuardadas)
+                                            {
+                                                <div class="saved-address @(direccionSeleccionada?.Id == direccion.Id ? "selected" : "")"
+                                                     @onclick="() => SeleccionarDireccion(direccion)">
+                                                    @if (direccion.EsPrincipal)
+                                                    {
+                                                        <div class="address-badge">
+                                                            <i class="bi bi-star-fill"></i>
+                                                            Principal
+                                                        </div>
+                                                    }
+
+                                                    <div class="address-info">
+                                                        <h5 class="address-name">@direccion.NombreCompleto</h5>
+                                                        <p class="address-text">@direccion.Direccion</p>
+                                                        @if (!string.IsNullOrEmpty(direccion.Direccion2))
+                                                        {
+                                                            <p class="address-text">@direccion.Direccion2</p>
+                                                        }
+                                                        <p class="address-text">@direccion.Ciudad, @direccion.Provincia @direccion.CodigoPostal</p>
+                                                        <p class="address-text">@direccion.Pais</p>
+                                                        @if (!string.IsNullOrEmpty(direccion.Telefono))
+                                                        {
+                                                            <p class="address-phone">
+                                                                <i class="bi bi-phone"></i>
+                                                                @direccion.Telefono
+                                                            </p>
+                                                        }
+                                                    </div>
+
+                                                    <div class="address-radio">
+                                                        <i class="bi @(direccionSeleccionada?.Id == direccion.Id ? "bi-check-circle-fill" : "bi-circle")"></i>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+
+                                        <button class="btn-add-new-address" @onclick="MostrarFormularioNuevaDireccion">
+                                            <i class="bi bi-plus-circle"></i>
+                                            Usar nueva dirección
+                                        </button>
+                                    </div>
+                                }
+
+                                @if (!direccionesGuardadas.Any() || mostrarNuevaDireccion)
+                                {
+                                    <div class="new-address-form">
+                                        <h4 class="subsection-title">
+                                            <i class="bi bi-geo-alt"></i>
+                                            @(direccionesGuardadas.Any() ? "Nueva Dirección" : "Información de Entrega")
+                                        </h4>
+
+                                        <div class="form-grid">
+                                            <div class="form-group">
+                                                <label class="form-label">Nombre *</label>
+                                                <input type="text" class="form-input-modern"
+                                                       @bind="nuevaDireccionEntrega.Nombre"
+                                                       @bind:event="oninput"
+                                                       @onkeyup="StateHasChanged"
+                                                       placeholder="Ingresa tu nombre" />
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="form-label">Apellidos *</label>
+                                                <input type="text" class="form-input-modern"
+                                                       @bind="nuevaDireccionEntrega.Apellidos"
+                                                       @bind:event="oninput"
+                                                       @onkeyup="StateHasChanged"
+                                                       placeholder="Ingresa tus apellidos" />
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="form-label">Teléfono</label>
+                                                <input type="tel" class="form-input-modern"
+                                                       @bind="nuevaDireccionEntrega.Telefono"
+                                                       @bind:event="oninput"
+                                                       @onkeyup="StateHasChanged"
+                                                       placeholder="(000) 000-0000" />
+                                            </div>
+
+                                            <div class="form-group full-width">
+                                                <label class="form-label">Dirección *</label>
+                                                <input type="text" class="form-input-modern"
+                                                       @bind="nuevaDireccionEntrega.Direccion"
+                                                       @bind:event="oninput"
+                                                       @onkeyup="StateHasChanged"
+                                                       placeholder="Calle, número, edificio..." />
+                                            </div>
+
+                                            <div class="form-group full-width">
+                                                <label class="form-label">Dirección 2 (Opcional)</label>
+                                                <input type="text" class="form-input-modern"
+                                                       @bind="nuevaDireccionEntrega.Direccion2"
+                                                       @bind:event="oninput"
+                                                       @onkeyup="StateHasChanged"
+                                                       placeholder="Apartamento, suite, piso..." />
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="form-label">Ciudad *</label>
+                                                <input type="text" class="form-input-modern"
+                                                       @bind="nuevaDireccionEntrega.Ciudad"
+                                                       @bind:event="oninput"
+                                                       @onkeyup="StateHasChanged"
+                                                       placeholder="Ciudad" />
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="form-label">Provincia *</label>
+                                                <input type="text" class="form-input-modern"
+                                                       @bind="nuevaDireccionEntrega.Provincia"
+                                                       @bind:event="oninput"
+                                                       @onkeyup="StateHasChanged"
+                                                       placeholder="Provincia" />
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="form-label">Código Postal *</label>
+                                                <input type="text" class="form-input-modern"
+                                                       @bind="nuevaDireccionEntrega.CodigoPostal"
+                                                       @bind:event="oninput"
+                                                       @onkeyup="StateHasChanged"
+                                                       placeholder="00000" />
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="form-label">País *</label>
+                                                <select class="form-input-modern" @bind="nuevaDireccionEntrega.Pais">
+                                                    <option value="">Seleccionar país</option>
+                                                    <option value="República Dominicana">República Dominicana</option>
+                                                    <option value="Estados Unidos">Estados Unidos</option>
+                                                    <option value="México">México</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="form-group full-width">
+                                                <div class="checkbox-group">
+                                                    <input type="checkbox" id="guardarDireccion" @bind="guardarDireccionNueva" />
+                                                    <label for="guardarDireccion">Guardar esta dirección para futuras compras</label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        @if (direccionesGuardadas.Any())
+                                        {
+                                            <button class="btn-cancel-new-address" @onclick="OcultarFormularioNuevaDireccion">
+                                                <i class="bi bi-arrow-left"></i>
+                                                Usar dirección guardada
+                                            </button>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        @if (metodoPagoSeleccionado == "local")
+                        {
+                            <div class="store-info-section">
+                                <h3 class="section-title-checkout">
+                                    <i class="bi bi-shop-window"></i>
+                                    Información de la Tienda
+                                </h3>
+
+                                <div class="store-details">
+                                    <div class="store-detail-item">
+                                        <i class="bi bi-geo-alt-fill"></i>
+                                        <div>
+                                            <strong>Dirección:</strong>
+                                            <p>Calle Principal #123, Centro, Ciudad</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="store-detail-item">
+                                        <i class="bi bi-clock-fill"></i>
+                                        <div>
+                                            <strong>Horarios:</strong>
+                                            <p>
+                                                Lunes a Viernes: 9:00 AM - 7:00 PM<br>
+                                                Sábados: 10:00 AM - 6:00 PM<br>
+                                                Domingos: Cerrado
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="store-detail-item">
+                                        <i class="bi bi-telephone-fill"></i>
+                                        <div>
+                                            <strong>Teléfono:</strong>
+                                            <p>(555) 123-4567</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        }
+
+                        <div class="order-summary-modal">
+                            <h3 class="section-title-checkout">
+                                <i class="bi bi-receipt-cutoff"></i>
+                                Resumen del Pedido
+                            </h3>
+
+                            <div class="summary-items">
+                                @foreach (var item in itemsCarrito.Take(3))
+                                {
+                                    <div class="summary-item">
+                                        <span class="item-name">@item.Producto.Nombre</span>
+                                        <span class="item-price">$@((item.Producto.Precio * item.Cantidad).ToString("F2"))</span>
+                                    </div>
+                                }
+
+                                @if (itemsCarrito.Count > 3)
+                                {
+                                    <div class="summary-item more-items">
+                                        <span>+@(itemsCarrito.Count - 3) productos m&aacute;s</span>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="summary-totals">
+                                <div class="summary-row">
+                                    <span>Subtotal:</span>
+                                    <span>$@Subtotal.ToString("F2")</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Env&iacute;o:</span>
+                                    <span>@(metodoPagoSeleccionado == "local" ? "GRATIS" : (CostoEnvio == 0 ? "GRATIS" : "$" + CostoEnvio.ToString("F2")))</span>
+                                </div>
+                                <div class="summary-row total-row">
+                                    <span><strong>Total:</strong></span>
+                                    <span><strong>$@(metodoPagoSeleccionado == "local" ? Subtotal.ToString("F2") : Total.ToString("F2"))</strong></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (!haScrolleadoCompleto)
+                        {
+                            <div class="scroll-indicator">
+                                <i class="bi bi-arrow-down-circle"></i>
+                                <small>Despl&aacute;zate hasta abajo para continuar</small>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="modal-footer-checkout">
+                        <button class="btn-cancel-checkout" @onclick="CerrarModalPago">
+                            <i class="bi bi-x-circle"></i>
+                            Cancelar
+                        </button>
+
+                        <button class="btn-confirm-checkout"
+                                @onclick="ConfirmarPedido"
+                                disabled="@(!PuedeConfirmarPedido())">
+                            <i class="bi bi-check-circle-fill"></i>
+                            @if (metodoPagoSeleccionado == "tarjeta")
+                            {
+                                <span>Confirmar y Pagar</span>
+                            }
+                            else
+                            {
+                                <span>Confirmar Pedido</span>
+                            }
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (mostrarModalExito)
+        {
+            <div class="modal-overlay-modern" @onclick="CerrarModalExito">
+                <div class="modal-container-success" @onclick:stopPropagation="true">
+                    <div class="modal-header-success">
+                        <div class="success-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <h2 class="modal-title-success">¡Compra Realizada con &Eacute;xito!</h2>
+                    </div>
+
+                    <div class="modal-content-success">
+                        <div class="success-message">
+                            <p class="success-text">Tu pedido ha sido procesado correctamente y pronto recibirás un email de confirmaci&oacute;n.</p>
+
+                            <div class="order-details">
+                                <div class="detail-item">
+                                    <i class="bi bi-receipt"></i>
+                                    <span>N&uacute;mero de pedido: <strong>#@numeroOrden</strong></span>
+                                </div>
+
+                                @if (metodoPagoSeleccionado == "tarjeta")
+                                {
+                                    <div class="detail-item">
+                                        <i class="bi bi-truck"></i>
+                                        <span>M&eacute;todo: Env&iacute;o a domicilio</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i class="bi bi-clock"></i>
+                                        <span>Tiempo estimado: 3-5 días hábiles</span>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="detail-item">
+                                        <i class="bi bi-shop"></i>
+                                        <span>M&eacute;todo: Retiro en tienda</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i class="bi bi-clock"></i>
+                                        <span>Estar&aacute; listo en: 2-3 d&iacute;as h&aacute;biles</span>
+                                    </div>
+                                }
+
+                                <div class="detail-item">
+                                    <i class="bi bi-cash"></i>
+                                    <span>Total pagado: <strong>$@totalPagado</strong></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer-success">
+                        <button class="btn-continue-success" @onclick="VolverAInicio">
+                            <i class="bi bi-house-fill"></i>
+                            Continuar comprando
+                        </button>
+                        <button class="btn-close-success" @onclick="CerrarModalExito">
+                            <i class="bi bi-x-lg"></i>
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </Authorized>
+</AuthorizeView>
+
+<script>
+    window.checkScrollComplete = (selector) => {
+        const element = document.querySelector(selector);
+        if (!element) return false;
+
+        const tolerance = 5;
+        return element.scrollTop + element.clientHeight >= element.scrollHeight - tolerance;
+    };
+</script>
+
+@code {
+    private List<ItemCarrito> itemsCarrito = new();
+    private List<Producto> productos = new();
+    private decimal Subtotal => itemsCarrito.Sum(i => i.Producto.Precio * i.Cantidad);
+    private decimal CostoEnvio => Subtotal >= 50 ? 0 : 5.99m;
+    private decimal Total => Subtotal + CostoEnvio;
+
+    private bool mostrarModalPago = false;
+    private string metodoPagoSeleccionado = "";
+    private bool haScrolleadoCompleto = false;
+
+    private bool mostrarModalExito = false;
+    private string numeroOrden = "";
+    private string totalPagado = "";
+
+    private List<TarjetaDto> tarjetasGuardadas = new();
+    private TarjetaDto? tarjetaSeleccionada = null;
+    private NuevaTarjetaDto nuevaTarjeta = new();
+    private bool mostrarNuevaTarjeta = false;
+    private bool guardarTarjeta = false;
+    private Dictionary<string, string> erroresValidacion = new();
+
+    private List<DireccionEnvio> direccionesGuardadas = new();
+    private DireccionEnvio? direccionSeleccionada = null;
+    private DireccionEnvio nuevaDireccionEntrega = new();
+    private bool mostrarNuevaDireccion = false;
+    private bool guardarDireccionNueva = false;
+
+    private bool usuarioAutenticado = false;
+    private string usuarioId = "";
+
+    [Inject] private IDbContextFactory<ApplicationDbContext> DbContextFactory { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await VerificarAutenticacion();
+        await CargarCarrito();
+
+        if (usuarioAutenticado)
+        {
+            await CargarTarjetasGuardadas();
+            await CargarDireccionesGuardadas();
+        }
+    }
+
+    private async Task VerificarAutenticacion()
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            usuarioAutenticado = authState.User.Identity?.IsAuthenticated ?? false;
+
+            if (usuarioAutenticado)
+            {
+                usuarioId = authState.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "";
+
+                if (string.IsNullOrEmpty(usuarioId))
+                {
+                    usuarioId = authState.User?.FindFirst("sub")?.Value ?? "";
+                }
+
+                if (string.IsNullOrEmpty(usuarioId))
+                {
+                    var userName = authState.User?.Identity?.Name;
+                    if (!string.IsNullOrEmpty(userName))
+                    {
+                        var user = await UserManager.FindByNameAsync(userName);
+                        usuarioId = user?.Id ?? "";
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(usuarioId))
+                {
+                    var usuarioExiste = await UserManager.FindByIdAsync(usuarioId);
+                    if (usuarioExiste == null)
+                    {
+                        Logger.LogWarning($"El UserId '{usuarioId}' no existe en la base de datos");
+                        usuarioId = "";
+                        usuarioAutenticado = false;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error verificando autenticación");
+            usuarioAutenticado = false;
+            usuarioId = "";
+        }
+    }
+
+    private async Task CargarTarjetasGuardadas()
+    {
+        if (!usuarioAutenticado || string.IsNullOrEmpty(usuarioId))
+            return;
+
+        try
+        {
+            using var contexto = await DbContextFactory.CreateDbContextAsync();
+            var tarjetas = await contexto.Tarjetas
+                .Where(t => t.UserId == usuarioId && t.Activa)
+                .OrderByDescending(t => t.EsPrincipal)
+                .ThenByDescending(t => t.FechaCreacion)
+                .ToListAsync();
+
+            tarjetasGuardadas = tarjetas.Select(t => new TarjetaDto
+                {
+                    Id = t.Id,
+                    UltimosDigitos = t.UltimosDigitos,
+                    NumeroEnmascarado = "**** **** **** " + t.UltimosDigitos,
+                    FechaVencimiento = t.FechaVencimiento,
+                    NombreTitular = t.NombreTitular,
+                    TipoTarjeta = t.TipoTarjeta,
+                    EsPrincipal = t.EsPrincipal,
+                    Activa = t.Activa
+                }).ToList();
+
+            tarjetaSeleccionada = tarjetasGuardadas.FirstOrDefault(t => t.EsPrincipal) ?? tarjetasGuardadas.FirstOrDefault();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error cargando tarjetas");
+        }
+    }
+
+    private async Task CargarDireccionesGuardadas()
+    {
+        if (!usuarioAutenticado || string.IsNullOrEmpty(usuarioId))
+            return;
+
+        try
+        {
+            using var contexto = await DbContextFactory.CreateDbContextAsync();
+            direccionesGuardadas = await contexto.DireccionesEnvio
+                .Where(d => d.UserId == usuarioId && d.Activa)
+                .OrderByDescending(d => d.EsPrincipal)
+                .ThenByDescending(d => d.FechaCreacion)
+                .ToListAsync();
+
+            direccionSeleccionada = direccionesGuardadas.FirstOrDefault(d => d.EsPrincipal)
+                ?? direccionesGuardadas.FirstOrDefault();
+
+            Logger.LogInformation($"Direcciones cargadas: {direccionesGuardadas.Count}");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error cargando direcciones");
+            direccionesGuardadas = new List<DireccionEnvio>();
+        }
+    }
+
+    private async Task CargarCarrito()
+    {
+        try
+        {
+            string cartKey = "keystore_cart";
+
+            if (usuarioAutenticado && !string.IsNullOrEmpty(usuarioId))
+            {
+                cartKey = $"keystore_cart_{usuarioId}";
+            }
+
+            var carritoJson = await JSRuntime.InvokeAsync<string>("localStorage.getItem", cartKey);
+            Console.WriteLine($"Cargando carrito con clave: {cartKey}");
+            Console.WriteLine($"JSON del carrito: {carritoJson}");
+
+            if (!string.IsNullOrEmpty(carritoJson))
+            {
+                var productosIds = JsonSerializer.Deserialize<Dictionary<int, int>>(carritoJson) ?? new();
+                Console.WriteLine($"Productos deserializados: {productosIds.Count}");
+
+                if (productosIds.Any())
+                {
+                    using var contexto = await DbContextFactory.CreateDbContextAsync();
+                    productos = await contexto.Productos
+                        .Where(p => productosIds.Keys.Contains(p.Id))
+                        .ToListAsync();
+
+                    Console.WriteLine($"Productos encontrados en BD: {productos.Count}");
+
+                    itemsCarrito = productosIds.Select(kvp =>
+                    {
+                        var producto = productos.FirstOrDefault(p => p.Id == kvp.Key);
+                        if (producto != null)
+                        {
+                            Console.WriteLine($"Creando item carrito: {producto.Nombre} x {kvp.Value}");
+                            return new ItemCarrito
+                                {
+                                    ProductoId = kvp.Key,
+                                    Cantidad = kvp.Value,
+                                    Producto = producto
+                                };
+                        }
+                        return null;
+                    }).Where(item => item != null).ToList()!;
+
+                    Console.WriteLine($"Items carrito final: {itemsCarrito.Count}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("No hay datos en localStorage para el carrito");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error cargando carrito");
+            Console.WriteLine($"Error cargando carrito: {ex.Message}");
+            itemsCarrito = new List<ItemCarrito>();
+        }
+    }
+
+    private async Task GuardarCarrito()
+    {
+        try
+        {
+            string cartKey = "keystore_cart";
+
+            if (usuarioAutenticado && !string.IsNullOrEmpty(usuarioId))
+            {
+                cartKey = $"keystore_cart_{usuarioId}";
+            }
+
+            var carritoDict = itemsCarrito.ToDictionary(i => i.ProductoId, i => i.Cantidad);
+            var carritoJson = JsonSerializer.Serialize(carritoDict);
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", cartKey, carritoJson);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error guardando carrito");
+        }
+    }
+
+    private async Task AumentarCantidad(int productoId)
+    {
+        var item = itemsCarrito.FirstOrDefault(i => i.ProductoId == productoId);
+        if (item != null && item.Cantidad < item.Producto.Stock)
+        {
+            item.Cantidad++;
+            await GuardarCarrito();
+            StateHasChanged();
+        }
+    }
+
+    private async Task DisminuirCantidad(int productoId)
+    {
+        var item = itemsCarrito.FirstOrDefault(i => i.ProductoId == productoId);
+        if (item != null && item.Cantidad > 1)
+        {
+            item.Cantidad--;
+            await GuardarCarrito();
+            StateHasChanged();
+        }
+    }
+
+    private async Task EliminarDelCarrito(int productoId)
+    {
+        itemsCarrito.RemoveAll(i => i.ProductoId == productoId);
+        await GuardarCarrito();
+        StateHasChanged();
+    }
+
+    private async Task LimpiarCarrito()
+    {
+        itemsCarrito.Clear();
+
+        string cartKey = "keystore_cart";
+        if (usuarioAutenticado && !string.IsNullOrEmpty(usuarioId))
+        {
+            cartKey = $"keystore_cart_{usuarioId}";
+        }
+
+        await JSRuntime.InvokeVoidAsync("localStorage.removeItem", cartKey);
+        StateHasChanged();
+    }
+
+    private void RedirigirALogin()
+    {
+        NavigationManager.NavigateTo($"/Account/Login?ReturnUrl={Uri.EscapeDataString("/cart")}", forceLoad: true);
+    }
+
+    private void ProcederAlPago()
+    {
+        if (!usuarioAutenticado)
+        {
+            RedirigirALogin();
+            return;
+        }
+
+        haScrolleadoCompleto = false;
+        mostrarModalPago = true;
+        metodoPagoSeleccionado = "";
+        erroresValidacion.Clear();
+        StateHasChanged();
+    }
+
+    private void CerrarModalPago()
+    {
+        mostrarModalPago = false;
+        mostrarNuevaTarjeta = false;
+        mostrarNuevaDireccion = false;
+        nuevaTarjeta = new();
+        nuevaDireccionEntrega = new();
+        erroresValidacion.Clear();
+        haScrolleadoCompleto = false;
+        StateHasChanged();
+    }
+
+    private void SeleccionarMetodoPago(string metodo)
+    {
+        metodoPagoSeleccionado = metodo;
+        StateHasChanged();
+    }
+
+    private void SeleccionarTarjeta(TarjetaDto tarjeta)
+    {
+        tarjetaSeleccionada = tarjeta;
+        mostrarNuevaTarjeta = false;
+        StateHasChanged();
+    }
+
+    private void MostrarFormularioNuevaTarjeta()
+    {
+        mostrarNuevaTarjeta = true;
+        tarjetaSeleccionada = null;
+        nuevaTarjeta = new();
+        erroresValidacion.Clear();
+        StateHasChanged();
+    }
+
+    private void OcultarFormularioNuevaTarjeta()
+    {
+        mostrarNuevaTarjeta = false;
+        nuevaTarjeta = new();
+        erroresValidacion.Clear();
+        tarjetaSeleccionada = tarjetasGuardadas.FirstOrDefault();
+        StateHasChanged();
+    }
+
+    private void SeleccionarDireccion(DireccionEnvio direccion)
+    {
+        direccionSeleccionada = direccion;
+        mostrarNuevaDireccion = false;
+        StateHasChanged();
+    }
+
+    private void MostrarFormularioNuevaDireccion()
+    {
+        mostrarNuevaDireccion = true;
+        direccionSeleccionada = null;
+
+        nuevaDireccionEntrega = new DireccionEnvio
+            {
+                UserId = usuarioId,
+                Nombre = string.Empty,
+                Apellidos = string.Empty,
+                Direccion = string.Empty,
+                Direccion2 = string.Empty,
+                Ciudad = string.Empty,
+                Provincia = string.Empty,
+                CodigoPostal = string.Empty,
+                Pais = "República Dominicana",
+                Telefono = string.Empty,
+                EsPrincipal = false,
+                Activa = true
+            };
+
+        StateHasChanged();
+    }
+
+    private void OcultarFormularioNuevaDireccion()
+    {
+        mostrarNuevaDireccion = false;
+        nuevaDireccionEntrega = new();
+        direccionSeleccionada = direccionesGuardadas.FirstOrDefault();
+        StateHasChanged();
+    }
+
+    private async Task FormatearNumeroTarjeta(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString() ?? "";
+        value = new string(value.Where(char.IsDigit).ToArray());
+
+        if (value.Length > 16)
+            value = value.Substring(0, 16);
+
+        var formatted = "";
+        for (int i = 0; i < value.Length; i++)
+        {
+            if (i > 0 && i % 4 == 0)
+                formatted += " ";
+            formatted += value[i];
+        }
+
+        nuevaTarjeta.NumeroTarjeta = formatted;
+
+        if (value.Length >= 1)
+        {
+            if (value.StartsWith("4"))
+                nuevaTarjeta.TipoTarjeta = "Visa";
+            else if (value.StartsWith("5") || value.StartsWith("2"))
+                nuevaTarjeta.TipoTarjeta = "MasterCard";
+            else if (value.StartsWith("3"))
+                nuevaTarjeta.TipoTarjeta = "American Express";
+            else
+                nuevaTarjeta.TipoTarjeta = "Desconocida";
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task FormatearFechaVencimiento(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString() ?? "";
+        value = new string(value.Where(char.IsDigit).ToArray());
+
+        if (value.Length > 4)
+            value = value.Substring(0, 4);
+
+        if (value.Length >= 2)
+        {
+            value = value.Insert(2, "/");
+        }
+
+        nuevaTarjeta.FechaVencimiento = value;
+        StateHasChanged();
+    }
+
+    private async Task OnScrollModal()
+    {
+        try
+        {
+            var resultado = await JSRuntime.InvokeAsync<bool>("checkScrollComplete", ".modal-content-checkout");
+            if (resultado && !haScrolleadoCompleto)
+            {
+                haScrolleadoCompleto = true;
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error en scroll");
+        }
+    }
+
+    private bool PuedeConfirmarPedido()
+    {
+        if (string.IsNullOrEmpty(metodoPagoSeleccionado))
+            return false;
+
+        if (!haScrolleadoCompleto)
+            return false;
+
+        if (metodoPagoSeleccionado == "tarjeta")
+        {
+            bool tieneTarjeta = false;
+
+            if (tarjetaSeleccionada != null && !mostrarNuevaTarjeta)
+            {
+                tieneTarjeta = true;
+            }
+            else if (mostrarNuevaTarjeta || !tarjetasGuardadas.Any())
+            {
+                var numeroLimpio = nuevaTarjeta.NumeroTarjeta?.Replace(" ", "") ?? "";
+                var fechaValida = !string.IsNullOrWhiteSpace(nuevaTarjeta.FechaVencimiento) &&
+                                nuevaTarjeta.FechaVencimiento.Length >= 5;
+                var cvvValido = !string.IsNullOrWhiteSpace(nuevaTarjeta.CVV) &&
+                              nuevaTarjeta.CVV.Length >= 3;
+                var nombreValido = !string.IsNullOrWhiteSpace(nuevaTarjeta.NombreTitular);
+
+                tieneTarjeta = numeroLimpio.Length >= 13 && fechaValida && cvvValido && nombreValido;
+            }
+
+            bool tieneDireccion = false;
+
+            if (direccionSeleccionada != null && !mostrarNuevaDireccion)
+            {
+                tieneDireccion = true;
+            }
+            else if (mostrarNuevaDireccion || !direccionesGuardadas.Any())
+            {
+                tieneDireccion = !string.IsNullOrWhiteSpace(nuevaDireccionEntrega.Nombre) &&
+                               !string.IsNullOrWhiteSpace(nuevaDireccionEntrega.Apellidos) &&
+                               !string.IsNullOrWhiteSpace(nuevaDireccionEntrega.Direccion) &&
+                               !string.IsNullOrWhiteSpace(nuevaDireccionEntrega.Ciudad) &&
+                               !string.IsNullOrWhiteSpace(nuevaDireccionEntrega.Provincia) &&
+                               !string.IsNullOrWhiteSpace(nuevaDireccionEntrega.CodigoPostal) &&
+                               !string.IsNullOrWhiteSpace(nuevaDireccionEntrega.Pais);
+            }
+
+            return tieneTarjeta && tieneDireccion;
+        }
+
+        return true;
+    }
+
+    private bool ValidarTarjeta()
+    {
+        erroresValidacion.Clear();
+
+        if (string.IsNullOrWhiteSpace(nuevaTarjeta.NumeroTarjeta))
+            erroresValidacion["NumeroTarjeta"] = "El número de tarjeta es requerido";
+        else if (nuevaTarjeta.NumeroTarjeta.Replace(" ", "").Length < 13)
+            erroresValidacion["NumeroTarjeta"] = "Número de tarjeta inválido";
+
+        if (string.IsNullOrWhiteSpace(nuevaTarjeta.FechaVencimiento))
+            erroresValidacion["FechaVencimiento"] = "La fecha de vencimiento es requerida";
+        else if (!System.Text.RegularExpressions.Regex.IsMatch(nuevaTarjeta.FechaVencimiento, @"^(0[1-9]|1[0-2])\/\d{2}$"))
+            erroresValidacion["FechaVencimiento"] = "Formato inválido (MM/AA)";
+
+        if (string.IsNullOrWhiteSpace(nuevaTarjeta.CVV))
+            erroresValidacion["CVV"] = "El CVV es requerido";
+        else if (nuevaTarjeta.CVV.Length < 3)
+            erroresValidacion["CVV"] = "CVV inválido";
+
+        if (string.IsNullOrWhiteSpace(nuevaTarjeta.NombreTitular))
+            erroresValidacion["NombreTitular"] = "El nombre del titular es requerido";
+
+        return !erroresValidacion.Any();
+    }
+
+    private async Task<bool> GuardarNuevaTarjeta()
+    {
+        if (!ValidarTarjeta())
+            return false;
+
+        try
+        {
+            using var contexto = await DbContextFactory.CreateDbContextAsync();
+
+            var tarjeta = new KeyStore.Models.Tarjeta
+                {
+                    UserId = usuarioId,
+                    UltimosDigitos = nuevaTarjeta.NumeroTarjeta.Replace(" ", "").Substring(nuevaTarjeta.NumeroTarjeta.Replace(" ", "").Length - 4),
+                    FechaVencimiento = nuevaTarjeta.FechaVencimiento,
+                    NombreTitular = nuevaTarjeta.NombreTitular,
+                    TipoTarjeta = nuevaTarjeta.TipoTarjeta,
+                    EsPrincipal = !tarjetasGuardadas.Any(),
+                    FechaCreacion = DateTime.UtcNow,
+                    Activa = true
+                };
+
+            contexto.Tarjetas.Add(tarjeta);
+            await contexto.SaveChangesAsync();
+
+            await CargarTarjetasGuardadas();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error guardando tarjeta");
+            return false;
+        }
+    }
+
+    private async Task<bool> GuardarNuevaDireccion()
+    {
+        try
+        {
+            using var contexto = await DbContextFactory.CreateDbContextAsync();
+
+            if (string.IsNullOrWhiteSpace(nuevaDireccionEntrega.Nombre) ||
+                string.IsNullOrWhiteSpace(nuevaDireccionEntrega.Apellidos) ||
+                string.IsNullOrWhiteSpace(nuevaDireccionEntrega.Direccion) ||
+                string.IsNullOrWhiteSpace(nuevaDireccionEntrega.Ciudad) ||
+                string.IsNullOrWhiteSpace(nuevaDireccionEntrega.Provincia) ||
+                string.IsNullOrWhiteSpace(nuevaDireccionEntrega.CodigoPostal) ||
+                string.IsNullOrWhiteSpace(nuevaDireccionEntrega.Pais))
+            {
+                Logger.LogWarning("Campos requeridos faltantes para nueva dirección");
+                return false;
+            }
+
+            nuevaDireccionEntrega.Nombre = nuevaDireccionEntrega.Nombre?.Trim() ?? string.Empty;
+            nuevaDireccionEntrega.Apellidos = nuevaDireccionEntrega.Apellidos?.Trim() ?? string.Empty;
+            nuevaDireccionEntrega.Direccion = nuevaDireccionEntrega.Direccion?.Trim() ?? string.Empty;
+            nuevaDireccionEntrega.Ciudad = nuevaDireccionEntrega.Ciudad?.Trim() ?? string.Empty;
+            nuevaDireccionEntrega.Provincia = nuevaDireccionEntrega.Provincia?.Trim() ?? string.Empty;
+            nuevaDireccionEntrega.CodigoPostal = nuevaDireccionEntrega.CodigoPostal?.Trim() ?? string.Empty;
+            nuevaDireccionEntrega.Pais = nuevaDireccionEntrega.Pais?.Trim() ?? string.Empty;
+            nuevaDireccionEntrega.Direccion2 = nuevaDireccionEntrega.Direccion2?.Trim() ?? string.Empty;
+            nuevaDireccionEntrega.Telefono = nuevaDireccionEntrega.Telefono?.Trim() ?? string.Empty;
+
+            var direccionesExistentes = await contexto.DireccionesEnvio
+                .Where(d => d.UserId == usuarioId && d.Activa)
+                .CountAsync();
+
+            if (direccionesExistentes == 0)
+            {
+                nuevaDireccionEntrega.EsPrincipal = true;
+            }
+
+            if (nuevaDireccionEntrega.EsPrincipal)
+            {
+                var direccionesPrincipales = await contexto.DireccionesEnvio
+                    .Where(d => d.UserId == usuarioId && d.EsPrincipal && d.Activa)
+                    .ToListAsync();
+
+                foreach (var dir in direccionesPrincipales)
+                {
+                    dir.EsPrincipal = false;
+                    dir.FechaModificacion = DateTime.UtcNow;
+                }
+            }
+
+
+            nuevaDireccionEntrega.UserId = usuarioId;
+            nuevaDireccionEntrega.FechaCreacion = DateTime.UtcNow;
+            nuevaDireccionEntrega.Activa = true;
+
+
+            contexto.DireccionesEnvio.Add(nuevaDireccionEntrega);
+            var resultado = await contexto.SaveChangesAsync();
+
+            if (resultado > 0)
+            {
+                Logger.LogInformation($"Dirección guardada exitosamente para usuario {usuarioId}");
+
+
+                await CargarDireccionesGuardadas();
+
+                direccionSeleccionada = direccionesGuardadas.FirstOrDefault(d =>
+                    d.Nombre == nuevaDireccionEntrega.Nombre &&
+                    d.Apellidos == nuevaDireccionEntrega.Apellidos &&
+                    d.Direccion == nuevaDireccionEntrega.Direccion);
+
+                return true;
+            }
+
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error guardando nueva dirección: {Error}", ex.Message);
+            return false;
+        }
+    }
+
+    private async Task ConfirmarPedido()
+    {
+        if (!PuedeConfirmarPedido())
+            return;
+
+        using var contexto = await DbContextFactory.CreateDbContextAsync();
+        using var transaction = await contexto.Database.BeginTransactionAsync();
+
+        try
+        {
+            if (string.IsNullOrEmpty(usuarioId))
+            {
+                throw new Exception("Usuario no identificado");
+            }
+
+            var usuarioExiste = await UserManager.FindByIdAsync(usuarioId);
+            if (usuarioExiste == null)
+            {
+                throw new Exception("Usuario no válido");
+            }
+
+            if (metodoPagoSeleccionado == "tarjeta" && mostrarNuevaTarjeta && guardarTarjeta)
+            {
+                var guardada = await GuardarNuevaTarjeta();
+                if (!guardada)
+                {
+                    await JSRuntime.InvokeVoidAsync("alert", "Error al guardar la tarjeta. Verifica los datos.");
+                    return;
+                }
+            }
+
+            if (metodoPagoSeleccionado == "tarjeta" && mostrarNuevaDireccion && guardarDireccionNueva)
+            {
+                var guardada = await GuardarNuevaDireccion();
+                if (!guardada)
+                {
+                    await JSRuntime.InvokeVoidAsync("alert", "Error al guardar la dirección. Verifica los datos.");
+                    return;
+                }
+            }
+
+            numeroOrden = "KS" + DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
+
+            var pedido = new Pedido
+                {
+                    UserId = usuarioId,
+                    NumeroOrden = numeroOrden,
+                    FechaCreacion = DateTime.UtcNow,
+                    Estado = EstadoPedido.Procesando,
+                    Subtotal = Subtotal,
+                    CostoEnvio = metodoPagoSeleccionado == "local" ? 0 : CostoEnvio,
+                    Total = metodoPagoSeleccionado == "local" ? Subtotal : Total,
+                    MetodoPago = metodoPagoSeleccionado
+                };
+
+            if (metodoPagoSeleccionado == "tarjeta")
+            {
+                if (direccionSeleccionada != null)
+                {
+                    AsignarDireccionEnvio(pedido, direccionSeleccionada);
+                }
+                else if (mostrarNuevaDireccion)
+                {
+                    AsignarNuevaDireccionEnvio(pedido, nuevaDireccionEntrega);
+                }
+
+                if (tarjetaSeleccionada != null)
+                {
+                    pedido.UltimosDigitosTarjeta = tarjetaSeleccionada.UltimosDigitos?.Length > 4 ?
+                        tarjetaSeleccionada.UltimosDigitos.Substring(0, 4) : tarjetaSeleccionada.UltimosDigitos ?? "";
+                    pedido.TipoTarjeta = (tarjetaSeleccionada.TipoTarjeta ?? "").Length > 20 ?
+                        tarjetaSeleccionada.TipoTarjeta.Substring(0, 20) : tarjetaSeleccionada.TipoTarjeta ?? "";
+                }
+                else if (mostrarNuevaTarjeta)
+                {
+                    var numeroLimpio = nuevaTarjeta.NumeroTarjeta?.Replace(" ", "") ?? "";
+                    if (numeroLimpio.Length >= 4)
+                    {
+                        pedido.UltimosDigitosTarjeta = numeroLimpio.Substring(numeroLimpio.Length - 4);
+                    }
+                    pedido.TipoTarjeta = (nuevaTarjeta.TipoTarjeta ?? "").Length > 20 ?
+                        nuevaTarjeta.TipoTarjeta.Substring(0, 20) : nuevaTarjeta.TipoTarjeta ?? "";
+                }
+            }
+
+            contexto.Pedidos.Add(pedido);
+            await contexto.SaveChangesAsync();
+
+            foreach (var item in itemsCarrito)
+            {
+                var detalle = new DetallePedido
+                    {
+                        PedidoId = pedido.Id,
+                        ProductoId = item.ProductoId,
+                        Cantidad = item.Cantidad,
+                        PrecioUnitario = item.Producto.Precio,
+                        NombreProducto = TruncateString(item.Producto.Nombre ?? "", 200),
+                        MarcaProducto = TruncateString(item.Producto.Marca ?? "", 100),
+                        ImagenProducto = TruncateString(item.Producto.ImagenUrl ?? "", 500)
+                    };
+
+                contexto.DetallesPedidos.Add(detalle);
+
+                var producto = await contexto.Productos.FindAsync(item.ProductoId);
+                if (producto != null)
+                {
+                    producto.Stock -= item.Cantidad;
+                    contexto.Productos.Update(producto);
+                }
+            }
+
+            await contexto.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            totalPagado = pedido.Total.ToString("F2");
+
+            itemsCarrito.Clear();
+            string cartKey = usuarioAutenticado && !string.IsNullOrEmpty(usuarioId) ?
+                $"keystore_cart_{usuarioId}" : "keystore_cart";
+            await JSRuntime.InvokeVoidAsync("localStorage.removeItem", cartKey);
+
+            CerrarModalPago();
+            mostrarModalExito = true;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            Logger.LogError(ex, "Error al procesar pedido");
+
+            var errorMessage = $"Error al procesar el pedido: {ex.Message}";
+            if (ex.InnerException != null)
+            {
+                errorMessage += $"\nDetalle: {ex.InnerException.Message}";
+            }
+
+            await JSRuntime.InvokeVoidAsync("alert", errorMessage);
+        }
+    }
+
+    private void AsignarDireccionEnvio(Pedido pedido, DireccionEnvio direccion)
+    {
+        var direccionTexto = direccion.Direccion?.Trim() ?? "";
+        if (!string.IsNullOrEmpty(direccion.Direccion2?.Trim()))
+        {
+            direccionTexto += ", " + direccion.Direccion2.Trim();
+        }
+
+        pedido.DireccionEnvio = TruncateString(direccionTexto, 200);
+        pedido.NombreDestinatario = TruncateString(direccion.NombreCompleto ?? "No especificado", 200);
+        pedido.CiudadEnvio = TruncateString(direccion.Ciudad ?? "", 100);
+        pedido.ProvinciaEnvio = TruncateString(direccion.Provincia ?? "", 100);
+        pedido.CodigoPostalEnvio = TruncateString(direccion.CodigoPostal ?? "", 20);
+        pedido.PaisEnvio = TruncateString(direccion.Pais ?? "", 100);
+        pedido.TelefonoDestinatario = TruncateString(direccion.Telefono ?? "", 20);
+    }
+
+    private void AsignarNuevaDireccionEnvio(Pedido pedido, DireccionEnvio direccion)
+    {
+        var direccionTexto = direccion.Direccion?.Trim() ?? "";
+        if (!string.IsNullOrEmpty(direccion.Direccion2?.Trim()))
+        {
+            direccionTexto += ", " + direccion.Direccion2.Trim();
+        }
+        var nombreCompleto = direccion.NombreCompleto;
+
+        pedido.DireccionEnvio = TruncateString(direccionTexto, 200);
+        pedido.NombreDestinatario = TruncateString(string.IsNullOrEmpty(nombreCompleto) ? "No especificado" : nombreCompleto, 200);
+        pedido.CiudadEnvio = TruncateString(direccion.Ciudad ?? "", 100);
+        pedido.ProvinciaEnvio = TruncateString(direccion.Provincia ?? "", 100);
+        pedido.CodigoPostalEnvio = TruncateString(direccion.CodigoPostal ?? "", 20);
+        pedido.PaisEnvio = TruncateString(direccion.Pais ?? "", 100);
+        pedido.TelefonoDestinatario = TruncateString(direccion.Telefono ?? "", 20);
+    }
+
+    private static string TruncateString(string input, int maxLength)
+    {
+        if (string.IsNullOrEmpty(input) || input.Length <= maxLength)
+            return input;
+
+        return input.Substring(0, maxLength);
+    }
+
+    private void CerrarModalExito()
+    {
+        mostrarModalExito = false;
+        numeroOrden = "";
+        totalPagado = "";
+        StateHasChanged();
+    }
+
+    private void VolverAInicio()
+    {
+        CerrarModalExito();
+        NavigationManager.NavigateTo("/");
+    }
+
+    public class ItemCarrito
+    {
+        public int ProductoId { get; set; }
+        public int Cantidad { get; set; }
+        public Producto Producto { get; set; } = new();
+    }
+
+    public class TarjetaDto
+    {
+        public int Id { get; set; }
+        public string UltimosDigitos { get; set; } = "";
+        public string NumeroEnmascarado { get; set; } = "";
+        public string FechaVencimiento { get; set; } = "";
+        public string NombreTitular { get; set; } = "";
+        public string TipoTarjeta { get; set; } = "";
+        public bool EsPrincipal { get; set; }
+        public bool Activa { get; set; }
+    }
+
+    public class NuevaTarjetaDto
+    {
+        public string NumeroTarjeta { get; set; } = "";
+        public string FechaVencimiento { get; set; } = "";
+        public string CVV { get; set; } = "";
+        public string NombreTitular { get; set; } = "";
+        public string TipoTarjeta { get; set; } = "";
+    }
+}

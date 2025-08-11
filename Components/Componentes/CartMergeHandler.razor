@@ -1,0 +1,64 @@
+﻿
+@using Microsoft.AspNetCore.Components.Authorization
+@using KeyStore.Services
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ICartService CartService
+@implements IDisposable
+
+
+
+@code {
+    private bool _previousAuthState = false;
+    private string? _previousUserId = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        AuthenticationStateProvider.AuthenticationStateChanged += OnAuthenticationStateChanged;
+
+        await CheckAuthenticationState();
+    }
+
+    private async void OnAuthenticationStateChanged(Task<AuthenticationState> authStateTask)
+    {
+        await CheckAuthenticationState();
+    }
+
+    private async Task CheckAuthenticationState()
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var isAuthenticated = authState.User?.Identity?.IsAuthenticated ?? false;
+            var currentUserId = authState.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (!_previousAuthState && isAuthenticated && !string.IsNullOrEmpty(currentUserId))
+            {
+                Console.WriteLine($"Usuario se autenticó: {currentUserId}. Fusionando carritos...");
+                await CartService.MergeAnonymousCartWithUserCartAsync();
+
+                StateHasChanged();
+            }
+            else if (_previousAuthState && isAuthenticated &&
+                     !string.IsNullOrEmpty(currentUserId) &&
+                     currentUserId != _previousUserId)
+            {
+                Console.WriteLine($"Cambio de usuario detectado: {_previousUserId} -> {currentUserId}");
+                await CartService.MergeAnonymousCartWithUserCartAsync();
+                StateHasChanged();
+            }
+
+            _previousAuthState = isAuthenticated;
+            _previousUserId = currentUserId;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error en CheckAuthenticationState: {ex.Message}");
+        }
+    }
+
+    public void Dispose()
+    {
+        AuthenticationStateProvider.AuthenticationStateChanged -= OnAuthenticationStateChanged;
+    }
+}

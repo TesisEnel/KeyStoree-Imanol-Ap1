@@ -1,6 +1,5 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,12 +9,291 @@
     <link rel="stylesheet" href="@Assets["KeyStore.styles.css"]" />
     <ImportMap />
     <link rel="icon" type="image/png" href="favicon.png" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="css/keystore.css" rel="stylesheet" />
     <HeadOutlet />
 </head>
-
 <body>
-    <Routes />
-    <script src="_framework/blazor.web.js"></script>
-</body>
+    <Routes/>
 
+    <script src="_framework/blazor.web.js"></script>
+    <script src="@Assets["lib/bootstrap/dist/js/bootstrap.bundle.min.js"]"></script>
+
+    <script>
+
+        window.initializeHeroCarousel = () => {
+            console.log('🔄 Inicializando carousel...');
+
+            const carouselElement = document.querySelector('#heroCarousel');
+            if (!carouselElement) {
+                console.log('❌ Carousel #heroCarousel no encontrado en el DOM');
+                return false;
+            }
+
+            if (typeof bootstrap === 'undefined') {
+                console.log('❌ Bootstrap no está disponible');
+                return false;
+            }
+
+            try {
+                const existingCarousel = bootstrap.Carousel.getInstance(carouselElement);
+                if (existingCarousel) {
+                    console.log('🗑️ Destruyendo instancia existente del carousel');
+                    existingCarousel.dispose();
+                }
+
+                const carousel = new bootstrap.Carousel(carouselElement, {
+                    interval: 5000,
+                    ride: 'carousel',
+                    wrap: true,
+                    keyboard: true,
+                    pause: 'hover',
+                    touch: true
+                });
+
+                console.log('✅ Carousel inicializado correctamente');
+                return true;
+            } catch (error) {
+                console.error('❌ Error inicializando carousel:', error);
+                return false;
+            }
+        };
+
+        window.initDropdowns = function() {
+            console.log('🔄 Inicializando dropdowns...');
+
+            if (typeof bootstrap === 'undefined') {
+                console.error('❌ Bootstrap no está disponible para dropdowns');
+                return false;
+            }
+
+            const dropdownElements = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+            console.log(`📋 Encontrados ${dropdownElements.length} elementos dropdown`);
+
+            let initialized = 0;
+            dropdownElements.forEach((element, index) => {
+                try {
+                    let dropdownInstance = bootstrap.Dropdown.getInstance(element);
+
+                    if (!dropdownInstance) {
+                        dropdownInstance = new bootstrap.Dropdown(element);
+                        initialized++;
+                        console.log(`✅ Dropdown ${index + 1} inicializado`);
+                    } else {
+                        console.log(`ℹ️ Dropdown ${index + 1} ya estaba inicializado`);
+                    }
+                } catch (error) {
+                    console.error(`❌ Error inicializando dropdown ${index + 1}:`, error);
+                }
+            });
+
+            console.log(`✅ Total dropdowns inicializados: ${initialized}/${dropdownElements.length}`);
+            return true;
+        };
+
+        window.toggleAdminPanel = () => {
+            const dropdown = document.getElementById('adminDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+            }
+        };
+
+        window.blazorInitialized = false;
+        window.carouselInitialized = false;
+        window.dropdownsInitialized = false;
+
+        function initializeAfterBlazor() {
+            console.log('🚀 initializeAfterBlazor llamado');
+
+            if (!window.dropdownsInitialized) {
+                const dropdownSuccess = window.initDropdowns();
+                if (dropdownSuccess) {
+                    window.dropdownsInitialized = true;
+                }
+            }
+
+            const tryInitCarousel = (attempt = 1) => {
+                console.log(`🔄 Intento ${attempt} de inicializar carousel`);
+
+                const success = window.initializeHeroCarousel();
+                if (success) {
+                    window.carouselInitialized = true;
+                    console.log('✅ Carousel inicializado exitosamente');
+                    return;
+                }
+
+                if (attempt < 5) {
+                    const delay = attempt * 200;
+                    console.log(`⏳ Reintentando carousel en ${delay}ms...`);
+                    setTimeout(() => tryInitCarousel(attempt + 1), delay);
+                } else {
+                    console.log('❌ No se pudo inicializar el carousel después de 5 intentos');
+                }
+            };
+
+            tryInitCarousel();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 DOM cargado');
+            console.log('🔍 Bootstrap disponible:', typeof bootstrap !== 'undefined');
+
+            if (!window.blazorInitialized) {
+                window.blazorInitialized = true;
+                setTimeout(initializeAfterBlazor, 100);
+            }
+        });
+
+        window.addEventListener('load', function() {
+            console.log('🌐 Window loaded');
+            if (!window.carouselInitialized || !window.dropdownsInitialized) {
+                setTimeout(initializeAfterBlazor, 200);
+            }
+        });
+
+        window.reinitializeComponents = () => {
+            console.log('🔄 Reinicializando componentes...');
+            window.carouselInitialized = false;
+            window.dropdownsInitialized = false;
+
+            setTimeout(() => {
+                initializeAfterBlazor();
+            }, 150);
+        };
+
+        window.debugCarousel = () => {
+            const carouselElement = document.querySelector('#heroCarousel');
+            console.log('🔍 Debug Carousel:');
+            console.log('- Elemento encontrado:', !!carouselElement);
+            console.log('- Bootstrap disponible:', typeof bootstrap !== 'undefined');
+            console.log('- Instancia existente:', !!bootstrap?.Carousel?.getInstance(carouselElement));
+            console.log('- Items del carousel:', carouselElement?.querySelectorAll('.carousel-item').length || 0);
+
+            if (carouselElement) {
+                console.log('- Clases del elemento:', carouselElement.className);
+                console.log('- Estructura interna:', carouselElement.innerHTML.substring(0, 200) + '...');
+            }
+        };
+
+        window.debugDropdowns = () => {
+            const dropdownElements = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+            console.log('🔍 Debug Dropdowns:');
+            console.log('- Elementos encontrados:', dropdownElements.length);
+            console.log('- Bootstrap disponible:', typeof bootstrap !== 'undefined');
+
+            dropdownElements.forEach((el, index) => {
+                const instance = bootstrap?.Dropdown?.getInstance(el);
+                console.log(`- Dropdown ${index + 1}:`, !!instance ? 'Inicializado' : 'No inicializado');
+            });
+        };
+
+        let debugInterval = setInterval(() => {
+            if (!window.carouselInitialized || !window.dropdownsInitialized) {
+                console.log('⚠️ Componentes aún no inicializados, ejecutando debug...');
+                if (!window.carouselInitialized) window.debugCarousel();
+                if (!window.dropdownsInitialized) window.debugDropdowns();
+            } else {
+                clearInterval(debugInterval);
+                console.log('✅ Todos los componentes inicializados correctamente');
+            }
+        }, 10000);
+
+        window.scrollToTop = function() {
+            window.scrollTo({
+                top: 0,
+                left: 0,
+                behavior: 'smooth'
+            });
+        };
+
+        window.isRealNavigation = false;
+        window.currentUrl = window.location.href;
+
+        window.addEventListener('DOMContentLoaded', function() {
+
+            window.scrollTo(0, 0);
+
+            setTimeout(function() {
+                window.scrollTo({
+                    top: 0,
+                    left: 0,
+                    behavior: 'smooth'
+                });
+            }, 100);
+        });
+
+
+        window.blazorNavigationHandlerImproved = function() {
+
+            document.addEventListener('click', function(e) {
+                const target = e.target.closest('a[href]');
+                if (target && target.href && !target.href.includes('#') && !target.href.includes('javascript:')) {
+                    const targetUrl = new URL(target.href, window.location.origin);
+                    const currentUrl = new URL(window.location.href);
+
+                    if (targetUrl.pathname !== currentUrl.pathname) {
+                        console.log('🔄 Navegación por enlace detectada:', targetUrl.pathname);
+                        window.isRealNavigation = true;
+
+                        setTimeout(() => {
+                            if (window.isRealNavigation) {
+                                window.scrollTo({
+                                    top: 0,
+                                    left: 0,
+                                    behavior: 'smooth'
+                                });
+                                window.isRealNavigation = false;
+                            }
+                        }, 200);
+                    }
+                }
+            });
+
+            const originalPushState = history.pushState;
+            const originalReplaceState = history.replaceState;
+
+            history.pushState = function() {
+                console.log('🔄 Navegación programática (pushState) detectada');
+                window.isRealNavigation = true;
+                originalPushState.apply(history, arguments);
+                setTimeout(() => {
+                    if (window.isRealNavigation) {
+                        window.scrollTo({
+                            top: 0,
+                            left: 0,
+                            behavior: 'smooth'
+                        });
+                        window.isRealNavigation = false;
+                    }
+                }, 200);
+            };
+
+            history.replaceState = function() {
+                console.log('🔄 Navegación programática (replaceState) detectada');
+                originalReplaceState.apply(history, arguments);
+            };
+
+            window.addEventListener('popstate', function() {
+                console.log('🔄 Navegación con botón atrás/adelante detectada');
+                window.isRealNavigation = true;
+                setTimeout(() => {
+                    window.scrollTo({
+                        top: 0,
+                        left: 0,
+                        behavior: 'smooth'
+                    });
+                    window.isRealNavigation = false;
+                }, 50);
+            });
+        };
+
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', window.blazorNavigationHandlerImproved);
+        } else {
+            window.blazorNavigationHandlerImproved();
+        }
+
+    </script>
+</body>
 </html>

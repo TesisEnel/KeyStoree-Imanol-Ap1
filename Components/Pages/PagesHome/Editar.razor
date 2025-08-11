@@ -1,0 +1,814 @@
+﻿@page "/Productos/Editar/{Id:int}"
+@using Microsoft.EntityFrameworkCore
+@using KeyStore.Data
+@using KeyStore.Models
+@using KeyStore.Services
+@inject ApplicationDbContext context
+@inject NavigationManager NavigationManager
+@inject IImagenService ImagenService
+@rendermode InteractiveServer
+
+<PageTitle>Editar Producto - KeyStore</PageTitle>
+
+@if (isLoading)
+{
+    <div class="text-center mt-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+}
+else if (producto == null)
+{
+    <div class="container mt-4">
+        <div class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-triangle"></i>
+            <strong>Producto no encontrado</strong><br>
+            El producto que intentas editar no existe o ha sido eliminado.
+        </div>
+        <a href="/admin/manage" class="btn btn-primary">
+            <i class="bi bi-arrow-left"></i> Volver a Gestionar Productos
+        </a>
+    </div>
+}
+else
+{
+    <EditForm Model="producto" OnValidSubmit="ActualizarProducto">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="container mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-semibold text-primary">KEYSTORE - Editar Producto</h3>
+                <div class="d-flex gap-2">
+                    <a href="/admin/manage" class="btn btn-outline-secondary">
+                        <i class="bi bi-list-ul"></i> Gestionar Productos
+                    </a>
+                    <a href="/Productos/Crear" class="btn btn-outline-success">
+                        <i class="bi bi-plus-circle"></i> Crear Nuevo
+                    </a>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(mensaje))
+            {
+                <div class="alert @(esError ? "alert-danger" : "alert-success") alert-dismissible fade show" role="alert">
+                    @mensaje
+                    <button type="button" class="btn-close" @onclick="() => mensaje = string.Empty"></button>
+                </div>
+            }
+
+            <div class="row mt-4">
+                <div class="col-md-8">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-warning text-dark">
+                            <strong><i class="bi bi-pencil-square"></i> Editando: @producto.Nombre</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="mb-3">
+                                        <label class="form-label">Nombre del Producto *</label>
+                                        <InputText class="form-control" @bind-Value="producto.Nombre" placeholder="Ej: Teclado Gaming RGB Pro" />
+                                        <ValidationMessage For="@(() => producto.Nombre)" />
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Categoría *</label>
+                                        <InputSelect class="form-select" @bind-Value="producto.CategoriaId" @onchange="OnCategoriaChanged">
+                                            <option value="0">-- Selecciona categoría --</option>
+                                            <option value="1">Teclados</option>
+                                            <option value="2">Mouse</option>
+                                            <option value="3">Audífonos</option>
+                                        </InputSelect>
+                                        <ValidationMessage For="@(() => producto.CategoriaId)" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Descripción</label>
+                                <InputTextArea class="form-control" rows="4" @bind-Value="producto.Descripcion"
+                                               placeholder="Descripción detallada del producto..." />
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Precio *</label>
+                                        <InputNumber class="form-control" @bind-Value="producto.Precio" placeholder="0.00" step="0.01" />
+                                        <ValidationMessage For="@(() => producto.Precio)" />
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Stock *</label>
+                                        <InputNumber class="form-control" @bind-Value="producto.Stock" placeholder="0" />
+                                        <ValidationMessage For="@(() => producto.Stock)" />
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Marca</label>
+                                        <InputText class="form-control" @bind-Value="producto.Marca" placeholder="Ej: Logitech, Razer" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Modelo</label>
+                                        <InputText class="form-control" @bind-Value="producto.Modelo" placeholder="Ej: G915, MX Master 3" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Color Principal</label>
+                                        <InputText class="form-control" @bind-Value="producto.ColorPrincipal" placeholder="Ej: Negro, Blanco, RGB" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (producto.CategoriaId == 1)
+                            {
+                                <div class="card mt-3">
+                                    <div class="card-header bg-light">
+                                        <strong>Características de Teclado</strong>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Tamaño</label>
+                                                    <InputSelect class="form-select" @bind-Value="producto.Size">
+                                                        <option value="">-- Seleccionar --</option>
+                                                        <option value="100%">100% (Full Size)</option>
+                                                        <option value="80%">80% (TKL)</option>
+                                                        <option value="75%">75% (Compact)</option>
+                                                        <option value="65%">65% (Compact)</option>
+                                                        <option value="60%">60% (Mini)</option>
+                                                        <option value="40%">40% (Ultra Compact)</option>
+                                                    </InputSelect>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Layout</label>
+                                                    <InputSelect class="form-select" @bind-Value="producto.Layout">
+                                                        <option value="">-- Seleccionar --</option>
+                                                        <option value="Español">Español (ES)</option>
+                                                        <option value="US">US (Inglés)</option>
+                                                    </InputSelect>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Tipo de Switch</label>
+                                                    <InputSelect class="form-select" @bind-Value="producto.TipoSwitch">
+                                                        <option value="@TipoSwitch.Rojo_Linear">Red Switch (Linear)</option>
+                                                        <option value="@TipoSwitch.Azul_Tactil">Blue Switch (Tactil)</option>
+                                                        <option value="@TipoSwitch.Marron_Tactil_Silencioso">Brown Switch (Tactil Silencioso)</option>
+                                                        <option value="@TipoSwitch.Negro_Linear_Pesado">Black Switch (Linear Pesado)</option>
+                                                        <option value="@TipoSwitch.Plata_Linear_Rapido">Silver Switch (Linear Rápido)</option>
+                                                        <option value="@TipoSwitch.Verde_Tactil_Pesado">Green Switch (Tactil Pesado)</option>
+                                                    </InputSelect>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-check mb-3">
+                                                    <InputCheckbox class="form-check-input" @bind-Value="producto.EsMecánico" id="esMecanico" />
+                                                    <label class="form-check-label" for="esMecanico">Es Mecánico</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-check mb-3">
+                                                    <InputCheckbox class="form-check-input" @bind-Value="producto.EsIluminado" id="esIluminado" />
+                                                    <label class="form-check-label" for="esIluminado">Tiene Iluminación</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-check mb-3">
+                                                    <InputCheckbox class="form-check-input" @bind-Value="producto.EsInalámbrico" id="esInalambrico" />
+                                                    <label class="form-check-label" for="esInalambrico">Es Inalámbrico</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (producto.CategoriaId == 2)
+                            {
+                                <div class="card mt-3">
+                                    <div class="card-header bg-light">
+                                        <strong>Características de Mouse</strong>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-check mb-3">
+                                                    <InputCheckbox class="form-check-input" @bind-Value="producto.EsInalámbrico" id="mouseInalambrico" />
+                                                    <label class="form-check-label" for="mouseInalambrico">Es Inalámbrico</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-check mb-3">
+                                                    <InputCheckbox class="form-check-input" @bind-Value="producto.EsIluminado" id="mouseIluminado" />
+                                                    <label class="form-check-label" for="mouseIluminado">Tiene Iluminación RGB</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (producto.CategoriaId == 3)
+                            {
+                                <div class="card mt-3">
+                                    <div class="card-header bg-light">
+                                        <strong>Características de Audífonos</strong>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-check mb-3">
+                                                    <InputCheckbox class="form-check-input" @bind-Value="producto.EsInalámbrico" id="audifonosInalambrico" />
+                                                    <label class="form-check-label" for="audifonosInalambrico">Es Inalámbrico</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-check mb-3">
+                                                    <InputCheckbox class="form-check-input" @bind-Value="producto.EsIluminado" id="audifonosIluminado" />
+                                                    <label class="form-check-label" for="audifonosIluminado">Tiene Iluminación RGB</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            <div class="card mt-3">
+                                <div class="card-header bg-light">
+                                    <strong>Tipos de Conexión</strong>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" @bind="tieneUSB_C" id="conexionUSB_C" />
+                                                <label class="form-check-label" for="conexionUSB_C">USB-C</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" @bind="tieneUSB_A" id="conexionUSB_A" />
+                                                <label class="form-check-label" for="conexionUSB_A">USB-A</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" @bind="tieneBluetooth" id="conexionBluetooth" />
+                                                <label class="form-check-label" for="conexionBluetooth">Bluetooth</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" @bind="tiene24GHz" id="conexion24GHz" />
+                                                <label class="form-check-label" for="conexion24GHz">2.4GHz Inalámbrico</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" @bind="tieneCableDesmontable" id="conexionCable" />
+                                                <label class="form-check-label" for="conexionCable">Cable Desmontable</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check mb-2">
+                                                <InputCheckbox class="form-check-input" @bind-Value="producto.EsDestacado" id="esDestacado" />
+                                                <label class="form-check-label" for="esDestacado">Producto Destacado</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 d-flex justify-content-center gap-2">
+                                <a href="/admin/manage" class="btn btn-outline-danger">
+                                    <i class="bi bi-arrow-left"></i> Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-warning" disabled="@guardando">
+                                    @if (guardando)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2"></span>
+                                    }
+                                    <i class="bi bi-floppy"></i> Actualizar Producto
+                                </button>
+                                <button type="button" class="btn btn-outline-danger" @onclick="MostrarConfirmacionEliminar">
+                                    <i class="bi bi-trash"></i> Eliminar Producto
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-info text-white">
+                            <strong><i class="bi bi-image"></i> Imagen del Producto</strong>
+                        </div>
+                        <div class="card-body text-center">
+                            @if (subiendoImagen)
+                            {
+                                <div class="d-flex justify-content-center align-items-center bg-light rounded"
+                                     style="height: 250px; border: 2px dashed #dee2e6;">
+                                    <div class="text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Subiendo...</span>
+                                        </div>
+                                        <p class="mt-2 mb-0">Subiendo imagen...</p>
+                                    </div>
+                                </div>
+                            }
+                            else if (!string.IsNullOrEmpty(producto.ImagenUrl))
+                            {
+                                <div class="mb-3">
+                                    <img src="@producto.ImagenUrl" alt="Preview"
+                                         class="img-fluid rounded shadow-sm border"
+                                         style="max-height: 300px; max-width: 100%; object-fit: cover;" />
+                                </div>
+                                <button type="button" class="btn btn-outline-danger btn-sm" @onclick="EliminarImagen">
+                                    <i class="bi bi-trash"></i> Eliminar Imagen
+                                </button>
+                            }
+                            else
+                            {
+                                <div class="d-flex justify-content-center align-items-center bg-light rounded"
+                                     style="height: 250px; border: 2px dashed #dee2e6;">
+                                    <div class="text-center text-muted">
+                                        <i class="bi bi-image display-1"></i>
+                                        <p class="mt-2 mb-0">No hay imagen seleccionada</p>
+                                        <small>Sube una imagen del producto</small>
+                                    </div>
+                                </div>
+                            }
+
+                            <div class="mt-3">
+                                <label class="form-label fw-bold">Cambiar Imagen del Producto</label>
+                                <InputFile OnChange="SubirImagen" class="form-control" accept="image/*" />
+                                <small class="form-text text-muted">
+                                    <i class="bi bi-info-circle"></i>
+                                    Formatos: JPG, PNG, GIF, WEBP | Máximo: 5MB
+                                </small>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(mensajeImagen))
+                            {
+                                <div class="alert @(mensajeImagen.Contains("Error") ? "alert-danger" : "alert-info") mt-3" role="alert">
+                                    <small>@mensajeImagen</small>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm mt-3">
+                        <div class="card-header bg-secondary text-white">
+                            <strong><i class="bi bi-info-circle"></i> Información del Producto</strong>
+                        </div>
+                        <div class="card-body">
+                            <small>
+                                <strong>ID del Producto:</strong> @producto.Id<br>
+                                <strong>Categoría Actual:</strong> @ObtenerNombreCategoria(producto.CategoriaId)<br>
+                                <strong>Creado:</strong> Producto existente<br>
+                                <strong>Estado:</strong> @(producto.Stock > 0 ? $"En stock ({producto.Stock})" : "Sin stock")<br>
+                                @if (producto.EsDestacado)
+                                {
+                                    <strong>⭐ Producto Destacado</strong>
+                                    <br>
+                                }
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm mt-3">
+                        <div class="card-header bg-warning text-dark">
+                            <strong><i class="bi bi-lightbulb"></i> Ayuda</strong>
+                        </div>
+                        <div class="card-body">
+                            <small>
+                                <strong>Categorías disponibles:</strong><br>
+                                • <strong>Teclados:</strong> Gaming, mecánicos, RGB<br>
+                                • <strong>Mouse:</strong> Gaming, inalámbricos, ergonómicos<br>
+                                • <strong>Audífonos:</strong> Gaming, inalámbricos, con micrófono<br><br>
+                                <strong>Campos obligatorios:</strong><br>
+                                • Nombre, Categoría, Precio y Stock<br><br>
+                                <strong>Conexiones:</strong><br>
+                                • Puedes seleccionar múltiples tipos de conexión
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </EditForm>
+}
+
+@if (mostrarModalEliminar)
+{
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-exclamation-triangle text-danger"></i>
+                        Eliminar Producto
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro que deseas eliminar este producto?</p>
+                    <div class="alert alert-warning">
+                        <strong>@producto?.Nombre</strong><br>
+                        <small>Esta acción no se puede deshacer y se eliminará la imagen asociada.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CancelarEliminacion">
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn btn-danger" @onclick="ConfirmarEliminacion" disabled="@eliminandoProducto">
+                        @if (eliminandoProducto)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                        }
+                        <i class="bi bi-trash"></i> Eliminar Definitivamente
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    public Producto? producto { get; set; }
+    private bool isLoading = true;
+    private bool guardando = false;
+    private bool eliminandoProducto = false;
+    private bool subiendoImagen = false;
+    private bool mostrarModalEliminar = false;
+    private string mensajeImagen = string.Empty;
+    private string mensaje = string.Empty;
+    private bool esError = false;
+
+    private bool tieneUSB_C = false;
+    private bool tieneUSB_A = true;
+    private bool tieneBluetooth = false;
+    private bool tiene24GHz = false;
+    private bool tieneCableDesmontable = false;
+
+    private const long MaxFileSize = 5 * 1024 * 1024;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        await CargarProducto();
+        if (producto != null)
+        {
+            InicializarCheckboxesConexion();
+        }
+        isLoading = false;
+    }
+
+    private async Task CargarProducto()
+    {
+        try
+        {
+            producto = await context.Productos
+                .FirstOrDefaultAsync(p => p.Id == Id);
+
+            if (producto == null)
+            {
+                mensaje = "Producto no encontrado.";
+                esError = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            mensaje = $"Error cargando producto: {ex.Message}";
+            esError = true;
+            producto = null;
+        }
+    }
+
+    private void InicializarCheckboxesConexion()
+    {
+        if (producto == null) return;
+
+        tieneUSB_C = false;
+        tieneUSB_A = false;
+        tieneBluetooth = false;
+        tiene24GHz = false;
+        tieneCableDesmontable = false;
+
+        switch (producto.TipoConexion)
+        {
+            case TipoConexion.USB_C:
+                tieneUSB_C = true;
+                break;
+            case TipoConexion.USB_A:
+                tieneUSB_A = true;
+                break;
+            case TipoConexion.Bluetooth:
+                tieneBluetooth = true;
+                break;
+            case TipoConexion.Inalambrico_2_4GHz:
+                tiene24GHz = true;
+                break;
+            case TipoConexion.Cable_Desmontable:
+                tieneCableDesmontable = true;
+                break;
+        }
+    }
+
+    private void OnCategoriaChanged(ChangeEventArgs e)
+    {
+        if (producto != null && int.TryParse(e.Value?.ToString(), out int categoriaId))
+        {
+            var categoriaAnterior = producto.CategoriaId;
+            producto.CategoriaId = categoriaId;
+
+            if (categoriaAnterior != categoriaId)
+            {
+                if (categoriaId != 1)
+                {
+                    producto.Layout = string.Empty;
+                    producto.Size = string.Empty;
+                    producto.EsMecánico = false;
+                    producto.TipoSwitch = TipoSwitch.Rojo_Linear;
+                }
+            }
+
+            StateHasChanged();
+        }
+    }
+
+    private string ObtenerTiposConexion()
+    {
+        var conexiones = new List<string>();
+
+        if (tieneUSB_C) conexiones.Add("USB-C");
+        if (tieneUSB_A) conexiones.Add("USB-A");
+        if (tieneBluetooth) conexiones.Add("Bluetooth");
+        if (tiene24GHz) conexiones.Add("2.4GHz");
+        if (tieneCableDesmontable) conexiones.Add("Cable Desmontable");
+
+        return string.Join(", ", conexiones);
+    }
+
+    private async Task SubirImagen(InputFileChangeEventArgs e)
+    {
+        mensajeImagen = string.Empty;
+        var archivo = e.File;
+
+        if (archivo != null && producto != null)
+        {
+            try
+            {
+                subiendoImagen = true;
+                StateHasChanged();
+
+                if (!ImagenService.ValidarImagen(archivo))
+                {
+                    mensajeImagen = "Error: Archivo no válido. Use JPG, PNG, GIF o WEBP. Máximo 5MB.";
+                    return;
+                }
+
+                var imagenAnterior = producto.ImagenUrl;
+
+                var rutaImagen = await ImagenService.SubirImagenAsync(archivo, "productos");
+
+                if (!string.IsNullOrEmpty(imagenAnterior))
+                {
+                    try
+                    {
+                        await ImagenService.EliminarImagenAsync(imagenAnterior);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error eliminando imagen anterior: {ex.Message}");
+                    }
+                }
+
+                producto.ImagenUrl = rutaImagen;
+                mensajeImagen = "Imagen actualizada correctamente.";
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                mensajeImagen = $"Error al subir imagen: {ex.Message}";
+            }
+            finally
+            {
+                subiendoImagen = false;
+                StateHasChanged();
+            }
+        }
+    }
+
+    private async Task EliminarImagen()
+    {
+        if (producto == null) return;
+
+        try
+        {
+            if (!string.IsNullOrEmpty(producto.ImagenUrl))
+            {
+                await ImagenService.EliminarImagenAsync(producto.ImagenUrl);
+                producto.ImagenUrl = string.Empty;
+                mensajeImagen = "Imagen eliminada.";
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            mensajeImagen = $"Error al eliminar imagen: {ex.Message}";
+        }
+    }
+
+    public async Task ActualizarProducto()
+    {
+        if (producto == null) return;
+
+        try
+        {
+            guardando = true;
+            mensaje = string.Empty;
+            StateHasChanged();
+
+            if (string.IsNullOrWhiteSpace(producto.Nombre))
+            {
+                mensaje = "Error: El nombre del producto es requerido.";
+                esError = true;
+                return;
+            }
+
+            if (producto.CategoriaId == 0)
+            {
+                mensaje = "Error: Debe seleccionar una categoría.";
+                esError = true;
+                return;
+            }
+
+            if (producto.Precio <= 0)
+            {
+                mensaje = "Error: El precio debe ser mayor a 0.";
+                esError = true;
+                return;
+            }
+
+            if (producto.Stock < 0)
+            {
+                mensaje = "Error: El stock no puede ser negativo.";
+                esError = true;
+                return;
+            }
+
+            var tiposConexion = ObtenerTiposConexion();
+            if (!string.IsNullOrEmpty(tiposConexion))
+            {
+            }
+
+            context.Productos.Update(producto);
+            await context.SaveChangesAsync();
+
+            mensaje = "Producto actualizado exitosamente.";
+            esError = false;
+
+            await Task.Delay(1500);
+            if (!esError)
+            {
+                NavigationManager.NavigateTo("/admin/manage");
+            }
+        }
+        catch (DbUpdateConcurrencyException concurrencyEx)
+        {
+            mensaje = "Error: El producto fue modificado por otro usuario. Por favor, recarga la página e intenta de nuevo.";
+            esError = true;
+            Console.WriteLine($"Error de concurrencia: {concurrencyEx.Message}");
+        }
+        catch (DbUpdateException dbEx)
+        {
+            var innerMessage = dbEx.InnerException?.Message ?? dbEx.Message;
+
+            if (innerMessage.Contains("UNIQUE") || innerMessage.Contains("duplicate"))
+            {
+                mensaje = "Error: Ya existe un producto con ese nombre.";
+            }
+            else if (innerMessage.Contains("FOREIGN KEY"))
+            {
+                mensaje = "Error: La categoría seleccionada no es válida.";
+            }
+            else
+            {
+                mensaje = $"Error de base de datos: {innerMessage}";
+            }
+
+            esError = true;
+            Console.WriteLine($"Error de BD: {dbEx}");
+        }
+        catch (Exception ex)
+        {
+            mensaje = $"Error inesperado: {ex.Message}";
+            esError = true;
+            Console.WriteLine($"Error general: {ex}");
+        }
+        finally
+        {
+            guardando = false;
+            StateHasChanged();
+        }
+    }
+
+    private void MostrarConfirmacionEliminar()
+    {
+        mostrarModalEliminar = true;
+    }
+
+    private void CancelarEliminacion()
+    {
+        mostrarModalEliminar = false;
+    }
+
+    private async Task ConfirmarEliminacion()
+    {
+        if (producto == null) return;
+
+        try
+        {
+            eliminandoProducto = true;
+            StateHasChanged();
+
+            if (!string.IsNullOrEmpty(producto.ImagenUrl))
+            {
+                try
+                {
+                    await ImagenService.EliminarImagenAsync(producto.ImagenUrl);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error eliminando imagen: {ex.Message}");
+                }
+            }
+
+            context.Productos.Remove(producto);
+            await context.SaveChangesAsync();
+
+            NavigationManager.NavigateTo("/admin/manage");
+        }
+        catch (DbUpdateException dbEx)
+        {
+            var innerMessage = dbEx.InnerException?.Message ?? dbEx.Message;
+
+            if (innerMessage.Contains("FOREIGN KEY") || innerMessage.Contains("REFERENCE"))
+            {
+                mensaje = "Error: No se puede eliminar el producto porque está siendo usado en otras partes del sistema.";
+            }
+            else
+            {
+                mensaje = $"Error de base de datos al eliminar: {innerMessage}";
+            }
+
+            esError = true;
+            mostrarModalEliminar = false;
+            Console.WriteLine($"Error eliminando producto: {dbEx}");
+        }
+        catch (Exception ex)
+        {
+            mensaje = $"Error eliminando producto: {ex.Message}";
+            esError = true;
+            mostrarModalEliminar = false;
+            Console.WriteLine($"Error general eliminando: {ex}");
+        }
+        finally
+        {
+            eliminandoProducto = false;
+            StateHasChanged();
+        }
+    }
+
+    private string ObtenerNombreCategoria(int categoriaId)
+    {
+        return categoriaId switch
+        {
+            1 => "Teclados",
+            2 => "Mouse",
+            3 => "Audífonos",
+            _ => "Categoría"
+        };
+    }
+}
